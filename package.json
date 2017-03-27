@@ -1,0 +1,30 @@
+{
+  "name": "duty",
+  "author": "zombieleet",
+  "description": "Duty is a todo list manager will cool features",
+  "scripts": {
+    "duty": "./duty"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "colors": "^1.1.2",
+    "mkdirp": "^0.5.1"
+  },
+  "license": "MIT",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zombieleet/duty.git"
+  },
+  "keywords": [
+    "todo",
+    "duty",
+    "task",
+    "project"
+  ],
+  "bugs": {
+    "url": "https://github.com/zombieleet/duty/issues"
+  },
+  "homepage": "https://github.com/zombieleet/duty#readme"
+}
