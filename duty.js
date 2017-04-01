@@ -186,28 +186,41 @@ class DutyTodo {
 	    return false;	    
 	}
 	
-	let gen = this.IterateTodo(),
-	    _n = gen.next(),
-	    hashRegex = new RegExp(`^${hash}`),
-	    found = false;
-	
-	while ( ! _n.done ) {
-	    if ( hashRegex.test(_n.value.hash) ) {
-		let { content, hash } = _n.value;
-		let { location , m } = this.MANAGER;
-		found = true;
-		let regex = new RegExp(regexp);
-		_n.value.content = content = `${content.replace(regex,text)}`;
+	let { location , m } = this.MANAGER;
+	let hashRegex = new RegExp(`^${hash}`),
+	    j = 0,
+	    regex = new RegExp(regexp),
+	    cb = ({hash,content}) => {
+		j++;
+		if ( hashRegex.test(hash) ) {
+		    content = `${content.replace(regex,text)}`;
+		    let newHash = crypto.createHash('sha256').update(content)
+			    .digest('hex'),
+			mDate = new Date(),
+			modifiedDate = mDate.toLocaleDateString(),
+			longHash = newHash;
+
+		    newHash = newHash.slice(0, newHash.length - 55);
+		    m[newHash] = Object.create({});
+		    Object.assign(m[newHash],m[hash],{
+			content,
+			longHash,
+			hash: newHash,
+			modifiedDate
+		    });
+		    delete m[hash];
+		    return true;
+		} else if ( Object.keys(m).length === j ) {
+		    return false;
+		};
+	    };
+
+	DutyTodo.CALLGENERATORYLOOP(this,cb)
+	    .then( _ => {
 		DutyTodo.WriteFile({location,m});
-		break;
-	    }
-	    _n = gen.next();
-	}
-	if ( ! found ) {
-	    DutyTodo.ErrMessage(`${hash} was not found`);
-	    return false;
-	}
-	return true;	
+	    }).catch( _ => {
+		DutyTodo.ErrMessage(`${hash} was not found`);
+	    });
     }
     notcompleted() {
     }
