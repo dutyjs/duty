@@ -34,7 +34,11 @@ class DutyTodo {
 		//   modified object
 		
 		f = cb(_n.value);
-
+		
+		// different values will be returned
+		//  so f === false and f === true
+		//  is not that so bad here
+		
 		if ( f === false ) {
 		    reject();
 		    isFound = true;
@@ -81,6 +85,10 @@ class DutyTodo {
     }    
     *IterateTodo() {
 	let { m } = this.MANAGER;
+	// Object.keys and Object.entries
+	//   in this case i choose to use Object.keys
+	//   because Object.entries shows you the members of all
+	//   the objects, and that is wanted is just the property names
 	for ( let todos  of Object.keys(m) ) {
 	    yield m[todos];
 	}
@@ -193,6 +201,8 @@ class DutyTodo {
 	    cb = ({hash,content}) => {
 		j++;
 		if ( hashRegex.test(hash) ) {
+		    // since the content change,
+		    //   the hash is suppose to change too
 		    content = `${content.replace(regex,text)}`;
 		    let newHash = crypto.createHash('sha256').update(content)
 			    .digest('hex'),
@@ -222,10 +232,6 @@ class DutyTodo {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
     }
-    notcompleted() {
-    }
-    completed() {
-    }
     markcompleted({hash}) {
 	if ( ! hash ) {
 	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
@@ -234,19 +240,120 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
 	    return false;
 	}
+	let {location,m} = this.MANAGER,
+	    hashRegex = new RegExp(`^${hash}`),
+	    j = 0,
+	    cb = ({hash,completed}) => {
+		j++;
+		if ( hashRegex.test(hash) && ! completed ) {
+		    Object.assign(m[hash], { completed: true });
+		    return true;
+		} else if (hashRegex.test(hash) && completed ) {
+		    return true;
+		} else if ( Object.keys(m).length === j ) {
+		    return false;
+		}
+	    };
 	
+	DutyTodo.CALLGENERATORYLOOP(this,cb)
+	    .then( _ => {
+		DutyTodo.WriteFile({location,m});
+	    }).catch( _ => {
+		DutyTodo.ErrMessage(`${hash} was not found`);
+	    });
+	
+	
+    }
+    note({hash,note}) {
+	if ( ! hash ) {
+	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
+	    return false;
+	} else if ( hash.length <= 4 ) {
+	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
+	    return false;
+	} else if ( ! note ) {
+	    DutyTodo.ErrMessage(`note is not defined`);
+	    return false;	    
+	}
+	
+	let {location,m} = this.MANAGER,
+	    hashRegex = new RegExp(`^${hash}`),
+	    j = 0,
+	    cb = ({hash}) => {
+		j++;
+		if ( hashRegex.test(hash) && ! m[hash].note ) {
+
+		    Object.assign(m[hash], { note });
+		    console.log(m[hash]);
+		    return true;
+		    
+		} else if ( hashRegex.test(hash) && m[hash].note ) {
+		    
+		    note = `${m[hash].note} ${note}`;
+
+		    Object.assign(m[hash], { note });
+		    console.log(m[hash]);
+		    return true;
+		} else if ( Object.keys(m).length === j ) {
+		    return false;
+		}
+	    }
+
+	DutyTodo.CALLGENERATORYLOOP(this,cb)
+	    .then( _ => {
+		DutyTodo.WriteFile({location,m});
+	    }).catch( _ => {
+		DutyTodo.ErrMessage(`${hash} was not found`);
+	    });
+	
+    }
+    removenote({hash}) {
+	
+	if ( ! hash ) {
+	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
+	    return false;
+	} else if ( hash.length <= 4 ) {
+	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
+	    return false;
+	}
+
+	let {location,m} = this.MANAGER,
+	    hashRegex = new RegExp(`^${hash}`),
+	    j = 0,
+	    cb = ({hash}) => {
+		j++;
+		if ( hashRegex.test(hash) && m[hash].note ) {
+		    delete m[hash].note;
+		    return true;
+		} else if (hashRegex.test(hash) && ! m[hash].note ) {
+		    return true;
+		} else if ( Object.keys(m).length === j ) {
+		    return false;
+		}
+	    };
+	
+	DutyTodo.CALLGENERATORYLOOP(this,cb)
+	    .then( _ => {
+		DutyTodo.WriteFile({location,m});
+	    }).catch( _ => {
+		DutyTodo.ErrMessage(`${hash} was not found`);
+	    });
+	
+    }
+    notcompleted() {
+    }
+    completed() {
     }
     read() {
     }
-    annotate() {
-    }
+
     delete() {
-    }
-    removeAnnotate() {
     }
     setPriority() {
     }
     category() {
+	// coming soon, this requires the entire API
+	//   of this program to change
     }
     
 }
