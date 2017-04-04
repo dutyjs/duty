@@ -37,7 +37,7 @@ class DutyTodo {
 		
 		// different values will be returned
 		//  so f === false and f === true
-		//  is not that so bad here
+		//  is not a bad coding practice
 		
 		if ( f === false ) {
 		    reject();
@@ -316,7 +316,7 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
 	    return false;
 	}
-
+	
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
@@ -345,11 +345,114 @@ class DutyTodo {
     completed() {
     }
     read() {
+	// completed
+	// notcompleted
+	// pending
+	// today
+	// waiting
+	// tomorrow
     }
+    deleteAll() {
+	
+	let {location,m} = this.MANAGER;
 
-    delete() {
+	delete this.MANAGER[m];
+	
+	m = {};
+	
+	DutyTodo.WriteFile({location,m});
+	
+	return true;
     }
-    setPriority() {
+    deleteCompleted() {
+	let {location,m} = this.MANAGER,
+	    isDelete,j = 0,
+	    
+	    cb = ({hash,completed}) => {
+		j++;
+		if ( completed ) {
+		    delete m[hash];
+		    isDelete = true;
+		    j--;
+		}
+		
+		if ( ! isDelete && Object.keys(m).length === j ) {
+		    return false;
+		} else if ( isDelete && Object.keys(m).length === j ) {
+
+		    return true;
+		}
+	    };
+	
+	DutyTodo.CALLGENERATORYLOOP(this,cb)
+	    .then( _ => {
+		DutyTodo.WriteFile({location,m});
+		process.stdout.write(`completed todos have been deleted\n`);
+	    }).catch( _ => {
+		DutyTodo.ErrMessage(`Nothing was removed`);
+	    });
+    }
+    deleteByHash({hash}) {
+	if ( ! hash ) {
+	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
+	    return false;
+	} else if ( hash.length <= 4 ) {
+	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
+	    return false;
+	}
+
+	let {location,m} = this.MANAGER,
+	    hashRegex = new RegExp(`^${hash}`),
+	    j = 0,
+	    cb = ({hash}) => {
+		j++;
+		if ( hashRegex.test(hash) ) {
+		    delete m[hash];
+		    return true;
+		} else if ( Object.keys(m).length === j ) {
+		    return false;
+		}		
+	    };
+	
+	DutyTodo.CALLGENERATORYLOOP(this,cb)
+	    .then( _ => {
+		DutyTodo.WriteFile({location,m});
+	    }).catch( _ => {
+		DutyTodo.ErrMessage(`${hash} was not found`);
+	    });
+	
+    }
+    setPriority({hash,priority}) {
+	if ( ! hash ) {
+	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
+	    return false;
+	} else if ( hash.length <= 4 ) {
+	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
+	    return false;
+	} else if ( (! priority) || (priority !== 'critical' && priority !== 'notcritical') ) {
+	    DutyTodo.ErrMessage(`only priority critical and notcritical is accepted`);
+	    return false;	    
+	}
+
+	let {location,m} = this.MANAGER,
+	    hashRegex = new RegExp(`^${hash}`),
+	    j = 0,
+	    cb = ({hash}) => {
+		j++;
+		if ( hashRegex.test(hash) ) {
+		    Object.assign(m[hash], { priority });
+		    return true;
+		} else if ( Object.keys(m).length === j ) {
+		    return false;
+		}		
+	    };
+	DutyTodo.CALLGENERATORYLOOP(this,cb)
+	    .then( _ => {
+		DutyTodo.WriteFile({location,m});
+	    }).catch( _ => {
+		DutyTodo.ErrMessage(`${hash} was not found`);
+	    });
+	
     }
     category() {
 	// coming soon, this requires the entire API
