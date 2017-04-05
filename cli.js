@@ -9,11 +9,14 @@ const ff = require('./index.js');
 
 //ff.delete({hash:"e5fb33034"});
 
-ff.deleteCompleted();
+//ff.deleteCompleted();
 
 //ff.add('this is victory the long liver ' + process.argv[2]);
 //ff.add('this is favour ' + process.argv[1]);
 
 //ff.markcompleted({hash:"3d89c7e6b"})
+
+ff.read('completed');
+//ff.markcompleted({hash:"002081f90"});
 
 module.exports = ff;

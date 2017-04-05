@@ -1,7 +1,8 @@
 const colors = require('colors');
 const crypto = require('crypto');
 const fs = require('fs');
-
+const ReadTodo = require('./readtodo');
+const util = require('util');
 class DutyTodo {
     constructor({m,location}) {
 	this.MANAGER = {
@@ -340,17 +341,31 @@ class DutyTodo {
 	    });
 	
     }
-    notcompleted() {
-    }
-    completed() {
-    }
-    read() {
+    read(type) {
+	
 	// completed
 	// notcompleted
 	// pending
 	// today
 	// waiting
 	// tomorrow
+	
+	if ( ! type ) {
+	    DutyTodo.ErrMessage(`type ${type} is not supported`);
+	    return false;
+	}
+
+	try {
+	    const p = ReadTodo.createType(
+		type,
+		this,
+		DutyTodo);
+	    p.handleRead();
+	} catch (ex) {
+	    console.log(ex);
+	    DutyTodo.ErrMessage(`${type} is not supported`);
+	    return false;
+	}
     }
     deleteAll() {
 	
