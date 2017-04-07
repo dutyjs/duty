@@ -21,8 +21,6 @@ class ReadTodo {
     static createType(type,opt,_this,DutyTodo) {
 	return new ReadTodo({type,opt,_this,DutyTodo});
     }
-    static DATE_CHECK() {
-    }
     handleRead() {
 	this[this.type]();
     }
@@ -66,7 +64,7 @@ class ReadTodo {
 		    return true;
 		}
 	    };
-
+	
 	DutyTodo.CALLGENERATORYLOOP(this._this,cb)
 	    .catch( _ => {
 		process.stdout.write(`nothing complete to read\n`);
@@ -75,13 +73,17 @@ class ReadTodo {
     }
     date() {
 	let { DutyTodo, _this: {MANAGER: {m} } } = this,
-	    { date: _userDate } = this._opt,
+	    { date: _userDate , modifiedDate: _userModifiedDate} = this._opt,
 	    isRead = false,j = 0,
-	    cb = ({date,hash}) => {
+	    cb = ({date,modifiedDate,hash}) => {
 		j++;
-		if ( date === _userDate ) {
+		if ( (_userDate && date === _userDate) && (_userModifiedDate && modifiedDate === _userModifiedDate)
+		   ) {
 		    console.log(m[hash]);
-		    isRead = true;
+		    isRead = true; 
+		} else if ( (_userDate && date === _userDate) && !_userModifiedDate ) {
+		    console.log(m[hash]);
+		    isRead = true; 
 		}
 		
 		if ( ! isRead && Object.keys(m).length === j ) {
@@ -96,29 +98,7 @@ class ReadTodo {
 		process.stdout.write(`no match for the specified date was found\n`);
 	    });
     }
-    modifiedDate() {
-	let { DutyTodo, _this: {MANAGER: {m} } } = this,
-	    { date: _userDate } = this._opt,
-	    isRead = false,j = 0,
-	    cb = ({modifiedDate,hash}) => {
-		j++;
-		if ( modifiedDate === _userDate ) {
-		    console.log(m[hash]);
-		    isRead = true;
-		}
-		
-		if ( ! isRead && Object.keys(m).length === j ) {
-		    return false;
-		} else if ( isRead && Object.keys(m).length === j ) {
-		    return true;
-		}
-	    };
-
-	DutyTodo.CALLGENERATORYLOOP(this._this,cb)
-	    .catch( _ => {
-		process.stdout.write(`no match for the specified date was found\n`);
-	    });
-    }
+    
     
 }
 module.exports = ReadTodo;

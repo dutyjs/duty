@@ -352,11 +352,11 @@ class DutyTodo {
 	// today
 	// waiting
 	// tomorrow
-	let { date } = opt;
+	let { date , modifiedDate} = opt;
 	if ( ! type ) {
 	    DutyTodo.ErrMessage(`type ${type} is not supported`);
 	    return false;
-	} else if ( type === 'date' && ! date ) {
+	} else if ( type === 'date' && ( ! date && ! modifiedDate)) {
 	    DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in dd/mm/yy`);
 	    return false;
 	}
@@ -444,6 +444,21 @@ class DutyTodo {
 	    });
 	
     }
+    urgency({hash,urgency}) {
+	if ( ! hash ) {
+	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
+	    return false;
+	} else if ( hash.length <= 4 ) {
+	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
+	    return false;
+	} else if ( ! urgency ) {
+	    DutyTodo.ErrMessage(`require urgency argument to be set`);
+	    return false;	    
+	}
+
+	
+	
+    }
     setPriority({hash,priority}) {
 	if ( ! hash ) {
 	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
@@ -451,9 +466,16 @@ class DutyTodo {
 	} else if ( hash.length <= 4 ) {
 	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
 	    return false;
-	} else if ( (! priority) || (priority !== 'critical' && priority !== 'notcritical') ) {
-	    DutyTodo.ErrMessage(`only priority critical and notcritical is accepted`);
+	} else if ( ! priority ) {
+	    DutyTodo.ErrMessage(`required proirity argument to be set`);
 	    return false;	    
+	} else if ( priority ) {
+	    switch(priority) {
+	    case "critical": break;
+	    case "notcritical": break;
+	    default:
+		DutyTodo.ErrMessage(`invalid priority type. Use critical or not critical`);
+	    }
 	}
 
 	let {location,m} = this.MANAGER,
