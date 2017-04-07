@@ -1,22 +1,8 @@
 const ff = require('./index.js');
-//ff.replace({
-  //  hash:"f3eedc419",
-    //regexp: "favour",
-//text:"my fine sister"
-//});
 
-//ff.removenote({hash:"e5fb33034"});
+//ff.markcompleted({hash:'8f4343466'});
+//ff.read('notcompleted');
+//ff.read('date',{date:'4/7/2017'});
 
-//ff.delete({hash:"e5fb33034"});
-
-//ff.deleteCompleted();
-
-//ff.add('this is victory the long liver ' + process.argv[2]);
-//ff.add('this is favour ' + process.argv[1]);
-
-//ff.markcompleted({hash:"3d89c7e6b"})
-
-ff.read('completed');
-//ff.markcompleted({hash:"002081f90"});
-
+ff.append({hash:'8f4343466',text:' hello world'});
 module.exports = ff;

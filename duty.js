@@ -22,7 +22,6 @@ class DutyTodo {
 	    const gen = _this.IterateTodo();
 	    
 	    let _n = gen.next(),
-		isFound = false,
 		f ;
 	    
 	    while ( ! _n.done  ) {
@@ -42,18 +41,17 @@ class DutyTodo {
 		
 		if ( f === false ) {
 		    reject();
-		    isFound = true;
 		    break;
 		} else if ( f === true ) {
 		    resolve();
-		    isFound = false;
 		    break;
-		}
+		} 
 		_n = gen.next();
 	    }
 	    
 	});
     }
+
     static ErrMessage(msg) {
 	process.stderr.write(`${msg}\n`.red);
     }
@@ -101,18 +99,23 @@ class DutyTodo {
 	    return false;
 	}
 	
-	let hash = crypto.createHash('sha256').update(todo).digest('hex');
-
-	const manager= this.MANAGER;
+	let hash = crypto.createHash('sha256').update(todo).digest('hex')
+	,manager,
+	    {m} = manager = this.MANAGER;
 	
 	if ( ! DutyTodo.NotEmpty(manager) ) {
 	    DutyTodo.SaveTodo({manager,hash,todo});
 	    return true;
 	}
-	
+	let j = 0,
+	    isAdded = false;
 	let cb = ({ longHash }) => {
+	    j++;
 	    if ( longHash === hash ) {
+		isAdded = true;
 		return false;
+	    } else if ( (Object.keys(m).length === j) && (! isAdded) ) {
+		return true;
 	    }
 	};
 	
@@ -341,7 +344,7 @@ class DutyTodo {
 	    });
 	
     }
-    read(type) {
+    read(type,opt = {}) {
 	
 	// completed
 	// notcompleted
@@ -349,15 +352,19 @@ class DutyTodo {
 	// today
 	// waiting
 	// tomorrow
-	
+	let { date } = opt;
 	if ( ! type ) {
 	    DutyTodo.ErrMessage(`type ${type} is not supported`);
+	    return false;
+	} else if ( type === 'date' && ! date ) {
+	    DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in dd/mm/yy`);
 	    return false;
 	}
 
 	try {
 	    const p = ReadTodo.createType(
 		type,
+		opt,
 		this,
 		DutyTodo);
 	    p.handleRead();
