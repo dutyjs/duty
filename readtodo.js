@@ -23,18 +23,44 @@ class ReadTodo {
     }
     handleRead() {
 	
-	let _matched = this.type.match(/^urgency:([a-z]+)$/);
+	let _matched = this.type.match(/^(urgency|category):([a-z]+)$/);
 	
-	const [,_urgency] = _matched ? _matched : [,undefined];
-	
-	if ( _urgency ) {
-	    this.urgencyRead(_urgency);
+	const [,type,_typeOfType] = _matched ? _matched : [,undefined,undefined];
+	if ( _typeOfType ) {
+	    this[type](_typeOfType);
 	    return ;
 	}
 	
 	this[this.type]();
     }
-    urgencyRead(urgencyType) {
+    category(categoryType) {
+	let { DutyTodo, _this: {MANAGER: {m} } } = this,
+	    isRead = false, j = 0,
+	    cb = ({hash,category}) => {
+		j++;
+		if ( category && Array.isArray(category) ) {
+		    let _isFoundInArray = category
+			    .some( _x => _x === categoryType);
+		    
+		    if ( _isFoundInArray ) {
+			isRead = true;
+			console.log(m[hash]);
+		    }
+		}
+		
+		if ( ! isRead && Object.keys(m).length === j ) {
+		    return false;
+		} else if ( isRead && Object.keys(m).length === j ) {
+		    return true;
+		}
+	    };
+	
+	DutyTodo.CALLGENERATORYLOOP(this._this,cb)
+	    .catch( _ => {
+		process.stdout.write(`no todo with such category\n`);
+	    });	
+    }
+    urgency(urgencyType) {
 	
 	let { DutyTodo, _this: {MANAGER: {m} } } = this;
 	switch(urgencyType) {
@@ -57,6 +83,7 @@ class ReadTodo {
 			    .some( _x => _x === urgencyType);
 		    
 		    if ( _isFoundInArray ) {
+			isRead = true;
 			console.log(m[hash]);
 		    }
 		}

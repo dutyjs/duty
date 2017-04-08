@@ -63,9 +63,8 @@ class DutyTodo {
     }
     static WriteFile({location, m}) {
 	fs.writeFileSync(location, JSON.stringify(m));
-	process.stdout.write(`changes have been saved`);
     }
-    static SaveTodo({manager: { m , location },hash,todo}) {
+    static SaveTodo({manager: { m , location },hash,todo,category}) {
 	
 	let longHash = hash;
 	
@@ -86,6 +85,18 @@ class DutyTodo {
 	    year,
 	    completed
 	};
+
+
+	if ( category && Array.isArray(category) ) {
+	    
+	    Object.assign(m[hash], { category });
+	    
+	} else if ( ! Array.isArray(category) ) {
+	    DutyTodo.ErrMessage(`expected category to be an array but got ${typeof(category)}`);
+	    
+	    return false;
+	}
+	
 	DutyTodo.WriteFile({location,m});
 	process.stdin.write(`New todo has been added\nTotal todo is ${Object.keys(m).length}\n`.green);
     }    
@@ -99,7 +110,7 @@ class DutyTodo {
 	    yield m[todos];
 	}
     }
-    add(todo = false) {
+    add({todo , category }) {
 
 	if ( ! todo ) {
 	    DutyTodo.ErrMessage(`A todo content needs to be added`);
@@ -111,7 +122,7 @@ class DutyTodo {
 	    {m} = manager = this.MANAGER;
 	
 	if ( ! DutyTodo.NotEmpty(manager) ) {
-	    DutyTodo.SaveTodo({manager,hash,todo});
+	    DutyTodo.SaveTodo({manager,hash,todo,category});
 	    return true;
 	}
 	let j = 0,
@@ -128,7 +139,7 @@ class DutyTodo {
 	
 	DutyTodo.CALLGENERATORYLOOP(this,cb)
 	    .then( _ => {
-		DutyTodo.SaveTodo({manager,hash,todo});
+		DutyTodo.SaveTodo({manager,hash,todo,category});
 	    })
 	    .catch( _ => {
 		DutyTodo.ErrMessage(`This todo already exists`);
@@ -154,9 +165,9 @@ class DutyTodo {
 	let hashRegex = new RegExp(`^${hash}`),
 	    { location , m } = this.MANAGER,
 	    j = 0,
-	    cb =  ({hash,content}) => {
+	    cb =  ({hash,longHash,content}) => {
 		j++;
-		if ( hashRegex.test(hash) ) {
+		if ( hashRegex.test(longHash) ) {
 		    content = `${content} ${text}`;
 		    
 		    let newHash = crypto.createHash('sha256').update(content)
@@ -209,9 +220,9 @@ class DutyTodo {
 	let hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
 	    regex = new RegExp(regexp),
-	    cb = ({hash,content}) => {
+	    cb = ({hash,longHash,content}) => {
 		j++;
-		if ( hashRegex.test(hash) ) {
+		if ( hashRegex.test(longHash) ) {
 		    // since the content change,
 		    //   the hash is suppose to change too
 		    content = `${content.replace(regex,text)}`;
@@ -254,12 +265,12 @@ class DutyTodo {
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
-	    cb = ({hash,completed}) => {
+	    cb = ({hash,longHash,completed}) => {
 		j++;
-		if ( hashRegex.test(hash) && ! completed ) {
+		if ( hashRegex.test(longHash) && ! completed ) {
 		    Object.assign(m[hash], { completed: true });
 		    return true;
-		} else if (hashRegex.test(hash) && completed ) {
+		} else if (hashRegex.test(longHash) && completed ) {
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
 		    return false;
@@ -290,15 +301,15 @@ class DutyTodo {
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
-	    cb = ({hash}) => {
+	    cb = ({hash,longHash}) => {
 		j++;
-		if ( hashRegex.test(hash) && ! m[hash].note ) {
+		if ( hashRegex.test(longHash) && ! m[hash].note ) {
 
 		    Object.assign(m[hash], { note });
 		    console.log(m[hash]);
 		    return true;
 		    
-		} else if ( hashRegex.test(hash) && m[hash].note ) {
+		} else if ( hashRegex.test(longHash) && m[hash].note ) {
 		    
 		    note = `${m[hash].note} ${note}`;
 
@@ -331,12 +342,12 @@ class DutyTodo {
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
-	    cb = ({hash}) => {
+	    cb = ({hash,longHash}) => {
 		j++;
-		if ( hashRegex.test(hash) && m[hash].note ) {
+		if ( hashRegex.test(longHash) && m[hash].note ) {
 		    delete m[hash].note;
 		    return true;
-		} else if (hashRegex.test(hash) && ! m[hash].note ) {
+		} else if (hashRegex.test(longHash) && ! m[hash].note ) {
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
 		    return false;
@@ -433,9 +444,9 @@ class DutyTodo {
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
-	    cb = ({hash}) => {
+	    cb = ({longHash,hash}) => {
 		j++;
-		if ( hashRegex.test(hash) ) {
+		if ( hashRegex.test(longHash) ) {
 		    delete m[hash];
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
@@ -478,9 +489,9 @@ class DutyTodo {
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
-	    cb = ({hash,urgency}) => {
+	    cb = ({hash,longHash,urgency}) => {
 		j++;
-		if ( hashRegex.test(hash) && Array.isArray(urgency) ) {
+		if ( hashRegex.test(longHash) && Array.isArray(urgency) ) {
 		    
 		    let _shouldPush = urgency.some( _x => _x === _urgency );
 		    
@@ -489,7 +500,7 @@ class DutyTodo {
 		    urgency.push(_urgency);
 		    Object.assign(m[hash], { urgency });
 		    return true;
-		} else if ( hashRegex.test(hash) && ! urgency ) {
+		} else if ( hashRegex.test(longHash) && ! urgency ) {
 		    let urgency = [];
 		    urgency.push(_urgency);
 		    Object.assign(m[hash], { urgency });
@@ -531,9 +542,9 @@ class DutyTodo {
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
-	    cb = ({hash}) => {
+	    cb = ({hash,longHash}) => {
 		j++;
-		if ( hashRegex.test(hash) ) {
+		if ( hashRegex.test(longHash) ) {
 		    Object.assign(m[hash], { priority });
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
@@ -548,9 +559,61 @@ class DutyTodo {
 	    });
 	
     }
-    category() {
-	// coming soon, this requires the entire API
-	//   of this program to change
+    categorize({hash,category}) {
+	
+	if ( ! hash ) {
+	    
+	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
+	    return false;
+	    
+	} else if ( hash.length <= 4 ) {
+	    
+	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
+	    return false;
+	    
+	} else if ( ! category || ! Array.isArray(category) ) {
+	    
+	    DutyTodo.ErrMessage(`expected category to be an array but got ${typeof(category)}`);
+	    return false;
+	    
+	}
+	
+	let {location,m} = this.MANAGER,
+	    hashRegex = new RegExp(`^${hash}`),
+	    j = 0,
+	    cb = ({hash,longHash,category:_jsonCategory}) => {
+		j++;
+		if ( hashRegex.test(longHash) && _jsonCategory ) {
+
+		    //category.forEach(cat => _jsonCategory.push(cat));
+		    
+		    category.filter( _x => ! _jsonCategory.includes(_x))
+			.forEach(_x => _jsonCategory.push(_x));
+		    
+		    Object.assign(m[hash], { category: _jsonCategory });
+		    
+		    return true;
+		    
+		} else if ( hashRegex.test(longHash) && ! _jsonCategory)  {
+		    
+		    _jsonCategory = [];
+		    
+		    category.forEach(cat => _jsonCategory.push(cat));
+		    Object.assign(m[hash], { category: _jsonCategory });
+		    
+		    return true;
+		} else if ( Object.keys(m).length === j ) {
+		    return false;
+		}		
+	    };
+	
+	DutyTodo.CALLGENERATORYLOOP(this,cb)
+	    .then( _ => {
+		DutyTodo.WriteFile({location,m});
+	    }).catch( _ => {
+		DutyTodo.ErrMessage(`${hash} was not found`);
+	    });
+	
     }
     
 }
