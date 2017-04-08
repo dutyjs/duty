@@ -21,5 +21,14 @@ const hash = "0ba0cb33c";
 //ff.read('date', {date: '4/7/2017'});
 
 //ff.categorize({hash,category: ['testing','test','wetest','church']});
-ff.read('category:testing');
+//ff.read('category:testing');
+//ff.delete('all');
+
+//ff.add({todo:'hello world'});
+//ff.add({todo:'i am a good boy',category:['good_boy']});
+
+//ff.delete('hash',{hash:'b94d27b99'});
+//ff.add({todo:'i need to eat bacon', category: ['food','meat']});
+//ff.markcompleted({hash:"544bca29b"});
+ff.delete('completed');
 module.exports = ff;

@@ -34,7 +34,7 @@ class ReadTodo {
 	this[this.type]();
     }
     category(categoryType) {
-	let { DutyTodo, _this: {MANAGER: {m} } } = this,
+	let { DutyTodo, _this, m } = this,
 	    isRead = false, j = 0,
 	    cb = ({hash,category}) => {
 		j++;
@@ -55,14 +55,14 @@ class ReadTodo {
 		}
 	    };
 	
-	DutyTodo.CALLGENERATORYLOOP(this._this,cb)
+	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .catch( _ => {
 		process.stdout.write(`no todo with such category\n`);
 	    });	
     }
     urgency(urgencyType) {
 	
-	let { DutyTodo, _this: {MANAGER: {m} } } = this;
+	let { DutyTodo, _this, m } = this;
 	switch(urgencyType) {
 	case "pending":break;
 	case "waiting":break;
@@ -95,14 +95,14 @@ class ReadTodo {
 		}
 	    };
 	
-	DutyTodo.CALLGENERATORYLOOP(this._this,cb)
+	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .catch( _ => {
 		process.stdout.write(`no todo with such urgency\n`);
 	    });	
 	
     }
     completed() {
-	let { DutyTodo, _this: {MANAGER: {m} } } = this,
+	let { DutyTodo, _this, m } = this,
 	    isRead = false,j = 0,
 	    cb = ({completed,hash}) => {
 		j++;
@@ -118,7 +118,7 @@ class ReadTodo {
 		}
 	    };
 
-	DutyTodo.CALLGENERATORYLOOP(this._this,cb)
+	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .catch( _ => {
 		process.stdout.write(`nothing complete to read\n`);
 	    });
@@ -126,7 +126,7 @@ class ReadTodo {
     }
     notcompleted() {
 	
-	let { DutyTodo, _this: {MANAGER: {m} } } = this,
+	let { DutyTodo, _this, m } = this,
 	    isRead = false,j = 0,
 	    cb = ({completed,hash}) => {
 		j++;
@@ -142,14 +142,14 @@ class ReadTodo {
 		}
 	    };
 	
-	DutyTodo.CALLGENERATORYLOOP(this._this,cb)
+	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .catch( _ => {
 		process.stdout.write(`nothing complete to read\n`);
 	    });
 	
     }
     date() {
-	let { DutyTodo, _this: {MANAGER: {m} } } = this,
+	let { DutyTodo, _this, m } = this,
 	    { date: _userDate , modifiedDate: _userModifiedDate} = this._opt,
 	    isRead = false,j = 0,
 	    cb = ({date,modifiedDate,hash}) => {
@@ -170,7 +170,7 @@ class ReadTodo {
 		}
 	    };
 
-	DutyTodo.CALLGENERATORYLOOP(this._this,cb)
+	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .catch( _ => {
 		process.stdout.write(`no match for the specified date was found\n`);
 	    });

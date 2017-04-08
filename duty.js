@@ -2,6 +2,7 @@ const colors = require('colors');
 const crypto = require('crypto');
 const fs = require('fs');
 const ReadTodo = require('./readtodo');
+const DeleteTodo = require('./deletetodo');
 const util = require('util');
 class DutyTodo {
     constructor({m,location}) {
@@ -91,7 +92,7 @@ class DutyTodo {
 	    
 	    Object.assign(m[hash], { category });
 	    
-	} else if ( ! Array.isArray(category) ) {
+	} else if ( category && (! Array.isArray(category) ) ) {
 	    DutyTodo.ErrMessage(`expected category to be an array but got ${typeof(category)}`);
 	    
 	    return false;
@@ -392,75 +393,35 @@ class DutyTodo {
 	    return false;
 	}
     }
-    deleteAll() {
-	
-	let {location,m} = this.MANAGER;
-
-	delete this.MANAGER[m];
-	
-	m = {};
-	
-	DutyTodo.WriteFile({location,m});
-	
-	return true;
-    }
-    deleteCompleted() {
-	let {location,m} = this.MANAGER,
-	    isDelete,j = 0,
-	    
-	    cb = ({hash,completed}) => {
-		j++;
-		if ( completed ) {
-		    delete m[hash];
-		    isDelete = true;
-		    j--;
-		}
-		
-		if ( ! isDelete && Object.keys(m).length === j ) {
-		    return false;
-		} else if ( isDelete && Object.keys(m).length === j ) {
-
-		    return true;
-		}
-	    };
-	
-	DutyTodo.CALLGENERATORYLOOP(this,cb)
-	    .then( _ => {
-		DutyTodo.WriteFile({location,m});
-		process.stdout.write(`completed todos have been deleted\n`);
-	    }).catch( _ => {
-		DutyTodo.ErrMessage(`Nothing was removed`);
-	    });
-    }
-    deleteByHash({hash}) {
-	if ( ! hash ) {
-	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
+    delete(type, opt = {}) {
+	let { date , hash } = opt;
+	if ( ! type ) {
+	    DutyTodo.ErrMessage(`type ${type} is not supported`);
 	    return false;
-	} else if ( hash.length <= 4 ) {
-	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
+	} else if ( type === 'date' && ( ! date ) ) {
+	    DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in dd/mm/yy`);
+	    return false;
+	} else if ( type === 'hash' && ( ! hash || hash.length <= 4)  ) {
+	    DutyTodo.ErrMessage(`invalid hash type`);
 	    return false;
 	}
 
-	let {location,m} = this.MANAGER,
-	    hashRegex = new RegExp(`^${hash}`),
-	    j = 0,
-	    cb = ({longHash,hash}) => {
-		j++;
-		if ( hashRegex.test(longHash) ) {
-		    delete m[hash];
-		    return true;
-		} else if ( Object.keys(m).length === j ) {
-		    return false;
-		}		
-	    };
+	try {
+	    const p = DeleteTodo.createType(
+		type,
+		opt,
+		this,
+		DutyTodo);
+	    p.handleDelete();
+	} catch (ex) {
+	    console.log(ex);
+	    DutyTodo.ErrMessage(`${type} is not supported`);
+	    return false;
+	}	
 	
-	DutyTodo.CALLGENERATORYLOOP(this,cb)
-	    .then( _ => {
-		DutyTodo.WriteFile({location,m});
-	    }).catch( _ => {
-		DutyTodo.ErrMessage(`${hash} was not found`);
-	    });
-	
+    }
+    deleteCompleted() {
+
     }
     urgency({hash,urgency}) {
 	if ( ! hash ) {
@@ -585,7 +546,6 @@ class DutyTodo {
 		j++;
 		if ( hashRegex.test(longHash) && _jsonCategory ) {
 
-		    //category.forEach(cat => _jsonCategory.push(cat));
 		    
 		    category.filter( _x => ! _jsonCategory.includes(_x))
 			.forEach(_x => _jsonCategory.push(_x));
