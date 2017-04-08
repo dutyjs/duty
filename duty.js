@@ -13,6 +13,9 @@ class DutyTodo {
     static NotEmpty({ m }) {
 	return ( Object.keys(m).length !== 0 ) ? true : false;
     }
+    static URGENCY_ERROR() {
+	return 'URGENCY_ERROR';
+    }
     static CALLGENERATORYLOOP(_this,cb) {
 	
 	if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
@@ -45,7 +48,10 @@ class DutyTodo {
 		} else if ( f === true ) {
 		    resolve();
 		    break;
-		} 
+		} else if ( f === DutyTodo.URGENCY_ERROR() ) {
+		    reject(_n.value);
+		    break;
+		}
 		_n = gen.next();
 	    }
 	    
@@ -57,6 +63,7 @@ class DutyTodo {
     }
     static WriteFile({location, m}) {
 	fs.writeFileSync(location, JSON.stringify(m));
+	process.stdout.write(`changes have been saved`);
     }
     static SaveTodo({manager: { m , location },hash,todo}) {
 	
@@ -455,9 +462,52 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`require urgency argument to be set`);
 	    return false;	    
 	}
+	let [,_urgency] = urgency.match(/^urgency:([a-z]+)$/);
+	
+	switch(_urgency) {
+	case "pending":break;
+	case "waiting":break;
+	case "tomorrow":break;
+	case "later":break;
+	case "today": break;
+	default:
+	    DutyTodo.ErrMessage(`invalid urgency type`);
+	    return false;
+	}
 
-	
-	
+	let {location,m} = this.MANAGER,
+	    hashRegex = new RegExp(`^${hash}`),
+	    j = 0,
+	    cb = ({hash,urgency}) => {
+		j++;
+		if ( hashRegex.test(hash) && Array.isArray(urgency) ) {
+		    
+		    let _shouldPush = urgency.some( _x => _x === _urgency );
+		    
+		    if ( _shouldPush ) return DutyTodo.URGENCY_ERROR();
+		    
+		    urgency.push(_urgency);
+		    Object.assign(m[hash], { urgency });
+		    return true;
+		} else if ( hashRegex.test(hash) && ! urgency ) {
+		    let urgency = [];
+		    urgency.push(_urgency);
+		    Object.assign(m[hash], { urgency });
+		    return true;
+		} else if ( Object.keys(m).length === j ) {
+		    return false;
+		}		
+	    };
+	DutyTodo.CALLGENERATORYLOOP(this,cb)
+	    .then( _ => {
+		DutyTodo.WriteFile({location,m});
+	    }).catch( errMessage => {
+		if ( errMessage ) {
+		    return DutyTodo.ErrMessage(`the specified urgency message, has already been added`);
+		}
+		
+		DutyTodo.ErrMessage(`${hash} was not found`);
+	    });	
     }
     setPriority({hash,priority}) {
 	if ( ! hash ) {

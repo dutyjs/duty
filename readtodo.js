@@ -22,7 +22,57 @@ class ReadTodo {
 	return new ReadTodo({type,opt,_this,DutyTodo});
     }
     handleRead() {
+	
+	let _matched = this.type.match(/^urgency:([a-z]+)$/);
+	
+	const [,_urgency] = _matched ? _matched : [,undefined];
+	
+	if ( _urgency ) {
+	    this.urgencyRead(_urgency);
+	    return ;
+	}
+	
 	this[this.type]();
+    }
+    urgencyRead(urgencyType) {
+	
+	let { DutyTodo, _this: {MANAGER: {m} } } = this;
+	switch(urgencyType) {
+	case "pending":break;
+	case "waiting":break;
+	case "tomorrow":break;
+	case "later":break;
+	case "today": break;
+	default:
+	    DutyTodo.ErrMessage(`invalid urgency type to read`);
+	    return false;
+	}
+	
+	let isRead = false, j = 0,
+	    cb = ({hash,urgency}) => {
+		j++;
+		if ( urgency && Array.isArray(urgency) ) {
+		
+		    let _isFoundInArray = urgency
+			    .some( _x => _x === urgencyType);
+		    
+		    if ( _isFoundInArray ) {
+			console.log(m[hash]);
+		    }
+		}
+		
+		if ( ! isRead && Object.keys(m).length === j ) {
+		    return false;
+		} else if ( isRead && Object.keys(m).length === j ) {
+		    return true;
+		}
+	    };
+	
+	DutyTodo.CALLGENERATORYLOOP(this._this,cb)
+	    .catch( _ => {
+		process.stdout.write(`no todo with such urgency\n`);
+	    });	
+	
     }
     completed() {
 	let { DutyTodo, _this: {MANAGER: {m} } } = this,
