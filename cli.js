@@ -30,5 +30,22 @@ const hash = "0ba0cb33c";
 //ff.delete('hash',{hash:'b94d27b99'});
 //ff.add({todo:'i need to eat bacon', category: ['food','meat']});
 //ff.markcompleted({hash:"544bca29b"});
-ff.delete('completed');
+//ff.delete('completed');
+//ff.delete('category', { category: 'temptation'});
+
+/*ff.add({todo: "I need to eat bacon", category:['food']});
+ff.add({todo: "I need to brush my teeth", category:['hygiene']});
+ff.add({todo: "I need to take my bath", category:['hygiene']});
+ff.add({todo: "Build an algorythm to sort firstnames", category:['sort']});
+ff.add({todo: "Build an algorythm to sort surnames", category:['sort']});
+ ff.add({todo: "Build an algorythm to sort names in reverse order", category:['sort']});*/
+
+//ff.delete('category', {category: 'sort'});
+//ff.due({hash:"88db545",date: "4/10/2017"});
+//ff.read('due', {date: "4/10/2017"});
+
+ff.export('pdf');
+ff.export('html');
+ff.export('json');
+ff.export('xml');
 module.exports = ff;

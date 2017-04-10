@@ -3,7 +3,9 @@ const crypto = require('crypto');
 const fs = require('fs');
 const ReadTodo = require('./readtodo');
 const DeleteTodo = require('./deletetodo');
+const ExportTodo = require('./exporttodo');
 const util = require('util');
+
 class DutyTodo {
     constructor({m,location}) {
 	this.MANAGER = {
@@ -378,23 +380,25 @@ class DutyTodo {
 	} else if ( type === 'date' && ( ! date && ! modifiedDate)) {
 	    DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in dd/mm/yy`);
 	    return false;
+	} else if ( type === 'due' && ! date  ) {
+	    DutyTodo.ErrMessage(`expected date argument to be set`);	    
+	    return false;
 	}
-
+	
 	try {
-	    const p = ReadTodo.createType(
-		type,
-		opt,
-		this,
-		DutyTodo);
-	    p.handleRead();
+	    const p = ReadTodo.createType();
+	    const self = this;
+	    p.handleRead({type,
+			  opt,
+			  self,
+			  DutyTodo});
 	} catch (ex) {
-	    console.log(ex);
 	    DutyTodo.ErrMessage(`${type} is not supported`);
 	    return false;
 	}
     }
     delete(type, opt = {}) {
-	let { date , hash } = opt;
+	let { date , hash , category} = opt;
 	if ( ! type ) {
 	    DutyTodo.ErrMessage(`type ${type} is not supported`);
 	    return false;
@@ -404,24 +408,26 @@ class DutyTodo {
 	} else if ( type === 'hash' && ( ! hash || hash.length <= 4)  ) {
 	    DutyTodo.ErrMessage(`invalid hash type`);
 	    return false;
+	} else if ( type === 'category' && ( ! category ) ) {
+	    DutyTodo.ErrMessage(`category type is not specified`);
+	    return false;
 	}
 
 	try {
-	    const p = DeleteTodo.createType(
+	    const p = DeleteTodo.createType();
+
+	    const self = this;
+	    
+	    p.handleDelete({
 		type,
 		opt,
-		this,
-		DutyTodo);
-	    p.handleDelete();
+		self,
+		DutyTodo});
+	    
 	} catch (ex) {
-	    console.log(ex);
 	    DutyTodo.ErrMessage(`${type} is not supported`);
 	    return false;
-	}	
-	
-    }
-    deleteCompleted() {
-
+	}
     }
     urgency({hash,urgency}) {
 	if ( ! hash ) {
@@ -454,12 +460,13 @@ class DutyTodo {
 		j++;
 		if ( hashRegex.test(longHash) && Array.isArray(urgency) ) {
 		    
-		    let _shouldPush = urgency.some( _x => _x === _urgency );
-		    
-		    if ( _shouldPush ) return DutyTodo.URGENCY_ERROR();
+		    if ( urgency.includes(_urgency) ) {
+			return DutyTodo.URGENCY_ERROR();			
+		    }
 		    
 		    urgency.push(_urgency);
 		    Object.assign(m[hash], { urgency });
+		    
 		    return true;
 		} else if ( hashRegex.test(longHash) && ! urgency ) {
 		    let urgency = [];
@@ -574,6 +581,50 @@ class DutyTodo {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
 	
+    }
+    due({hash,date} = {}) {
+	if ( ! hash || ! date ) {
+	    DutyTodo.ErrMessage(`hash and due date needs to be specified`);
+	    return false;
+	} else if ( hash.length <= 4 ) {
+	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);	
+	    return false;
+	}
+	let {location,m} = this.MANAGER,
+	    hashRegex = new RegExp(`^${hash}`),
+	    j = 0,
+	    cb = ({hash,longHash}) => {
+		j++;
+		if ( hashRegex.test(longHash) ) {
+		    Object.assign(m[hash], { due_date: date});
+		    console.log(m[hash]);
+		    return true;
+		}
+		if ( Object.keys(m).length === j ) {
+		    return false;
+		}
+	    }
+	
+	DutyTodo.CALLGENERATORYLOOP(this,cb)
+	    .then( _ => {
+		DutyTodo.WriteFile({location,m});
+	    }).catch( _ => {
+		DutyTodo.ErrMessage(`${hash} was not found`);
+	    });
+    }
+    export(type) {
+	if ( ! type ) {
+	    DutyTodo.ErrMessage(`specify the format type to export as`);
+	    return false;
+	}
+
+	try {
+	    const _export = ExportTodo.createExport();
+	    _export.export(type);
+	} catch(ex) {
+	    console.log(ex);
+	    DutyTodo.ErrMessage(`format ${type} is not supported`);
+	}
     }
     
 }
