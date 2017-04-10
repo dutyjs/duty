@@ -1,17 +1,19 @@
 class DeleteTodo {
-    constructor({type,opt,_this,DutyTodo}) {
+    constructor() {}
+    static createType() {
+	return new DeleteTodo();
+    }
+    handleDelete({type,opt,self: _this,DutyTodo}) {
+	
 	let { m , location } = _this.MANAGER;
+	
 	this.type = type;
 	this.DutyTodo = DutyTodo;
 	this.m = m ;
 	this._this = _this;
 	this._opt = opt;
 	this.location = location;
-    }
-    static createType(type,opt,_this,DutyTodo) {
-	return new DeleteTodo({type,opt,_this,DutyTodo});
-    }
-    handleDelete(type) {
+	
 	this[this.type]();
     }
     all() {
@@ -84,7 +86,8 @@ class DeleteTodo {
 		j++;
 		if ( _userDate === date ) {
 		    delete m[hash];
-		    isRead = true; 
+		    isRead = true;
+		    j--;
 		} 
 		
 		if ( ! isRead && Object.keys(m).length === j ) {
@@ -106,7 +109,31 @@ class DeleteTodo {
 	console.log('regexp');
     }
     category() {
-	console.log('category');	
+	let { DutyTodo , location , m , _opt: { category },_this} = this,
+	    j = 0,isDelete = false,
+	    cb = ({hash,category: _category}) => {
+		
+		j++;
+		
+		if ( _category && _category.includes(category) ) {
+		    delete m[hash];
+		    isDelete = true;
+		    j--;
+		}
+		
+		if ( Object.keys(m).length === j && ( ! isDelete) ) {
+		    return false;
+		} else if ( Object.keys(m).length === j && ( isDelete ) ) {
+		    return true;
+		}
+	    };
+	
+	DutyTodo.CALLGENERATORYLOOP(_this,cb)
+	    .then( _ => {
+		DutyTodo.WriteFile({location,m});
+	    }).catch( _ => {
+		DutyTodo.ErrMessage(`${category} was not found`);
+	    });
     }
 }
 

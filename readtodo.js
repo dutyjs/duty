@@ -1,51 +1,59 @@
-// completed
-// notcompleted
-// pending
-// today
-// waiting
-// tomorrow
-
-
 // to avoid cyclic dependency issues,
 //   it is important to avoid require duty.js and extending
 //   the below class with DutyTodo class
 class ReadTodo {
-    constructor({type,opt,_this,DutyTodo}) {
+    constructor() {}
+    static createType() {
+	return new ReadTodo();
+    }
+    handleRead({type,opt,self: _this,DutyTodo}) {
+	
 	let { m } = _this.MANAGER;
 	this.type = type;
 	this.DutyTodo = DutyTodo;
 	this.m = m ;
 	this._this = _this;
 	this._opt = opt;
-    }
-    static createType(type,opt,_this,DutyTodo) {
-	return new ReadTodo({type,opt,_this,DutyTodo});
-    }
-    handleRead() {
 	
 	let _matched = this.type.match(/^(urgency|category):([a-z]+)$/);
 	
-	const [,type,_typeOfType] = _matched ? _matched : [,undefined,undefined];
+	const [,_type,_typeOfType] = _matched ? _matched : [,undefined,undefined];
+	
 	if ( _typeOfType ) {
-	    this[type](_typeOfType);
+	    this[_type](_typeOfType);
 	    return ;
 	}
 	
 	this[this.type]();
+    }
+    due() {
+	let { DutyTodo, _this, m } = this,
+	    { date: _dueDate} = this._opt, j = 0,
+	    cb = ({hash,due_date}) => {
+		j++;
+		if ( due_date && _dueDate === due_date ) {
+		    console.log(m[hash]);
+		    return true;
+		}
+		if ( Object.keys(m).length === j ) {
+		    return false;
+		}
+	    };
+	
+	DutyTodo.CALLGENERATORYLOOP(_this,cb)
+	    .catch( _ => {
+		process.stdout.write(`specified due date was not found\n`);
+	    });		
+	    
     }
     category(categoryType) {
 	let { DutyTodo, _this, m } = this,
 	    isRead = false, j = 0,
 	    cb = ({hash,category}) => {
 		j++;
-		if ( category && Array.isArray(category) ) {
-		    let _isFoundInArray = category
-			    .some( _x => _x === categoryType);
-		    
-		    if ( _isFoundInArray ) {
-			isRead = true;
-			console.log(m[hash]);
-		    }
+		if ( category && Array.isArray(category) && category.includes(categoryType)) {
+		    isRead = true;
+		    console.log(m[hash]);
 		}
 		
 		if ( ! isRead && Object.keys(m).length === j ) {
@@ -77,15 +85,9 @@ class ReadTodo {
 	let isRead = false, j = 0,
 	    cb = ({hash,urgency}) => {
 		j++;
-		if ( urgency && Array.isArray(urgency) ) {
-		
-		    let _isFoundInArray = urgency
-			    .some( _x => _x === urgencyType);
-		    
-		    if ( _isFoundInArray ) {
-			isRead = true;
-			console.log(m[hash]);
-		    }
+		if ( urgency && Array.isArray(urgency) && urgency.includes(urgencyType) ) {
+		    isRead = true;
+		    console.log(m[hash]);
 		}
 		
 		if ( ! isRead && Object.keys(m).length === j ) {
