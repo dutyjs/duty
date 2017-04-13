@@ -1,0 +1,25 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+div {
+    display: flex;
+    justify-content: center;
+}
+
+img {
+    width: 50%;
+    height: 50%;
+}
+
+table {
+    background-color: lightgrey;
+    padding: 2em;
+}
+
+table td {
+    padding: 1em;
+    
+}
