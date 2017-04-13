@@ -3,23 +3,33 @@
     padding: 0;
     margin: 0;
 }
-
 div {
+
+}
+
+.im {
     display: flex;
     justify-content: center;
 }
-
-img {
-    width: 50%;
-    height: 50%;
+.im img {
+    width: 10%;
+    border: 1px solid black;
+    border-radius: 100%;
 }
 
 table {
     background-color: lightgrey;
     padding: 2em;
+    margin-top: 1em;
+    margin-left: 509px;
 }
 
 table td {
-    padding: 1em;
-    
+    padding: 1em;    
+}
+
+ul li {
+    list-style: number;
+    margin-left: 30px;
+    padding: 3px;
 }

@@ -620,7 +620,8 @@ class DutyTodo {
 
 	try {
 	    const _export = ExportTodo.createExport();
-	    _export.export(type);
+	    const self = this;
+	    _export.export({type,DutyTodo,self});
 	} catch(ex) {
 	    console.log(ex);
 	    DutyTodo.ErrMessage(`format ${type} is not supported`);
