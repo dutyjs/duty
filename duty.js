@@ -367,12 +367,7 @@ class DutyTodo {
     }
     read(type,opt = {}) {
 	
-	// completed
-	// notcompleted
-	// pending
-	// today
-	// waiting
-	// tomorrow
+
 	let { date , modifiedDate} = opt;
 	if ( ! type ) {
 	    DutyTodo.ErrMessage(`type ${type} is not supported`);

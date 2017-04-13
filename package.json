@@ -8,7 +8,10 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "colors": "^1.1.2",
-    "mkdirp": "^0.5.1"
+    "html-pdf": "^2.1.0",
+    "mkdirp": "^0.5.1",
+    "node-emoji": "^1.5.1",
+    "pdfkit": "^0.8.0"
   },
   "license": "MIT",
   "version": "1.0.0",

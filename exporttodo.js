@@ -1,6 +1,6 @@
 const { Duplex } = require('stream');
-const { appendFileSync, writeFileSync, readFileSync } = require('fs');
-
+const { appendFileSync, writeFileSync, readFileSync, createWriteStream } = require('fs');
+const PDFDocument = require('pdfkit');
 class ExportTodo {
     
     constructor() {}
@@ -14,9 +14,7 @@ class ExportTodo {
 	this._this = self;
 	this[this.type]();
     }
-    pdf() {
-	console.log('pdf exported');
-    }
+   
     static BUILDHTML({key: type,prop: value}) {
 	
 	const BUILD_HTML = `

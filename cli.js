@@ -44,5 +44,6 @@ ff.add({todo: "Build an algorythm to sort surnames", category:['sort']});
 //ff.due({hash:"88db545",date: "4/10/2017"});
 //ff.read('due', {date: "4/10/2017"});
 
-ff.export('json');
+ff.read('category:food');
+ff.setPriority({hash:"88db545c5", priority: "critical"});
 module.exports = ff;

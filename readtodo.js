@@ -1,10 +1,64 @@
 // to avoid cyclic dependency issues,
 //   it is important to avoid require duty.js and extending
 //   the below class with DutyTodo class
+const colors = require('colors');
 class ReadTodo {
     constructor() {}
     static createType() {
 	return new ReadTodo();
+    }
+    static UNICODE_VALUES() {
+	const bold = colors.bold;
+	return {
+	    checkmark: bold("\u2714".green),
+	    ballot: bold("\u2718".red),
+	    critical: bold("\u25CF".red),
+	    notcritical: bold("\u25D0".green),
+	    critical: bold("\u2762".red),
+	    notcritical: bold("\u2762".green)
+	};
+    }
+    static HANDLE_DUE_DATE({due_date}) {
+	let _date = new Date();
+	_date = _date.toLocaleDateString().split('/').join('');
+	due_date = due_date.split('/').join('');
+
+	if ( due_date < _date ) {
+	    return 'NOT EXPIRED';
+	} else if ( due_date > _date ) {
+	    return 'EXPIRED';
+	    
+	} else if ( due_date === _date ) {
+	    return 'DUE FOR TODAY';
+	}
+	
+    }
+    static HANDLE_PRIORITY(priority) {
+	return ((priority === 'critical') ?  'critical' : 'notcritical');
+    }
+    static STYLE_READ(opt) {
+	
+	let {
+	    hash,
+	    content,
+	    completed,
+	    date,
+	    modifiedDate,
+	    due_date,
+	    priority
+	} = opt;
+	
+	let unicodes = ReadTodo.UNICODE_VALUES();
+	
+	ReadTodo.PRINT(`${hash}   ${completed ? unicodes.checkmark : unicodes.ballot}   ${date}   ${modifiedDate ? modifiedDate : '--'}   ${due_date ? ReadTodo.HANDLE_DUE_DATE({due_date}) : '--'} ${priority ? `priority ${unicodes[ReadTodo.HANDLE_PRIORITY(priority)]}` : '--'}\n`);
+	    
+    }
+    static PRINT(text) {
+	process.stdout.write(text);
+    }
+    static TABLE() {
+
+
     }
     handleRead({type,opt,self: _this,DutyTodo}) {
 	
@@ -14,7 +68,7 @@ class ReadTodo {
 	this.m = m ;
 	this._this = _this;
 	this._opt = opt;
-	
+
 	let _matched = this.type.match(/^(urgency|category):([a-z]+)$/);
 	
 	const [,_type,_typeOfType] = _matched ? _matched : [,undefined,undefined];
@@ -47,13 +101,15 @@ class ReadTodo {
 	    
     }
     category(categoryType) {
+	ReadTodo.TABLE();
 	let { DutyTodo, _this, m } = this,
 	    isRead = false, j = 0,
 	    cb = ({hash,category}) => {
 		j++;
 		if ( category && Array.isArray(category) && category.includes(categoryType)) {
 		    isRead = true;
-		    console.log(m[hash]);
+
+		    ReadTodo.STYLE_READ(m[hash]);
 		}
 		
 		if ( ! isRead && Object.keys(m).length === j ) {

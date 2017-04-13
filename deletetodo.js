@@ -105,9 +105,6 @@ class DeleteTodo {
 		process.stdout.write(`no match for the specified date was found\n`);
 	    });
     }
-    regexp() {
-	console.log('regexp');
-    }
     category() {
 	let { DutyTodo , location , m , _opt: { category },_this} = this,
 	    j = 0,isDelete = false,
