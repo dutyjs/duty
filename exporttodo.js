@@ -1,5 +1,5 @@
 const { Duplex } = require('stream');
-const { appendFileSync, writeFileSync } = require('fs');
+const { appendFileSync, writeFileSync, readFileSync } = require('fs');
 
 class ExportTodo {
     
@@ -17,33 +17,38 @@ class ExportTodo {
     pdf() {
 	console.log('pdf exported');
     }
-    static FlattenArray(arr) {
-	
-	let BUILD_LIST = `<ul>`;
-	
-	for ( let i of arr ) {
-	    
-	    BUILD_LIST += `<li>${i}</li>`;
-	    
-	}
-	
-	BUILD_LIST += `</ul>`;
-	return BUILD_LIST;
-	
-    }
-    
     static BUILDHTML({key: type,prop: value}) {
 	
 	const BUILD_HTML = `
 <tr>
   <td> ${type} </td>
-  <td>${Array.isArray(value) ? ExportTodo.FlattenArray(value) : value}</td>
+  <td>${Array.isArray(value) ? ExportTodo.FlattenArray(value,'ul','li') : value}</td>
 </tr>
 `;
 
 	return BUILD_HTML;
     }
+    static FlattenArray(arr,parent,children) {
+	
+	let BUILD_LIST = `<${parent}>`;
+	
+	for ( let i of arr ) {
+	    
+	    BUILD_LIST += `
+        <${children}>
+            ${i}
+        </${children}>
+`;
+	    
+	}
+	
+	BUILD_LIST += `      </${parent}>`;
+	
+	return BUILD_LIST;
+	
+    }
     html() {
+	
 	let buildHtml = `
 <!doctype html>
 <html>
@@ -56,7 +61,9 @@ class ExportTodo {
    <div class="im"><img src="logo.jpg"/></div>
    <div>
 `;
+	
 	writeFileSync('./duty.html', '');
+	
 	let { DutyTodo, _this } = this,
 	    { m } = _this.MANAGER,
 	    j = 0,
@@ -92,7 +99,6 @@ class ExportTodo {
    </body>
 </html>
 `;
-		    
 		    appendFileSync('./duty.html', buildHtml);
 		    
 		    return true;
@@ -108,10 +114,79 @@ class ExportTodo {
 	    });	
     }
     json() {
-	console.log('json');
+	// uh
+	let { _this: { MANAGER: { location }} } = this;
+	
+	try {
+	    writeFileSync('./duty.json', readFileSync(location).toString('ascii'));
+	    process.stdout.write(`finish converting json data to json\n`);
+	} catch(ex) {
+	    process.stdout.write(`error converting todo list to json\n`);
+	}
+	
     }
     xml() {
-	console.log('xml');
+	
+	let Build_xml = `
+<?xml version="1.0" encoding="UTF-8"?>
+<duty>
+`;
+
+	writeFileSync('./duty.xml', '');
+
+	let { DutyTodo, _this } = this,
+	    { m } = _this.MANAGER,
+	    j = 0,
+	    cb = (opt) => {
+		
+		j++;
+		
+		let { hash } = opt;
+
+		Build_xml += `
+  <id hash="${hash}">
+`;
+		for ( let [key,prop] of Object.entries(opt) ) {
+
+		    if ( key === hash ) continue ;
+		    
+		    Build_xml += `
+    <${key}>
+      ${Array.isArray(prop) 
+         ? ExportTodo.FlattenArray(prop,'_parent','_child')
+         : prop}
+    </${key}>
+`;
+		}
+
+
+		Build_xml += `
+  </id>
+`;
+		
+		appendFileSync('./duty.xml', Build_xml);
+
+		Build_xml = '';
+		
+		if ( Object.keys(m).length === j ) {
+
+		    Build_xml = `
+</duty>
+`;
+		    appendFileSync('./duty.xml', Build_xml);
+		    
+		    return true;
+		}
+	    };
+
+	DutyTodo.CALLGENERATORYLOOP(_this,cb)
+	    .then( _ => {
+		process.stdout.write(`finish converting json data to xml\n`);
+	    })
+	    .catch( _ => {
+		process.stdout.write(`error converting todo list to xml\n`);
+	    });		
+	
     }
 }
 

@@ -14,6 +14,7 @@ try {
 
 
 } catch(ex) {
+
     ; ( () => {
 	const rl = require('readline');
 	const DEFAULT = `${process.env.HOME}/.duty.json`;
