@@ -18,13 +18,7 @@ class DutyTodo {
     }
     static REMODIFIYHASH({type,content,text,regex,m,hash}) {
 
-	
-	
-	if ( type === 'replace' )  {
-	    content = `${content.replace(regex,text)}`;
-	} else {
-	    content = `${content} ${text}`;
-	}
+	content = ((type === 'replace') ? `${content.replace(regex,text)}` : `${content} ${text}`);
 
 	let newHash = crypto.createHash('sha256').update(content)
 		.digest('hex'),
@@ -51,7 +45,7 @@ class DutyTodo {
     }
     static CALLGENERATORYLOOP(_this,cb) {
 	
-	if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
+	// if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
 	
 	return new Promise((resolve,reject) => {
 	    
