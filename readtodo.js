@@ -15,28 +15,38 @@ class ReadTodo {
 	    critical: bold("\u25CF".red),
 	    notcritical: bold("\u25D0".green),
 	    critical: bold("\u2762".red),
-	    notcritical: bold("\u2762".green)
+	    notcritical: bold("\u2762".green),
+	    circle: bold("\u25CF".red),
+	    halfcircle: bold('\u25CB'.green),
+	    completecircle: bold("\u25CF".green)
 	};
     }
     static HANDLE_DUE_DATE({due_date}) {
+	
 	let _date = new Date();
+	
 	_date = _date.toLocaleDateString().split('/').join('');
+	
 	due_date = due_date.split('/').join('');
-
-	if ( due_date < _date ) {
-	    return 'NOT EXPIRED';
-	} else if ( due_date > _date ) {
-	    return 'EXPIRED';
-	    
+	
+	const TIME_LEFT = String((due_date - _date)).replace(/0+$/,'');
+	
+	const { circle, halfcircle, completecircle } = ReadTodo.UNICODE_VALUES();
+	
+	if ( due_date > _date ) {
+	    return `${TIME_LEFT}days from now${halfcircle}`;
+	} else if ( due_date < _date ) {
+	    return `${parseInt(TIME_LEFT) * -1}days before now${circle}`;
 	} else if ( due_date === _date ) {
-	    return 'DUE FOR TODAY';
+	    return `today ${completecircle}`;
 	}
 	
     }
     static HANDLE_PRIORITY(priority) {
 	return ((priority === 'critical') ?  'critical' : 'notcritical');
     }
-    static STYLE_READ(opt) {
+
+    static STYLE_READ(opt,DutyTodo) {
 	
 	let {
 	    hash,
@@ -45,20 +55,26 @@ class ReadTodo {
 	    date,
 	    modifiedDate,
 	    due_date,
-	    priority
+	    priority,
+	    urgency,
+	    category,
+	    note
 	} = opt;
 	
 	let unicodes = ReadTodo.UNICODE_VALUES();
 	
-	ReadTodo.PRINT(`${hash}   ${completed ? unicodes.checkmark : unicodes.ballot}   ${date}   ${modifiedDate ? modifiedDate : '--'}   ${due_date ? ReadTodo.HANDLE_DUE_DATE({due_date}) : '--'} ${priority ? `priority ${unicodes[ReadTodo.HANDLE_PRIORITY(priority)]}` : '--'}\n`);
+	DutyTodo.PRINT(`
+
+hash:\t\t${hash}  ${completed ? unicodes.checkmark : unicodes.ballot} 
+creation date:\t${date} ${modifiedDate ? `
+modified date:\t${modifiedDate}` : ''} ${due_date ? `
+due date:\t${ReadTodo.HANDLE_DUE_DATE({due_date})}` : ''}${category ? `
+category:\t(${category})` : ''} ${priority ? `
+priority:\t${priority}${unicodes[ReadTodo.HANDLE_PRIORITY(priority)]}` : ''} ${note ? `
+note:\t\t${note}`: ''}
+content:\t${content}\n
+`);
 	    
-    }
-    static PRINT(text) {
-	process.stdout.write(text);
-    }
-    static TABLE() {
-
-
     }
     handleRead({type,opt,self: _this,DutyTodo}) {
 	
@@ -68,7 +84,7 @@ class ReadTodo {
 	this.m = m ;
 	this._this = _this;
 	this._opt = opt;
-
+	
 	let _matched = this.type.match(/^(urgency|category):([a-z]+)$/);
 	
 	const [,_type,_typeOfType] = _matched ? _matched : [,undefined,undefined];
@@ -80,13 +96,21 @@ class ReadTodo {
 	
 	this[this.type]();
     }
+    all() {
+	
+	let { DutyTodo, _this, m } = this;
+	
+	DutyTodo.CALLGENERATORYLOOP(_this, ({hash}) => {
+	    ReadTodo.STYLE_READ(m[hash],DutyTodo);
+	});
+    }
     due() {
 	let { DutyTodo, _this, m } = this,
 	    { date: _dueDate} = this._opt, j = 0,
 	    cb = ({hash,due_date}) => {
 		j++;
 		if ( due_date && _dueDate === due_date ) {
-		    console.log(m[hash]);
+		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		    return true;
 		}
 		if ( Object.keys(m).length === j ) {
@@ -109,7 +133,7 @@ class ReadTodo {
 		if ( category && Array.isArray(category) && category.includes(categoryType)) {
 		    isRead = true;
 
-		    ReadTodo.STYLE_READ(m[hash]);
+		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		}
 		
 		if ( ! isRead && Object.keys(m).length === j ) {
@@ -143,7 +167,7 @@ class ReadTodo {
 		j++;
 		if ( urgency && Array.isArray(urgency) && urgency.includes(urgencyType) ) {
 		    isRead = true;
-		    console.log(m[hash]);
+		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		}
 		
 		if ( ! isRead && Object.keys(m).length === j ) {
@@ -165,8 +189,8 @@ class ReadTodo {
 	    cb = ({completed,hash}) => {
 		j++;
 		if ( completed ) {
-		    console.log(m[hash]);
 		    isRead = true;
+		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		}
 		
 		if ( ! isRead && Object.keys(m).length === j ) {
@@ -189,8 +213,8 @@ class ReadTodo {
 	    cb = ({completed,hash}) => {
 		j++;
 		if ( ! completed ) {
-		    console.log(m[hash]);
 		    isRead = true;
+		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		}
 		
 		if ( ! isRead && Object.keys(m).length === j ) {
@@ -214,11 +238,11 @@ class ReadTodo {
 		j++;
 		if ( (_userDate && date === _userDate) && (_userModifiedDate && modifiedDate === _userModifiedDate)
 		   ) {
-		    console.log(m[hash]);
-		    isRead = true; 
+		    isRead = true;
+		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		} else if ( (_userDate && date === _userDate) && !_userModifiedDate ) {
-		    console.log(m[hash]);
-		    isRead = true; 
+		    isRead = true;
+		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		}
 		
 		if ( ! isRead && Object.keys(m).length === j ) {

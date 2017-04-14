@@ -1,6 +1,6 @@
 const { Duplex } = require('stream');
 const { appendFileSync, writeFileSync, readFileSync, createWriteStream } = require('fs');
-const PDFDocument = require('pdfkit');
+//const PDFDocument = require('pdfkit');
 class ExportTodo {
     
     constructor() {}
@@ -105,21 +105,21 @@ class ExportTodo {
 	
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .then( _ => {
-		process.stdout.write(`finish converting json html to todo\n`);
+		DutyTodo.PRINT(`finish converting json html to todo\n`);
 	    })
 	    .catch( _ => {
-		process.stdout.write(`error converting todo list to html\n`);
+		DutyTodo.ErrMessage(`error converting todo list to html\n`);
 	    });	
     }
     json() {
 	// uh
-	let { _this: { MANAGER: { location }} } = this;
+	let { _this: { MANAGER: { location }} , DutyTodo} = this;
 	
 	try {
 	    writeFileSync('./duty.json', readFileSync(location).toString('ascii'));
-	    process.stdout.write(`finish converting json data to json\n`);
+	    DutyTodo.PRINT(`finish converting json data to json\n`);
 	} catch(ex) {
-	    process.stdout.write(`error converting todo list to json\n`);
+	    DutyTodo.ErrMessage(`error converting todo list to json\n`);
 	}
 	
     }
@@ -179,10 +179,10 @@ class ExportTodo {
 
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .then( _ => {
-		process.stdout.write(`finish converting json data to xml\n`);
+		DutyTodo.PRINT(`finish converting json data to xml\n`);
 	    })
 	    .catch( _ => {
-		process.stdout.write(`error converting todo list to xml\n`);
+		DutyTodo.ErrMessage(`error converting todo list to xml\n`);
 	    });		
 	
     }

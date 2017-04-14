@@ -42,8 +42,11 @@ ff.add({todo: "Build an algorythm to sort surnames", category:['sort']});
 
 //ff.delete('category', {category: 'sort'});
 //ff.due({hash:"88db545",date: "4/10/2017"});
-//ff.read('due', {date: "4/10/2017"});
-
-ff.read('category:food');
-ff.setPriority({hash:"88db545c5", priority: "critical"});
+//ff.append({hash:"b0bbaf44e", text: "rope"});
+ff.markcompleted({hash: "28f7060b0"});
+ff.read('all');
+//ff.setPriority({hash:"88db545c5", priority: "critical"});
+//ff.due({hash: "a614e9548", date: "4/14/2017"});
+//ff.due({hash: "00d1f0ae4", date: "4/19/2017"});
+//ff.setPriority({hash: "00d1f0ae4", priority: "notcritical"});
 module.exports = ff;

@@ -13,6 +13,36 @@ class DutyTodo {
 	    m
 	};
     }
+    static PRINT(text) {
+	process.stdout.write(colors.bold(text));
+    }
+    static REMODIFIYHASH({type,content,text,regex,m,hash}) {
+
+	
+	
+	if ( type === 'replace' )  {
+	    content = `${content.replace(regex,text)}`;
+	} else {
+	    content = `${content} ${text}`;
+	}
+
+	let newHash = crypto.createHash('sha256').update(content)
+		.digest('hex'),
+	    mDate = new Date(),
+	    modifiedDate = mDate.toLocaleDateString(),
+	    longHash = newHash;
+
+	newHash = newHash.slice(0, newHash.length - 55);
+	m[newHash] = Object.create({});
+	Object.assign(m[newHash],m[hash],{
+	    content,
+	    longHash,
+	    hash: newHash,
+	    modifiedDate
+	});
+	delete m[hash];
+	
+    }
     static NotEmpty({ m }) {
 	return ( Object.keys(m).length !== 0 ) ? true : false;
     }
@@ -62,7 +92,7 @@ class DutyTodo {
     }
 
     static ErrMessage(msg) {
-	process.stderr.write(`${msg}\n`.red);
+	process.stderr.write(colors.bold(`${msg}\n`.red));
     }
     static WriteFile({location, m}) {
 	fs.writeFileSync(location, JSON.stringify(m));
@@ -101,7 +131,7 @@ class DutyTodo {
 	}
 	
 	DutyTodo.WriteFile({location,m});
-	process.stdin.write(`New todo has been added\nTotal todo is ${Object.keys(m).length}\n`.green);
+	DutyTodo.PRINT(`New todo has been added\nTotal todo is ${Object.keys(m).length}\n`.green);
     }    
     *IterateTodo() {
 	let { m } = this.MANAGER;
@@ -171,23 +201,17 @@ class DutyTodo {
 	    cb =  ({hash,longHash,content}) => {
 		j++;
 		if ( hashRegex.test(longHash) ) {
-		    content = `${content} ${text}`;
 		    
-		    let newHash = crypto.createHash('sha256').update(content)
-			    .digest('hex'),
-			mDate = new Date(),
-			modifiedDate = mDate.toLocaleDateString(),
-			longHash = newHash;
+		    const type = 'append';
 
-		    newHash = newHash.slice(0, newHash.length - 55);
-		    m[newHash] = Object.create({});
-		    Object.assign(m[newHash],m[hash],{
+		    DutyTodo.REMODIFIYHASH({
+			type,
 			content,
-			longHash,
-			hash: newHash,
-			modifiedDate
-		    });
-		    delete m[hash];
+			text,
+			undefined,
+			m,
+			hash});
+		    
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
 		    // this block of code should never run if a true hash
@@ -209,13 +233,13 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
 	    return false;
 	} else if ( ! text ) {
-	    DutyTodo.ErrMessage(`got ${typeof(text)} instead of text`);
+	    DutyTodo.ErrMessage(`got ${typeof(text)} instead of string`);
 	    return false;
 	} else if ( hash.length <= 4 ) {
 	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
 	    return false;
 	} else if ( ! regexp ) {
-	    DutyTodo.ErrMessage(`length of ${regexp} is not greater than 4`);
+	    DutyTodo.ErrMessage(`not regexp was set`);
 	    return false;	    
 	}
 	
@@ -226,24 +250,16 @@ class DutyTodo {
 	    cb = ({hash,longHash,content}) => {
 		j++;
 		if ( hashRegex.test(longHash) ) {
-		    // since the content change,
-		    //   the hash is suppose to change too
-		    content = `${content.replace(regex,text)}`;
-		    let newHash = crypto.createHash('sha256').update(content)
-			    .digest('hex'),
-			mDate = new Date(),
-			modifiedDate = mDate.toLocaleDateString(),
-			longHash = newHash;
-
-		    newHash = newHash.slice(0, newHash.length - 55);
-		    m[newHash] = Object.create({});
-		    Object.assign(m[newHash],m[hash],{
+		    
+		    const type = 'replace';
+		    
+		    DutyTodo.REMODIFIYHASH({
+			type,
 			content,
-			longHash,
-			hash: newHash,
-			modifiedDate
-		    });
-		    delete m[hash];
+			text,
+			regex,
+			m,
+			hash});
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
 		    return false;
@@ -309,7 +325,6 @@ class DutyTodo {
 		if ( hashRegex.test(longHash) && ! m[hash].note ) {
 
 		    Object.assign(m[hash], { note });
-		    console.log(m[hash]);
 		    return true;
 		    
 		} else if ( hashRegex.test(longHash) && m[hash].note ) {
@@ -317,7 +332,6 @@ class DutyTodo {
 		    note = `${m[hash].note} ${note}`;
 
 		    Object.assign(m[hash], { note });
-		    console.log(m[hash]);
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
 		    return false;
@@ -592,7 +606,6 @@ class DutyTodo {
 		j++;
 		if ( hashRegex.test(longHash) ) {
 		    Object.assign(m[hash], { due_date: date});
-		    console.log(m[hash]);
 		    return true;
 		}
 		if ( Object.keys(m).length === j ) {
@@ -618,7 +631,6 @@ class DutyTodo {
 	    const self = this;
 	    _export.export({type,DutyTodo,self});
 	} catch(ex) {
-	    console.log(ex);
 	    DutyTodo.ErrMessage(`format ${type} is not supported`);
 	}
     }
