@@ -77,18 +77,16 @@ content:\t${content}\n
 	    
     }
     handleRead({type,opt,self: _this,DutyTodo}) {
-	
 	let { m } = _this.MANAGER;
 	this.type = type;
 	this.DutyTodo = DutyTodo;
 	this.m = m ;
 	this._this = _this;
 	this._opt = opt;
-	
+
 	let _matched = this.type.match(/^(urgency|category):([a-z]+)$/);
-	
 	const [,_type,_typeOfType] = _matched ? _matched : [,undefined,undefined];
-	
+
 	if ( _typeOfType ) {
 	    this[_type](_typeOfType);
 	    return ;
@@ -125,7 +123,7 @@ content:\t${content}\n
 	    
     }
     category(categoryType) {
-	ReadTodo.TABLE();
+
 	let { DutyTodo, _this, m } = this,
 	    isRead = false, j = 0,
 	    cb = ({hash,category}) => {
@@ -149,7 +147,7 @@ content:\t${content}\n
 	    });	
     }
     urgency(urgencyType) {
-	
+
 	let { DutyTodo, _this, m } = this;
 	switch(urgencyType) {
 	case "pending":break;

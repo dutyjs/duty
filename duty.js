@@ -374,8 +374,8 @@ class DutyTodo {
 	
     }
     read(type,opt = {}) {
-	
 
+	
 	let { date , modifiedDate} = opt;
 	if ( ! type ) {
 	    DutyTodo.ErrMessage(`type ${type} is not supported`);
@@ -391,6 +391,7 @@ class DutyTodo {
 	try {
 	    const p = ReadTodo.createType();
 	    const self = this;
+
 	    p.handleRead({type,
 			  opt,
 			  self,
@@ -452,7 +453,12 @@ class DutyTodo {
 	case "later":break;
 	case "today": break;
 	default:
-	    DutyTodo.ErrMessage(`invalid urgency type`);
+	    DutyTodo.ErrMessage(`invalid urgency type, supported urgency type are
+urgency:pending
+urgency:waiting
+urgency:tomorrow
+urgency:later
+urgency:today`);
 	    return false;
 	}
 

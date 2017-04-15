@@ -1,52 +1,119 @@
 const ff = require('./index.js');
 
-//ff.markcompleted({hash:'8f4343466'});
-//ff.read('notcompleted');
-//ff.read('date',{date:'4/7/2017'});
 
-//ff.append({hash:'261d9674a',text:' hello world'});
+const commander = require('commander');
 
-//ff.read('date',{date: '4/7/2017',modifiedDate:'4/8/2017'});
-//ff.read('date',{date: '4/7/2017'});
-const hash = "0ba0cb33c";
-//ff.urgency({hash, urgency:'urgency:later'});
-//ff.urgency({hash, urgency:'urgency:pending'});
-//ff.add('I need to drink some water');
+commander
+    .version('0.0.1')
+    .command('add <todo> [category...]')
+    .description('Add todo into category, category is optional')
+    .action((todo,category) => {
+	return ( category ? ff.add({todo,category}) : ff.add({todo}));
+    });
 
-//ff.read('urgency:pending');
-//ff.deleteByHash({hash:"d26a5d063d23c4896b1d12640466fc25c9ac359abddec67768311908e84d1a41"});
 
-//ff.add({todo: 'victory is', category: 'adf'});
 
-//ff.read('date', {date: '4/7/2017'});
+commander
+    .command('append <hash> <text>')
+    .description('Append text into todo with the id of hash')
+    .action((hash,text) => {
+	return ff.append({hash,text});
+    });
 
-//ff.categorize({hash,category: ['testing','test','wetest','church']});
-//ff.read('category:testing');
-//ff.delete('all');
+commander
+    .command('replace <hash> <regexp> <text>')
+    .description('replace a text speicified by regexp with text into todo with id of hash')
+    .action((hash,regexp,text) => {
+	return ff.replace({hash,regexp,text});
+    });
 
-//ff.add({todo:'hello world'});
-//ff.add({todo:'i am a good boy',category:['good_boy']});
+commander
+    .command('markcompleted <hash>')
+    .description('mark a todo with the id of hash completed')
+    .action( hash => {
+	return ff.markcompleted({hash});
+    });
 
-//ff.delete('hash',{hash:'b94d27b99'});
-//ff.add({todo:'i need to eat bacon', category: ['food','meat']});
-//ff.markcompleted({hash:"544bca29b"});
-//ff.delete('completed');
-//ff.delete('category', { category: 'temptation'});
+commander
+    .command('note <hash> <note>')
+    .description('add a little note in a todo with id of hash')
+    .action( (hash,note) => {
+	return ff.addnote({hash,note});
+    });
 
-/*ff.add({todo: "I need to eat bacon", category:['food']});
-ff.add({todo: "I need to brush my teeth", category:['hygiene']});
-ff.add({todo: "I need to take my bath", category:['hygiene']});
-ff.add({todo: "Build an algorythm to sort firstnames", category:['sort']});
-ff.add({todo: "Build an algorythm to sort surnames", category:['sort']});
- ff.add({todo: "Build an algorythm to sort names in reverse order", category:['sort']});*/
 
-//ff.delete('category', {category: 'sort'});
-//ff.due({hash:"88db545",date: "4/10/2017"});
-//ff.append({hash:"b0bbaf44e", text: "rope"});
-ff.markcompleted({hash: "28f7060b0"});
-ff.read('all');
-//ff.setPriority({hash:"88db545c5", priority: "critical"});
-//ff.due({hash: "a614e9548", date: "4/14/2017"});
-//ff.due({hash: "00d1f0ae4", date: "4/19/2017"});
-//ff.setPriority({hash: "00d1f0ae4", priority: "notcritical"});
-module.exports = ff;
+commander
+    .command('removenote <hash>')
+    .description('remove note that has been added to todo with the id of hash')
+    .action( hash => {
+	return ff.removenote({hash});
+    });
+
+commander
+    .command('read <type>')
+    .description('read the todo that meets the type criteria')
+    .option('--date <date> specifiy date to use')
+    .option('--modifiedDate <date> specifiy a modified date to search with')
+    .action((type,options) => {
+	const { date, modifiedDate } = options;
+	if ( ! date && ! modifiedDate ) {
+	    return ff.read(type);
+	}
+	return ff.read(type, { date , modifiedDate });
+    });
+
+commander
+    .command('delete <type>')
+    .description('delete any todo that meets the type criteria')
+    .option('--date <date> specifiy date to use')
+    .option('--modifiedDate <date> specifiy a modified date to search with')
+    .action((type,options) => {
+	const { date, category } = options;
+	if ( date ) {
+	    return ff.read(type, { date } );
+	} else if ( category) {
+	    return ff.read(type, {category});
+	} else {
+	    return ff.read(type);
+	}
+    });
+
+
+commander
+    .command('urgency <hash> <urgency>')
+    .description('specify how urgent you want to accomplish this task')
+    .action( (hash,urgency) => {
+	return ff.urgency({hash,urgency});
+    });
+
+commander
+    .command('priority <hash> <priority>')
+    .description('specify the task priority')
+    .action( (hash,priority) => {
+	return ff.setPriority({hash,priority});
+    });
+
+commander
+    .command('categorize <hash> [category...]')
+    .description('add a todo to a particular category')
+    .action( (hash,category) => {
+	return ff.categorize({hash,category});
+    });
+
+commander
+    .command('due <hash> <date>')
+    .description('set the date in which hash is due')
+    .action((hash,date) => {
+	return ff.due({hash,date});
+    });
+
+commander
+    .command('export <format>')
+    .description('export todo to format')
+    .action( format => {
+	return ff.export(format);
+    });
+
+commander.parse(process.argv);
+//module.exports = ff;
+
