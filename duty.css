@@ -10,9 +10,10 @@ div {
 .im {
     display: flex;
     justify-content: center;
+    margin-left: 300px;
 }
 .im img {
-    width: 10%;
+    width: 50%;
     border: 1px solid black;
     border-radius: 100%;
 }
