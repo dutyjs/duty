@@ -76,14 +76,15 @@ content:\t${content}\n
 `);
 	    
     }
-    handleRead({type,opt,self: _this,DutyTodo}) {
+    handleRead({type,opt,self: _this,DutyTodo,_cb}) {
 	let { m } = _this.MANAGER;
 	this.type = type;
 	this.DutyTodo = DutyTodo;
 	this.m = m ;
 	this._this = _this;
 	this._opt = opt;
-
+	this._cb = _cb;
+	
 	let _matched = this.type.match(/^(urgency|category):([a-z]+)$/);
 	const [,_type,_typeOfType] = _matched ? _matched : [,undefined,undefined];
 
@@ -96,10 +97,18 @@ content:\t${content}\n
     }
     all() {
 	
-	let { DutyTodo, _this, m } = this;
+	let { DutyTodo, _this, m , _cb} = this;
 	
 	DutyTodo.CALLGENERATORYLOOP(_this, ({hash}) => {
-	    ReadTodo.STYLE_READ(m[hash],DutyTodo);
+	    
+	    const _type = true;
+	    const message = m[hash];
+	    DutyTodo.HANDLE_CALLBACK({_cb,message,_type});
+	    
+	    if ( ! DutyTodo.HANDLE_CALLBACK({_cb,message,_type}) ) {
+		ReadTodo.STYLE_READ(m[hash],DutyTodo);
+	    }
+	    
 	});
     }
     due() {

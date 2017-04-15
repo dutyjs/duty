@@ -5,7 +5,7 @@ const ReadTodo = require('./readtodo');
 const DeleteTodo = require('./deletetodo');
 const ExportTodo = require('./exporttodo');
 const util = require('util');
-
+const path = require('path');
 class DutyTodo {
     constructor({m,location}) {
 	this.MANAGER = {
@@ -19,7 +19,7 @@ class DutyTodo {
     static REMODIFIYHASH({type,content,text,regex,m,hash}) {
 
 	content = ((type === 'replace') ? `${content.replace(regex,text)}` : `${content} ${text}`);
-
+	
 	let newHash = crypto.createHash('sha256').update(content)
 		.digest('hex'),
 	    mDate = new Date(),
@@ -84,11 +84,20 @@ class DutyTodo {
 	    
 	});
     }
-
+    static HANDLE_CALLBACK({_cb,message,_type}) {
+	
+	if ( typeof _cb === 'function' )
+	    
+	    return ( _type ? _cb(message) : _cb(Error(message)));
+	
+	
+	return _type;
+    }
     static ErrMessage(msg) {
 	process.stderr.write(colors.bold(`${msg}\n`.red));
     }
     static WriteFile({location, m}) {
+
 	fs.writeFileSync(location, JSON.stringify(m));
     }
     static SaveTodo({manager: { m , location },hash,todo,category}) {
@@ -126,6 +135,7 @@ class DutyTodo {
 	
 	DutyTodo.WriteFile({location,m});
 	DutyTodo.PRINT(`New todo has been added\nTotal todo is ${Object.keys(m).length}\n`.green);
+	return this;
     }    
     *IterateTodo() {
 	let { m } = this.MANAGER;
@@ -136,8 +146,9 @@ class DutyTodo {
 	for ( let todos  of Object.keys(m) ) {
 	    yield m[todos];
 	}
+	return this;
     }
-    add({todo , category }) {
+    add({todo , category },_cb) {
 
 	if ( ! todo ) {
 	    DutyTodo.ErrMessage(`A todo content needs to be added`);
@@ -157,10 +168,17 @@ class DutyTodo {
 	let cb = ({ longHash }) => {
 	    j++;
 	    if ( longHash === hash ) {
+		
 		isAdded = true;
-		return false;
+		
+		const message = "specified todo already exists";
+		const _false = false;
+		return DutyTodo.HANDLE_CALLBACK({_cb,message,_false});
+		
 	    } else if ( (Object.keys(m).length === j) && (! isAdded) ) {
-		return true;
+		
+		const _type = true;
+		return DutyTodo.HANDLE_CALLBACK({_cb,_type});
 	    }
 	};
 	
@@ -171,12 +189,13 @@ class DutyTodo {
 	    .catch( _ => {
 		DutyTodo.ErrMessage(`This todo already exists`);
 	    });
+	return this;
     }
     
     static createInstance({config_locationContent: m, location}) {
 	return new DutyTodo({m,location});
     }
-    append({hash,text}) {
+    append({hash,text},_cb) {
 	if ( ! hash ) {
 	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
 	    return false;
@@ -197,7 +216,7 @@ class DutyTodo {
 		if ( hashRegex.test(longHash) ) {
 		    
 		    const type = 'append';
-
+		    
 		    DutyTodo.REMODIFIYHASH({
 			type,
 			content,
@@ -206,11 +225,19 @@ class DutyTodo {
 			m,
 			hash});
 		    
-		    return true;
+		    		
+		    const _type = true;
+		    return DutyTodo.HANDLE_CALLBACK({_cb,_type});
+		    
 		} else if ( Object.keys(m).length === j ) {
 		    // this block of code should never run if a true hash
 		    //     was found
-		    return false;
+		    
+		    const message = "specified hash was not found";
+		    
+		    const _type = false;
+		    
+		    return DutyTodo.HANDLE_CALLBACK({_cb,message,_type});
 		}
 	    };
 	
@@ -221,8 +248,9 @@ class DutyTodo {
 	    .catch( _ => {
 	 	DutyTodo.ErrMessage(`${hash} was not found, todo is not in list`);
 	    });
+	return this;
     }
-    replace({hash,regexp,text}) {
+    replace({hash,regexp,text},_cb) {
 	if ( ! hash ) {
 	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
 	    return false;
@@ -254,9 +282,17 @@ class DutyTodo {
 			regex,
 			m,
 			hash});
-		    return true;
+		    
+		    const _type = true;
+		    return DutyTodo.HANDLE_CALLBACK({_cb,_type});
+		    
 		} else if ( Object.keys(m).length === j ) {
-		    return false;
+		    
+		    const message = "specified hash was not found";
+		    
+		    const _type = false;
+		    
+		    return DutyTodo.HANDLE_CALLBACK({_cb,message,_type});
 		};
 	    };
 
@@ -266,8 +302,9 @@ class DutyTodo {
 	    }).catch( _ => {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
+	return this;
     }
-    markcompleted({hash}) {
+    markcompleted({hash},_cb) {
 	if ( ! hash ) {
 	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
 	    return false;
@@ -282,11 +319,21 @@ class DutyTodo {
 		j++;
 		if ( hashRegex.test(longHash) && ! completed ) {
 		    Object.assign(m[hash], { completed: true });
-		    return true;
+		    
+		    const _type = true;
+		    const message = m[hash];
+		    return DutyTodo.HANDLE_CALLBACK({_cb,message,_type});
+		    
 		} else if (hashRegex.test(longHash) && completed ) {
-		    return true;
+		    		    
+		    const _type = true;
+		    return DutyTodo.HANDLE_CALLBACK({_cb,_type});
+		    
 		} else if ( Object.keys(m).length === j ) {
-		    return false;
+		    
+		    const message = "specified hash was not found";
+		    const _type = false;
+		    return DutyTodo.HANDLE_CALLBACK({_cb,message,_type});
 		}
 	    };
 	
@@ -297,9 +344,9 @@ class DutyTodo {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
 	
-	
+	return this;
     }
-    note({hash,note}) {
+    note({hash,note},_cb) {
 	if ( ! hash ) {
 	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
 	    return false;
@@ -319,16 +366,27 @@ class DutyTodo {
 		if ( hashRegex.test(longHash) && ! m[hash].note ) {
 
 		    Object.assign(m[hash], { note });
-		    return true;
+		    		    		    
+		    const _type = true;
+		    const message = m[hash];
+		    return DutyTodo.HANDLE_CALLBACK({_cb,message,_type});
 		    
 		} else if ( hashRegex.test(longHash) && m[hash].note ) {
 		    
 		    note = `${m[hash].note} ${note}`;
 
 		    Object.assign(m[hash], { note });
-		    return true;
+		    		    		    
+		    const _type = true;
+		    const message = m[hash];
+		    return DutyTodo.HANDLE_CALLBACK({_cb,message,_type});
+		    
 		} else if ( Object.keys(m).length === j ) {
-		    return false;
+		    
+		    const message = "specified hash was not found";
+		    const _type = false;
+		    return DutyTodo.HANDLE_CALLBACK({_cb,message,_type});
+		    
 		}
 	    }
 
@@ -338,9 +396,9 @@ class DutyTodo {
 	    }).catch( _ => {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
-	
+	return this;
     }
-    removenote({hash}) {
+    removenote({hash},_cb) {
 	
 	if ( ! hash ) {
 	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
@@ -356,12 +414,23 @@ class DutyTodo {
 	    cb = ({hash,longHash}) => {
 		j++;
 		if ( hashRegex.test(longHash) && m[hash].note ) {
+		    
 		    delete m[hash].note;
-		    return true;
+		    		    		    		    
+		    const _type = true;
+		    
+		    const message = m[hash];
+		    
+		    return DutyTodo.HANDLE_CALLBACK({_cb,message,_type});
+		    
 		} else if (hashRegex.test(longHash) && ! m[hash].note ) {
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
-		    return false;
+		    
+		    const message = "specified hash was not found";
+		    const _type = false;
+		    return DutyTodo.HANDLE_CALLBACK({_cb,message,_type});
+		    
 		}
 	    };
 	
@@ -371,9 +440,9 @@ class DutyTodo {
 	    }).catch( _ => {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
-	
+	return this;
     }
-    read(type,opt = {}) {
+    read(type,opt = {},_cb) {
 
 	
 	let { date , modifiedDate} = opt;
@@ -395,11 +464,12 @@ class DutyTodo {
 	    p.handleRead({type,
 			  opt,
 			  self,
-			  DutyTodo});
+			  DutyTodo,_cb});
 	} catch (ex) {
 	    DutyTodo.ErrMessage(`${type} is not supported`);
 	    return false;
 	}
+	return this;
     }
     delete(type, opt = {}) {
 	let { date , hash , category} = opt;
@@ -432,6 +502,7 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`${type} is not supported`);
 	    return false;
 	}
+	return this;
     }
     urgency({hash,urgency}) {
 	if ( ! hash ) {
@@ -495,7 +566,8 @@ urgency:today`);
 		}
 		
 		DutyTodo.ErrMessage(`${hash} was not found`);
-	    });	
+	    });
+	return this;
     }
     setPriority({hash,priority}) {
 	if ( ! hash ) {
@@ -534,7 +606,7 @@ urgency:today`);
 	    }).catch( _ => {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
-	
+	return this;
     }
     categorize({hash,category}) {
 	
@@ -589,7 +661,7 @@ urgency:today`);
 	    }).catch( _ => {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
-	
+	return this;
     }
     due({hash,date} = {}) {
 	if ( ! hash || ! date ) {
@@ -633,6 +705,34 @@ urgency:today`);
 	} catch(ex) {
 	    DutyTodo.ErrMessage(`format ${type} is not supported`);
 	}
+	return this;
+    }
+    set(file) {
+	
+	file = path.resolve(file);
+	
+	if ( ! fs.existsSync(file) ) {
+	    
+	    let location = this.MANAGER.location = file, m = { location };
+	    
+	    fs.writeFileSync(location, "{}");
+	    
+	    location = path.join(__dirname,"config.json");
+	    
+	    DutyTodo.WriteFile({location,m});
+	    
+	    return this;
+	}
+
+	
+	let location = this.MANAGER.location = file,
+	    m = { location };
+	
+	location = path.join(__dirname,"config.json"),
+	
+	DutyTodo.WriteFile({location,m});
+	return this;
+	
     }
     
 }
