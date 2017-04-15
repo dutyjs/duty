@@ -56,7 +56,7 @@ class ExportTodo {
  </head>
  <body>
 
-   <div class="im"><img src="logo.jpg"/></div>
+   <div class="im"><img src="logo.png"/></div>
    <div>
 `;
 	
