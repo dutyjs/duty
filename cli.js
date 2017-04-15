@@ -38,7 +38,7 @@ commander
     .command('note <hash> <note>')
     .description('add a little note in a todo with id of hash')
     .action( (hash,note) => {
-	return ff.addnote({hash,note});
+	return ff.note({hash,note});
     });
 
 
