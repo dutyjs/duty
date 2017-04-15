@@ -70,11 +70,11 @@ commander
     .action((type,options) => {
 	const { date, category } = options;
 	if ( date ) {
-	    return ff.read(type, { date } );
+	    return ff.delete(type, { date } );
 	} else if ( category) {
-	    return ff.read(type, {category});
+	    return ff.delete(type, {category});
 	} else {
-	    return ff.read(type);
+	    return ff.delete(type);
 	}
     });
 
