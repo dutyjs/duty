@@ -2,8 +2,8 @@
   "name": "duty",
   "author": "zombieleet",
   "description": "Duty is a todo list manager will cool features",
-  "scripts": {
-    "duty": "./duty"
+  "bin": {
+    "duty": "./cli.js"
   },
   "dependencies": {
     "bluebird": "^3.5.0",
