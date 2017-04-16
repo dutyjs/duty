@@ -89,7 +89,7 @@ commander
     .command('urgency <hash> <urgency>')
     .description(`specify how urgent you want to accomplish this task
                   valid urgency types are pending,waiting,later,tomorrow,today`)
-    .action( (hash,urgency) => {   
+    .action( (hash,urgency) => {
 	return ff.urgency({hash,urgency});
     });
 
@@ -128,7 +128,7 @@ commander
     .description('show help commands for duty')
     .action(_ => {
         commander.outputHelp();
-    }); 
+    });
 
 commander.parse(process.argv);
 
@@ -136,4 +136,3 @@ if ( ! process.argv.slice(2).length ) {
     commander.outputHelp();
 }
 //module.exports = ff;
-

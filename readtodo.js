@@ -22,17 +22,17 @@ class ReadTodo {
 	};
     }
     static HANDLE_DUE_DATE({due_date}) {
-	
+
 	let _date = new Date();
-	
+
 	_date = _date.toLocaleDateString().split('/').join('');
-	
+
 	due_date = due_date.split('/').join('');
-	
+
 	const TIME_LEFT = String((due_date - _date)).replace(/0+$/,'');
-	
+
 	const { circle, halfcircle, completecircle } = ReadTodo.UNICODE_VALUES();
-	
+
 	if ( due_date > _date ) {
 	    return `${TIME_LEFT}days from now${halfcircle}`;
 	} else if ( due_date < _date ) {
@@ -40,14 +40,14 @@ class ReadTodo {
 	} else if ( due_date === _date ) {
 	    return `today ${completecircle}`;
 	}
-	
+
     }
     static HANDLE_PRIORITY(priority) {
 	return ((priority === 'critical') ?  'critical' : 'notcritical');
     }
 
     static STYLE_READ(opt,DutyTodo) {
-	
+
 	let {
 	    hash,
 	    content,
@@ -60,12 +60,12 @@ class ReadTodo {
 	    category,
 	    note
 	} = opt;
-	
+
 	let unicodes = ReadTodo.UNICODE_VALUES();
-	
+
 	DutyTodo.PRINT(`
 
-hash:\t\t${hash}  ${completed ? unicodes.checkmark : unicodes.ballot} 
+hash:\t\t${hash}  ${completed ? unicodes.checkmark : unicodes.ballot}
 creation date:\t${date} ${modifiedDate ? `
 modified date:\t${modifiedDate}` : ''} ${due_date ? `
 due date:\t${ReadTodo.HANDLE_DUE_DATE({due_date})}` : ''}${category ? `
@@ -75,7 +75,7 @@ urgency:\t${urgency} `: ''} ${note ? `
 note:\t\t${note}`: ''}
 content:\t${content}\n
 `);
-	    
+
     }
     handleRead({type,opt,self: _this,DutyTodo}) {
 	let { m } = _this.MANAGER;
@@ -92,13 +92,13 @@ content:\t${content}\n
 	    this[_type](_typeOfType);
 	    return ;
 	}
-	
+
 	this[this.type]();
     }
     all() {
-	
+
 	let { DutyTodo, _this, m } = this;
-	
+
 	DutyTodo.CALLGENERATORYLOOP(_this, ({hash}) => {
 	    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 	});
@@ -116,12 +116,12 @@ content:\t${content}\n
 		    return false;
 		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .catch( _ => {
 		process.stdout.write(`specified due date was not found\n`);
-	    });		
-	    
+	    });
+
     }
     category(categoryType) {
 
@@ -134,18 +134,18 @@ content:\t${content}\n
 
 		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		}
-		
+
 		if ( ! isRead && Object.keys(m).length === j ) {
 		    return false;
 		} else if ( isRead && Object.keys(m).length === j ) {
 		    return true;
 		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .catch( _ => {
 		process.stdout.write(`no todo with such category\n`);
-	    });	
+	    });
     }
     urgency(urgencyType) {
 
@@ -160,7 +160,7 @@ content:\t${content}\n
 	    DutyTodo.ErrMessage(`invalid urgency type to read`);
 	    return false;
 	}
-	
+
 	let isRead = false, j = 0,
 	    cb = ({hash,urgency}) => {
 		j++;
@@ -168,19 +168,19 @@ content:\t${content}\n
 		    isRead = true;
 		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		}
-		
+
 		if ( ! isRead && Object.keys(m).length === j ) {
 		    return false;
 		} else if ( isRead && Object.keys(m).length === j ) {
 		    return true;
 		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .catch( _ => {
 		process.stdout.write(`no todo with such urgency\n`);
-	    });	
-	
+	    });
+
     }
     completed() {
 	let { DutyTodo, _this, m } = this,
@@ -191,7 +191,7 @@ content:\t${content}\n
 		    isRead = true;
 		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		}
-		
+
 		if ( ! isRead && Object.keys(m).length === j ) {
 		    return false;
 		} else if ( isRead && Object.keys(m).length === j ) {
@@ -203,10 +203,10 @@ content:\t${content}\n
 	    .catch( _ => {
 		process.stdout.write(`nothing complete to read\n`);
 	    });
-	
+
     }
     notcompleted() {
-	
+
 	let { DutyTodo, _this, m } = this,
 	    isRead = false,j = 0,
 	    cb = ({completed,hash}) => {
@@ -215,19 +215,19 @@ content:\t${content}\n
 		    isRead = true;
 		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		}
-		
+
 		if ( ! isRead && Object.keys(m).length === j ) {
 		    return false;
 		} else if ( isRead && Object.keys(m).length === j ) {
 		    return true;
 		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .catch( _ => {
 		process.stdout.write(`nothing complete to read\n`);
 	    });
-	
+
     }
     date() {
 	let { DutyTodo, _this, m } = this,
@@ -243,7 +243,7 @@ content:\t${content}\n
 		    isRead = true;
 		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		}
-		
+
 		if ( ! isRead && Object.keys(m).length === j ) {
 		    return false;
 		} else if ( isRead && Object.keys(m).length === j ) {
@@ -256,7 +256,7 @@ content:\t${content}\n
 		process.stdout.write(`no match for the specified date was found\n`);
 	    });
     }
-    
-    
+
+
 }
 module.exports = ReadTodo;

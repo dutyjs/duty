@@ -4,16 +4,16 @@ class DeleteTodo {
 	return new DeleteTodo();
     }
     handleDelete({type,opt,self: _this,DutyTodo}) {
-	
+
 	let { m , location } = _this.MANAGER;
-	
+
 	this.type = type;
 	this.DutyTodo = DutyTodo;
 	this.m = m ;
 	this._this = _this;
 	this._opt = opt;
 	this.location = location;
-	
+
 	this[this.type]();
     }
     all() {
@@ -21,11 +21,11 @@ class DeleteTodo {
 	let { DutyTodo,  _this: { MANAGER }, m , location} = this;
 
 	delete MANAGER[m];
-	
+
 	m = {};
-	
+
 	DutyTodo.WriteFile({location,m});
-	
+
 	return true;
     }
     hash() {
@@ -39,9 +39,9 @@ class DeleteTodo {
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
 		    return false;
-		}		
+		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .then( _ => {
 		DutyTodo.WriteFile({location,m});
@@ -51,9 +51,9 @@ class DeleteTodo {
     }
     completed() {
 	let {DutyTodo,location,m,_this} = this,
-	    
+
 	    isDelete,j = 0,
-	    
+
 	    cb = ({hash,completed}) => {
 		j++;
 		if ( completed ) {
@@ -61,14 +61,14 @@ class DeleteTodo {
 		    isDelete = true;
 		    j--;
 		}
-		
+
 		if ( ! isDelete && Object.keys(m).length === j ) {
 		    return false;
 		} else if ( isDelete && Object.keys(m).length === j ) {
 		    return true;
 		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .then( _ => {
 		DutyTodo.WriteFile({location,m});
@@ -78,7 +78,7 @@ class DeleteTodo {
 	    });
     }
     date() {
-	
+
 	let { DutyTodo, _this, m, location} = this,
 	    { date: _userDate } = this._opt,
 	    isRead = false,j = 0,
@@ -88,8 +88,8 @@ class DeleteTodo {
 		    delete m[hash];
 		    isRead = true;
 		    j--;
-		} 
-		
+		}
+
 		if ( ! isRead && Object.keys(m).length === j ) {
 		    return false;
 		} else if ( isRead && Object.keys(m).length === j ) {
@@ -109,22 +109,22 @@ class DeleteTodo {
 	let { DutyTodo , location , m , _opt: { category },_this} = this,
 	    j = 0,isDelete = false,
 	    cb = ({hash,category: _category}) => {
-		
+
 		j++;
-		
+
 		if ( _category && _category.includes(category) ) {
 		    delete m[hash];
 		    isDelete = true;
 		    j--;
 		}
-		
+
 		if ( Object.keys(m).length === j && ( ! isDelete) ) {
 		    return false;
 		} else if ( Object.keys(m).length === j && ( isDelete ) ) {
 		    return true;
 		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .then( _ => {
 		DutyTodo.WriteFile({location,m});
