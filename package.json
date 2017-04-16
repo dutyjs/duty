@@ -6,16 +6,12 @@
     "duty": "./cli.js"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
-    "html-pdf": "^2.1.0",
-    "mkdirp": "^0.5.1",
-    "node-emoji": "^1.5.1",
-    "pdfkit": "^0.8.0"
+    "mkdirp": "^0.5.1"
   },
   "license": "MIT",
-  "version": "0.0.1-1",
+  "version": "0.0.2",
   "main": "index.js",
   "repository": {
     "type": "git",
