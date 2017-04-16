@@ -70,7 +70,8 @@ creation date:\t${date} ${modifiedDate ? `
 modified date:\t${modifiedDate}` : ''} ${due_date ? `
 due date:\t${ReadTodo.HANDLE_DUE_DATE({due_date})}` : ''}${category ? `
 category:\t(${category})` : ''} ${priority ? `
-priority:\t${priority}${unicodes[ReadTodo.HANDLE_PRIORITY(priority)]}` : ''} ${note ? `
+priority:\t${priority}${unicodes[ReadTodo.HANDLE_PRIORITY(priority)]}` : ''} ${urgency ? `
+urgency:\t${urgency} `: ''} ${note ? `
 note:\t\t${note}`: ''}
 content:\t${content}\n
 `);
