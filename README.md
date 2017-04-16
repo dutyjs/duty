@@ -13,6 +13,8 @@
 
 ## usage
 
+**To properly setup duty the first thing you should do after installation is to run** `duty` without any argument or subcommand 
+
 when no argument is specified, help is outputed
 
 **add** 
