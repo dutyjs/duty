@@ -22,7 +22,9 @@ table {
     background-color: lightgrey;
     padding: 2em;
     margin-top: 1em;
-    margin-left: 509px;
+    //margin-left: 509px;
+    display: flex;
+    width: 100%;
 }
 
 table td {
