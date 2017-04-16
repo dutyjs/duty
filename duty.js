@@ -35,8 +35,9 @@ class DutyTodo {
 	    hash: newHash,
 	    modifiedDate
 	});
+
 	delete m[hash];
-	
+
     }
     static NotEmpty({ m }) {
 	return ( Object.keys(m).length !== 0 ) ? true : false;
@@ -45,31 +46,31 @@ class DutyTodo {
 	return 'URGENCY_ERROR';
     }
     static CALLGENERATORYLOOP(_this,cb) {
-	
+
 	// if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
-	
+
 	return new Promise((resolve,reject) => {
-	    
+
 	    const gen = _this.IterateTodo();
-	    
+
 	    let _n = gen.next(),
 		f ;
-	    
+
 	    while ( ! _n.done  ) {
-		
+
 		// pass the object to the callback function
 		//   to see if it already exists
 		//   the object will be modified in the callback function
 		//   since object are passed by reference
 		//   any scope that access the object, will get the
 		//   modified object
-		
+
 		f = cb(_n.value);
-		
+
 		// different values will be returned
 		//  so f === false and f === true
 		//  is not a bad coding practice
-		
+
 		if ( f === false ) {
 		    reject();
 		    break;
@@ -82,7 +83,7 @@ class DutyTodo {
 		}
 		_n = gen.next();
 	    }
-	    
+
 	});
     }
 
@@ -93,17 +94,17 @@ class DutyTodo {
 	fs.writeFileSync(location, JSON.stringify(m));
     }
     static SaveTodo({manager: { m , location },hash,todo,category}) {
-	
+
 	let longHash = hash;
-	
+
 	hash = hash.slice(0, hash.length - 55);
-	
+
 	const DATE = new Date(),
 	      date = DATE.toLocaleDateString(),
 	      month = DATE.getMonth(),
 	      year = DATE.getYear(),
 	      completed = false;
-	
+
 	m[hash] = {
 	    content: todo,
 	    hash,
@@ -116,18 +117,18 @@ class DutyTodo {
 
 
 	if ( category && Array.isArray(category) ) {
-	    
+
 	    Object.assign(m[hash], { category });
-	    
+
 	} else if ( category && (! Array.isArray(category) ) ) {
 	    DutyTodo.ErrMessage(`expected category to be an array but got ${typeof(category)}`);
-	    
+
 	    return false;
 	}
-	
+
 	DutyTodo.WriteFile({location,m});
 	DutyTodo.PRINT(`New todo has been added\nTotal todo is ${Object.keys(m).length}\n`.green);
-    }    
+    }
     *IterateTodo() {
 	let { m } = this.MANAGER;
 	// Object.keys and Object.entries
@@ -144,11 +145,11 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`A todo content needs to be added`);
 	    return false;
 	}
-	
+
 	let hash = crypto.createHash('sha256').update(todo).digest('hex')
 	,manager,
 	    {m} = manager = this.MANAGER;
-	
+
 	if ( ! DutyTodo.NotEmpty(manager) ) {
 	    DutyTodo.SaveTodo({manager,hash,todo,category});
 	    return true;
@@ -164,7 +165,7 @@ class DutyTodo {
 		return true;
 	    }
 	};
-	
+
 	DutyTodo.CALLGENERATORYLOOP(this,cb)
 	    .then( _ => {
 		DutyTodo.SaveTodo({manager,hash,todo,category});
@@ -173,7 +174,7 @@ class DutyTodo {
 		DutyTodo.ErrMessage(`This todo already exists`);
 	    });
     }
-    
+
     static createInstance({config_locationContent: m, location}) {
 	return new DutyTodo({m,location});
     }
@@ -188,7 +189,7 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
 	    return false;
 	}
-	
+
 
 	let hashRegex = new RegExp(`^${hash}`),
 	    { location , m } = this.MANAGER,
@@ -196,7 +197,7 @@ class DutyTodo {
 	    cb =  ({hash,longHash,content}) => {
 		j++;
 		if ( hashRegex.test(longHash) ) {
-		    
+
 		    const type = 'append';
 
 		    DutyTodo.REMODIFIYHASH({
@@ -206,7 +207,7 @@ class DutyTodo {
 			undefined,
 			m,
 			hash});
-		    
+
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
 		    // this block of code should never run if a true hash
@@ -214,7 +215,7 @@ class DutyTodo {
 		    return false;
 		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(this,cb)
 	    .then( _ => {
 	 	DutyTodo.WriteFile({location,m});
@@ -235,9 +236,9 @@ class DutyTodo {
 	    return false;
 	} else if ( ! regexp ) {
 	    DutyTodo.ErrMessage(`not regexp was set`);
-	    return false;	    
+	    return false;
 	}
-	
+
 	let { location , m } = this.MANAGER;
 	let hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
@@ -245,9 +246,9 @@ class DutyTodo {
 	    cb = ({hash,longHash,content}) => {
 		j++;
 		if ( hashRegex.test(longHash) ) {
-		    
+
 		    const type = 'replace';
-		    
+
 		    DutyTodo.REMODIFIYHASH({
 			type,
 			content,
@@ -290,15 +291,15 @@ class DutyTodo {
 		    return false;
 		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(this,cb)
 	    .then( _ => {
 		DutyTodo.WriteFile({location,m});
 	    }).catch( _ => {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
-	
-	
+
+
     }
     note({hash,note}) {
 	if ( ! hash ) {
@@ -309,9 +310,9 @@ class DutyTodo {
 	    return false;
 	} else if ( ! note ) {
 	    DutyTodo.ErrMessage(`note is not defined`);
-	    return false;	    
+	    return false;
 	}
-	
+
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
@@ -321,9 +322,9 @@ class DutyTodo {
 
 		    Object.assign(m[hash], { note });
 		    return true;
-		    
+
 		} else if ( hashRegex.test(longHash) && m[hash].note ) {
-		    
+
 		    note = `${m[hash].note} ${note}`;
 
 		    Object.assign(m[hash], { note });
@@ -339,10 +340,10 @@ class DutyTodo {
 	    }).catch( _ => {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
-	
+
     }
     removenote({hash}) {
-	
+
 	if ( ! hash ) {
 	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
 	    return false;
@@ -350,7 +351,7 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
 	    return false;
 	}
-	
+
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
@@ -365,18 +366,18 @@ class DutyTodo {
 		    return false;
 		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(this,cb)
 	    .then( _ => {
 		DutyTodo.WriteFile({location,m});
 	    }).catch( _ => {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
-	
+
     }
     read(type,opt = {}) {
 
-	
+
 	let { date , modifiedDate} = opt;
 	if ( ! type ) {
 	    DutyTodo.ErrMessage(`type ${type} is not supported`);
@@ -385,10 +386,10 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in dd/mm/yy`);
 	    return false;
 	} else if ( type === 'due' && ! date  ) {
-	    DutyTodo.ErrMessage(`expected date argument to be set`);	    
+	    DutyTodo.ErrMessage(`expected date argument to be set`);
 	    return false;
 	}
-	
+
 	try {
 	    const p = ReadTodo.createType();
 	    const self = this;
@@ -422,13 +423,13 @@ class DutyTodo {
 	    const p = DeleteTodo.createType();
 
 	    const self = this;
-	    
+
 	    p.handleDelete({
 		type,
 		opt,
 		self,
 		DutyTodo});
-	    
+
 	} catch (ex) {
 	    DutyTodo.ErrMessage(`${type} is not supported`);
 	    return false;
@@ -443,10 +444,11 @@ class DutyTodo {
 	    return false;
 	} else if ( ! urgency ) {
 	    DutyTodo.ErrMessage(`require urgency argument to be set`);
-	    return false;	    
+	    return false;
 	}
+
 	let [,_urgency] = urgency.match(/^urgency:([a-z]+)$/);
-	
+
 	switch(_urgency) {
 	case "pending":break;
 	case "waiting":break;
@@ -469,14 +471,14 @@ urgency:today`);
 	    cb = ({hash,longHash,urgency}) => {
 		j++;
 		if ( hashRegex.test(longHash) && Array.isArray(urgency) ) {
-		    
+
 		    if ( urgency.includes(_urgency) ) {
-			return DutyTodo.URGENCY_ERROR();			
+			return DutyTodo.URGENCY_ERROR();
 		    }
-		    
+
 		    urgency.push(_urgency);
 		    Object.assign(m[hash], { urgency });
-		    
+
 		    return true;
 		} else if ( hashRegex.test(longHash) && ! urgency ) {
 		    let urgency = [];
@@ -485,7 +487,7 @@ urgency:today`);
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
 		    return false;
-		}		
+		}
 	    };
 	DutyTodo.CALLGENERATORYLOOP(this,cb)
 	    .then( _ => {
@@ -494,9 +496,9 @@ urgency:today`);
 		if ( errMessage ) {
 		    return DutyTodo.ErrMessage(`the specified urgency message, has already been added`);
 		}
-		
+
 		DutyTodo.ErrMessage(`${hash} was not found`);
-	    });	
+	    });
     }
     setPriority({hash,priority}) {
 	if ( ! hash ) {
@@ -507,7 +509,7 @@ urgency:today`);
 	    return false;
 	} else if ( ! priority ) {
 	    DutyTodo.ErrMessage(`required proirity argument to be set`);
-	    return false;	    
+	    return false;
 	} else if ( priority ) {
 	    switch(priority) {
 	    case "critical": break;
@@ -527,7 +529,7 @@ urgency:today`);
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
 		    return false;
-		}		
+		}
 	    };
 	DutyTodo.CALLGENERATORYLOOP(this,cb)
 	    .then( _ => {
@@ -535,27 +537,27 @@ urgency:today`);
 	    }).catch( _ => {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
-	
+
     }
     categorize({hash,category}) {
-	
+
 	if ( ! hash ) {
-	    
+
 	    DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
 	    return false;
-	    
+
 	} else if ( hash.length <= 4 ) {
-	    
+
 	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
 	    return false;
-	    
+
 	} else if ( ! category || ! Array.isArray(category) ) {
-	    
+
 	    DutyTodo.ErrMessage(`expected category to be an array but got ${typeof(category)}`);
 	    return false;
-	    
+
 	}
-	
+
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
@@ -563,41 +565,41 @@ urgency:today`);
 		j++;
 		if ( hashRegex.test(longHash) && _jsonCategory ) {
 
-		    
+
 		    category.filter( _x => ! _jsonCategory.includes(_x))
 			.forEach(_x => _jsonCategory.push(_x));
-		    
+
 		    Object.assign(m[hash], { category: _jsonCategory });
-		    
+
 		    return true;
-		    
+
 		} else if ( hashRegex.test(longHash) && ! _jsonCategory)  {
-		    
+
 		    _jsonCategory = [];
-		    
+
 		    category.forEach(cat => _jsonCategory.push(cat));
 		    Object.assign(m[hash], { category: _jsonCategory });
-		    
+
 		    return true;
 		} else if ( Object.keys(m).length === j ) {
 		    return false;
-		}		
+		}
 	    };
-	
+
 	DutyTodo.CALLGENERATORYLOOP(this,cb)
 	    .then( _ => {
 		DutyTodo.WriteFile({location,m});
 	    }).catch( _ => {
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
-	
+
     }
     due({hash,date} = {}) {
 	if ( ! hash || ! date ) {
 	    DutyTodo.ErrMessage(`hash and due date needs to be specified`);
 	    return false;
 	} else if ( hash.length <= 4 ) {
-	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);	
+	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
 	    return false;
 	}
 	let {location,m} = this.MANAGER,
@@ -613,7 +615,7 @@ urgency:today`);
 		    return false;
 		}
 	    }
-	
+
 	DutyTodo.CALLGENERATORYLOOP(this,cb)
 	    .then( _ => {
 		DutyTodo.WriteFile({location,m});
@@ -627,8 +629,8 @@ urgency:today`);
 	    return false;
 	} else if ( (path && ( ! fs.existsSync(path) || fs.existsSync(path) ) ) ) {
 	    path = resolve(path);
-	} 
-	
+	}
+
 	try {
 	    const _export = ExportTodo.createExport();
 	    const self = this;
@@ -637,7 +639,7 @@ urgency:today`);
 	    DutyTodo.ErrMessage(`format ${type} is not supported`);
 	}
     }
-    
+
 }
 
 module.exports = DutyTodo.createInstance;
