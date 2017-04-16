@@ -30,6 +30,7 @@ when no argument is specified, help is outputed
 
 	This command takes two argument, the hash id of a valid todo , and a text to append
 	All the arguments are compulsory
+	
 `duty append f82dc15f4 " before mum comes back from work"`
 
 
@@ -37,23 +38,27 @@ when no argument is specified, help is outputed
 
 	This command takes three argument, the hash id of a valid todo , a regular expression to match, a text to replace the matched regular expression
 	All the arguments are compulsory
+	
 `duty replace 0476b60de work journey`
 
 
 **markcompleted**
 
 	This command marks a todo as completed, it takes just an argument, which is a valid hash id the todo to mark has completed
+	
 `duty markcompleted 57c86e40f`
 
 **note**
 
 	Add a little note to an already added todo, it takes two argument, a valid hash id of a todo that has already been added and a text which will server as a note.
 	Both of the arguments are compulsory
+	
 `duty note 57c86e40f "go back to the dry cleaner to collect the remaining clothe"`
 
 **removenote**
 	
 This subcommand removes an already added note. It takes just a single argument which is a valid hash id of a todo 
+
 `duty removenote 57c86e40f`
 
 **delete**
@@ -68,10 +73,15 @@ supported types are
 5. all < removes all todo >
 
 **example**
+
 `duty delete hash --hash a591a6d40`
+
 `duty delete completed`
+
 `duty delete category --category food` 
+
 `duty delete date --date mm/dd/yy`
+
 `duty delete all`
 
 **read**
@@ -88,13 +98,21 @@ supported types are
 **example**
 	
 `duty read all`
+
 `duty read date --date 14/12/1999`
+
 `duty read date --date 14/12/1999 --modifiedDate 14/12/2020`
+
 `duty read category:dutyProject`
+
 `duty read urgency:pending`
+
 `duty read urgency:waiting`
+
 `duty read urgency:tomorrow`
+
 `duty read urgency:later`
+
 `duty read urgency:today`
 
 
@@ -110,7 +128,9 @@ supported types are
 4. later
 5. today
 
+
 **example**
+
 `duty urgency a6bfb2750 urgency:pending`
 
 **priority**
@@ -122,7 +142,9 @@ supported types are
 2. notcritical        
 
 **example**
+
 `duty priority a6bfb2750 critical`
+
 `duty priority 8cab293f8 notcritical`
 
 
@@ -130,6 +152,7 @@ supported types are
 
         This subcommand takes two argument, a valid hash id to categorize, and a list of category to set the hash id to
         Both arguments are compulsory
+
 
 `duty categorize 8cab293f8 dance education learn`
 
@@ -154,9 +177,13 @@ supported types are
 3. json
 
 **example**
+
 `duty export html /root/duty.html`
+
 `duty export html /root/duty`
+
 `duty export xml /root/duty`
+
 `duty export xml /root/duty.xml`
 
 
