@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const ff = require('./index.js');
 
 
@@ -51,7 +52,8 @@ commander
 
 commander
     .command('read <type>')
-    .description('read the todo that meets the type criteria')
+    .description(`read the todo that meets the type criteria
+                  valid types are all , date , completed, notcompleted, due , category, urgency`)
     .option('--date <date> specifiy date to use')
     .option('--modifiedDate <date> specifiy a modified date to search with')
     .action((type,options) => {
@@ -64,16 +66,20 @@ commander
 
 commander
     .command('delete <type>')
-    .description('delete any todo that meets the type criteria')
+    .description(`delete any todo that meets the type criteria
+                  valid types are all , hash, completed, date, category, `)
     .option('--date <date> specifiy date to use')
-    .option('--modifiedDate <date> specifiy a modified date to search with')
+    .option('--category <category> delete todos with that belongs to a particular category')
+    .option('--hash <hash> specify a hash to delete ', 'specify a hash to delete')
     .action((type,options) => {
-	const { date, category } = options;
+	const { date, category, hash } = options;
 	if ( date ) {
 	    return ff.delete(type, { date } );
 	} else if ( category) {
 	    return ff.delete(type, {category});
-	} else {
+	} else if ( hash ) {
+        return ff.delete(type, { hash });
+    } else {
 	    return ff.delete(type);
 	}
     });
@@ -81,14 +87,16 @@ commander
 
 commander
     .command('urgency <hash> <urgency>')
-    .description('specify how urgent you want to accomplish this task')
-    .action( (hash,urgency) => {
+    .description(`specify how urgent you want to accomplish this task
+                  valid urgency types are pending,waiting,later,tomorrow,today`)
+    .action( (hash,urgency) => {   
 	return ff.urgency({hash,urgency});
     });
 
 commander
     .command('priority <hash> <priority>')
-    .description('specify the task priority')
+    .description(`specify the task priority
+                 valid priorities are critical and notcritical`)
     .action( (hash,priority) => {
 	return ff.setPriority({hash,priority});
     });
@@ -109,10 +117,18 @@ commander
 
 commander
     .command('export <type> <path>')
-    .description('export todo as type to path')
+    .description(`export todo as type to path
+                 valid export types are xml,html,json`)
     .action( (type,path) => {
 	return ff.export({type,path});
     });
+
+commander
+    .command('help')
+    .description('show help commands for duty')
+    .action(_ => {
+        commander.outputHelp();
+    }); 
 
 commander.parse(process.argv);
 
