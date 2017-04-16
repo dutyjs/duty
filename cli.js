@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const ff = require('./index.js');
-
+const fs = require('fs');
 
 const commander = require('commander');
 
@@ -133,6 +133,11 @@ commander
 commander.parse(process.argv);
 
 if ( ! process.argv.slice(2).length ) {
-    commander.outputHelp();
+
+    if ( fs.existsSync(JSON.parse(fs.readFileSync("config.json")).location ) ) {
+	commander.outputHelp();
+	process.exit(0);
+    }
+
 }
 //module.exports = ff;
