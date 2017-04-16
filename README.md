@@ -8,7 +8,7 @@
 
 ## Installation
 
-`npm install -g duty`
+`npm install -g duty-js`
 
 
 ## usage
