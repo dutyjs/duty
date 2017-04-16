@@ -157,3 +157,12 @@ when no argument is specified, help is outputed
 **help**
 
 		This subcommand shows all subcommand related to duty.js
+		
+
+**NOTE:** hash length that is greater than 4 can be use with any subcommand that requires hash as an argument
+
+## LICENSE
+
+MIT 
+
+GNU  ( either version 2 of the License, or (at your option) any later version. )
