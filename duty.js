@@ -5,6 +5,7 @@ const ReadTodo = require('./readtodo');
 const DeleteTodo = require('./deletetodo');
 const ExportTodo = require('./exporttodo');
 const util = require('util');
+const { resolve } = require('path');
 
 class DutyTodo {
     constructor({m,location}) {
@@ -620,16 +621,18 @@ urgency:today`);
 		DutyTodo.ErrMessage(`${hash} was not found`);
 	    });
     }
-    export(type) {
+    export({type,path}) {
 	if ( ! type ) {
 	    DutyTodo.ErrMessage(`specify the format type to export as`);
 	    return false;
-	}
-
+	} else if ( (path && ( ! fs.existsSync(path) || fs.existsSync(path) ) ) ) {
+	    path = resolve(path);
+	} 
+	
 	try {
 	    const _export = ExportTodo.createExport();
 	    const self = this;
-	    _export.export({type,DutyTodo,self});
+	    _export.export({type,DutyTodo,self,path});
 	} catch(ex) {
 	    DutyTodo.ErrMessage(`format ${type} is not supported`);
 	}

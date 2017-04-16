@@ -108,10 +108,10 @@ commander
     });
 
 commander
-    .command('export <format>')
-    .description('export todo to format')
-    .action( format => {
-	return ff.export(format);
+    .command('export <type> <path>')
+    .description('export todo as type to path')
+    .action( (type,path) => {
+	return ff.export({type,path});
     });
 
 commander.parse(process.argv);

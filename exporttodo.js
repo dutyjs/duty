@@ -1,6 +1,8 @@
 const { Duplex } = require('stream');
 const { appendFileSync, writeFileSync, readFileSync, createWriteStream } = require('fs');
-//const PDFDocument = require('pdfkit');
+const { dirname , extname }  = require('path');
+const fs = require('fs');
+
 class ExportTodo {
     
     constructor() {}
@@ -8,10 +10,14 @@ class ExportTodo {
     static createExport() {
 	return new ExportTodo();
     }
-    export({type,DutyTodo,self}) {
+    export({type,DutyTodo,self,path}) {
 	this.type = type;
 	this.DutyTodo = DutyTodo;
 	this._this = self;
+	this._path = ( extname(path) !== `.${type}` )
+	    ? `${path}.${type}` : path;
+	
+	this._pathDir = dirname(this._path);
 	this[this.type]();
     }
    
@@ -46,8 +52,8 @@ class ExportTodo {
 	
     }
     html() {
-	
-	let buildHtml = `
+	let { _path , _pathDir, DutyTodo, _this  } = this,
+	    buildHtml = `
 <!doctype html>
 <html>
  <head>
@@ -60,10 +66,10 @@ class ExportTodo {
    <div>
 `;
 	
-	writeFileSync('./duty.html', '');
+	writeFileSync(_path, '');
 	
-	let { DutyTodo, _this } = this,
-	    { m } = _this.MANAGER,
+
+	let { m } = _this.MANAGER,
 	    j = 0,
 	    cb = (opt) => {
 		j++;
@@ -86,7 +92,7 @@ class ExportTodo {
 		
 		buildHtml += `</table>`;
 		
-		appendFileSync('./duty.html', buildHtml);
+		appendFileSync(_path, buildHtml);
 		
 		buildHtml = '';
 		
@@ -97,7 +103,7 @@ class ExportTodo {
    </body>
 </html>
 `;
-		    appendFileSync('./duty.html', buildHtml);
+		    appendFileSync(_path, buildHtml);
 		    
 		    return true;
 		}
@@ -105,7 +111,16 @@ class ExportTodo {
 	
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .then( _ => {
-		DutyTodo.PRINT(`finish converting json html to todo\n`);
+		
+		fs.createReadStream("assets/duty.css").pipe(
+		    fs.createWriteStream(`${_pathDir}/duty.css`)
+		);
+
+		fs.createReadStream("assets/logo.png").pipe(
+		    fs.createWriteStream(`${_pathDir}/logo.png`)
+		);
+		
+		DutyTodo.PRINT(`file location ${_path}\n`);
 	    })
 	    .catch( _ => {
 		DutyTodo.ErrMessage(`error converting todo list to html\n`);
@@ -113,27 +128,25 @@ class ExportTodo {
     }
     json() {
 	// uh
-	let { _this: { MANAGER: { location }} , DutyTodo} = this;
+	let { _this: { MANAGER: { location }} , DutyTodo, _path} = this;
 	
 	try {
-	    writeFileSync('./duty.json', readFileSync(location).toString('ascii'));
-	    DutyTodo.PRINT(`finish converting json data to json\n`);
+	    writeFileSync(_path, readFileSync(location).toString('ascii'));
+	    DutyTodo.PRINT(`file location ${_path}\n`);
 	} catch(ex) {
 	    DutyTodo.ErrMessage(`error converting todo list to json\n`);
 	}
 	
     }
     xml() {
-	
-	let Build_xml = `
-<?xml version="1.0" encoding="UTF-8"?>
+	let { _path, DutyTodo, _this } = this,
+	    Build_xml = `<?xml version="1.0" encoding="UTF-8"?>
 <duty>
 `;
 
-	writeFileSync('./duty.xml', '');
+	writeFileSync(_path, '');
 
-	let { DutyTodo, _this } = this,
-	    { m } = _this.MANAGER,
+	let  { m } = _this.MANAGER,
 	    j = 0,
 	    cb = (opt) => {
 		
@@ -162,7 +175,7 @@ class ExportTodo {
   </id>
 `;
 		
-		appendFileSync('./duty.xml', Build_xml);
+		appendFileSync(_path, Build_xml);
 
 		Build_xml = '';
 		
@@ -171,7 +184,7 @@ class ExportTodo {
 		    Build_xml = `
 </duty>
 `;
-		    appendFileSync('./duty.xml', Build_xml);
+		    appendFileSync(_path, Build_xml);
 		    
 		    return true;
 		}
@@ -179,7 +192,7 @@ class ExportTodo {
 
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .then( _ => {
-		DutyTodo.PRINT(`finish converting json data to xml\n`);
+		DutyTodo.PRINT(`file location ${_path}\n`);
 	    })
 	    .catch( _ => {
 		DutyTodo.ErrMessage(`error converting todo list to xml\n`);
