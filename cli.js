@@ -134,7 +134,7 @@ commander.parse(process.argv);
 
 if ( ! process.argv.slice(2).length ) {
 
-    if ( fs.existsSync(JSON.parse(fs.readFileSync("config.json")).location ) ) {
+    if ( fs.existsSync(JSON.parse(fs.readFileSync(__dirname + "/config.json")).location ) ) {
 	commander.outputHelp();
 	process.exit(0);
     }
