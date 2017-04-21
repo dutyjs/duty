@@ -104,18 +104,32 @@ content:\t${content}\n
 	});
     }
     due() {
+
 	let { DutyTodo, _this, m } = this,
-	    { date: _dueDate} = this._opt, j = 0,
+	    { date: _dueDate,_cb} = this._opt, j = 0,
 	    cb = ({hash,due_date}) => {
+
 		j++;
 		if ( due_date && _dueDate === due_date ) {
+                    if ( _cb ) {
+                        _cb(m[hash]);
+                        return DutyTodo.DAEMONMATCH;
+                    }
+
 		    ReadTodo.STYLE_READ(m[hash],DutyTodo);
 		    return true;
 		}
 		if ( Object.keys(m).length === j ) {
-		    return false;
+
+                    if ( ! _cb ) return false;
+
+                    return DutyTodo.NO_DAEMONMATCH;
 		}
 	    };
+
+        // the catch block is entirely useless
+        //   when due is executed from the daemon
+        //   an extra check will be made to see if a due date is set
 
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .catch( _ => {
