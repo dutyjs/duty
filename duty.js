@@ -4,8 +4,11 @@ const fs = require('fs');
 const ReadTodo = require('./readtodo');
 const DeleteTodo = require('./deletetodo');
 const ExportTodo = require('./exporttodo');
+const Platform = require('./platform');
+const { platform , homedir } = require('os');
 const util = require('util');
-const { resolve } = require('path');
+const Notify = require('node-notifier');
+const { resolve, join } = require('path');
 
 class DutyTodo {
     constructor({m,location}) {
@@ -13,6 +16,25 @@ class DutyTodo {
 	    location,
 	    m
 	};
+    }
+    static VERIFY_DATE(date) {
+
+        let _dateChunk = date.split('/');
+
+        let [ month , _day ] = _dateChunk.map(Number);
+
+        let [ , , year] = _dateChunk;
+
+        if (
+            (! _day || ! month || ! year)
+                &&
+                ( _day > 31 || month > 12 || year.length !== 4)
+        ) {
+            return false;
+        }
+
+        return true;
+
     }
     static PRINT(text) {
 	process.stdout.write(colors.bold(text));
@@ -388,7 +410,10 @@ class DutyTodo {
 	} else if ( type === 'due' && ! date  ) {
 	    DutyTodo.ErrMessage(`expected date argument to be set`);
 	    return false;
-	}
+	} else if ( type === 'due' && ! DutyTodo.VERIFY_DATE(date) ) {
+            return DutyTodo.ErrMessage(`invalid date format specfied ${date}. Date should be specfied  in dd/mm/yy`);
+        }
+
 
 	try {
 	    const p = ReadTodo.createType();
@@ -404,6 +429,7 @@ class DutyTodo {
 	}
     }
     delete(type, opt = {}) {
+
 	let { date , hash , category} = opt;
 	if ( ! type ) {
 	    DutyTodo.ErrMessage(`type ${type} is not supported`);
@@ -417,8 +443,10 @@ class DutyTodo {
 	} else if ( type === 'category' && ( ! category ) ) {
 	    DutyTodo.ErrMessage(`category type is not specified`);
 	    return false;
-	}
+	} else if ( type === 'date' && ! DutyTodo.VERIFY_DATE(date) ) {
+            return DutyTodo.ErrMessage(`invalid date format specfied ${date}. Date should be specfied  in dd/mm/yy`);
 
+        }
 	try {
 	    const p = DeleteTodo.createType();
 
@@ -601,7 +629,11 @@ urgency:today`);
 	} else if ( hash.length <= 4 ) {
 	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
 	    return false;
-	}
+	}  else if ( date && ! DutyTodo.VERIFY_DATE(date) ) {
+            return DutyTodo.ErrMessage(`invalid date format specfied ${date}. Date should be specfied  in dd/mm/yy`);
+
+        }
+
 	let {location,m} = this.MANAGER,
 	    hashRegex = new RegExp(`^${hash}`),
 	    j = 0,
