@@ -18,14 +18,16 @@ installDaemon() {
     }
 
     [[ "$(file $(which init))" =~ (systemd|upstart|sysvinit) ]]
-    
+    install_path="$(which ${install_path})"
     case "${BASH_REMATCH}" in
         systemd)
             __systemd "${install_path}"
             ;;
         upstart)
+            __upstart "${instal_path}"
             ;;
         sysvinit)
+            __sysvinit "${instal_path}"
             ;;
     esac
     
@@ -34,12 +36,12 @@ installDaemon() {
 
 __systemd() {
     local _path="${1}"
-    cat <<EOF >> /etc/systemd/system/duty-js.service
+    cat <<EOF > /etc/systemd/system/duty-js.service
 [Unit]
 Description=Duty Todo Daemon
 
 [Service]
-ExecStart=${_path} daemonize
+ExecStart=${_path} daemon
 Restart=always
 StartLimitBurst=100
 RestartSec=1
@@ -51,6 +53,8 @@ WantedBy=multi-user.target
 EOF
 }
 
-
+__upstart() {
+    local _path="${1}"
+}
 
 installDaemon "${1}"
