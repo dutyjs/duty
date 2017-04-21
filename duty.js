@@ -67,6 +67,12 @@ class DutyTodo {
     static URGENCY_ERROR() {
 	return 'URGENCY_ERROR';
     }
+    static NO_DAEMONMATCH() {
+        return 'NO_DAEMONMATCH';
+    }
+    static DAEMONMATCH() {
+        return 'DAEMONMATCH';
+    }
     static CALLGENERATORYLOOP(_this,cb) {
 
 	// if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
@@ -672,6 +678,52 @@ urgency:today`);
 	}
     }
 
+
+    daemon() {
+
+
+        const platformTest = Platform.createType();
+
+        if ( ! platformTest.checkPlatform(platform()) ) {
+
+            return fs.appendFileSync(
+                join(homedir(), 'duty_log.txt'),
+                `
+--- ${new Date().toLocaleDatestring()}
+can't locate the service file
+`);
+
+        }
+
+
+        let self = this;
+
+
+        let readDaemonObject = {
+            type: "due",
+            opt: {
+                date: new Date().toLocaleDateString(),
+                _cb({content,hash,due_date}) {
+                    console.log('hi');
+                    fs.appendFileSync('hello.txt','adfadsfa');
+                    Notify.notify({
+                        title: `Todo ${hash} is due for today ${due_date}`,
+                        message: content,
+                        sound: true,
+                        wait: true
+                    });
+                }
+            },
+            self,
+            DutyTodo
+        };
+
+        const daemonRead = ReadTodo.createType();
+
+        daemonRead.handleRead(readDaemonObject);
+
+
+    }
 }
 
 module.exports = DutyTodo.createInstance;
