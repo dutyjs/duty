@@ -696,34 +696,31 @@ can't locate the service file
         }
 
 
-        let self = this;
+        const self = this;
 
+        setInterval( _  => {
+		        let readDaemonObject = {
+		            type: "due",
+		            opt: {
+		                date: new Date().toLocaleDateString(),
+		                _cb({content,hash,due_date}) {
+		                    Notify.notify({
+		                        title: `Todo ${hash} is due for today ${due_date}`,
+		                        message: content,
+		                        sound: true,
+		                        wait: true
+		                    });
+		                }
+		            },
+		            self,
+		            DutyTodo
+		        };
 
-        let readDaemonObject = {
-            type: "due",
-            opt: {
-                date: new Date().toLocaleDateString(),
-                _cb({content,hash,due_date}) {
-                    fs.appendFileSync('hello.txt', Math.random());
-                    Notify.notify({
-                        title: `Todo ${hash} is due for today ${due_date}`,
-                        message: content,
-                        sound: true,
-                        wait: true
-                    });
-                }
-            },
-            self,
-            DutyTodo
-        };
+		        const daemonRead = ReadTodo.createType();
+		        
+		        daemonRead.handleRead(readDaemonObject);
 
-        const daemonRead = ReadTodo.createType();
-        setInterval( _ => {
-          daemonRead.handleRead(readDaemonObject);
-        },60000)
-        
-
-
+        },60000);
     }
 }
 
