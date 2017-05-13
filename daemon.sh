@@ -21,6 +21,7 @@ installDaemon() {
     install_path="$(which ${install_path})"
     case "${BASH_REMATCH}" in
         systemd)
+
             __systemd "${install_path}"
             ;;
         upstart)
@@ -42,10 +43,8 @@ Description=Duty Todo Daemon
 
 [Service]
 ExecStart=${_path} daemon
-Restart=always
-StartLimitBurst=100
-RestartSec=1
-
+Restart=on-failure
+Environment=DISPLAY=:0
 
 [Install]
 WantedBy=multi-user.target
