@@ -704,8 +704,7 @@ can't locate the service file
             opt: {
                 date: new Date().toLocaleDateString(),
                 _cb({content,hash,due_date}) {
-                    console.log('hi');
-                    fs.appendFileSync('hello.txt','adfadsfa');
+                    fs.appendFileSync('hello.txt', Math.random());
                     Notify.notify({
                         title: `Todo ${hash} is due for today ${due_date}`,
                         message: content,
@@ -719,8 +718,10 @@ can't locate the service file
         };
 
         const daemonRead = ReadTodo.createType();
-
-        daemonRead.handleRead(readDaemonObject);
+        setInterval( _ => {
+          daemonRead.handleRead(readDaemonObject);
+        },60000)
+        
 
 
     }
