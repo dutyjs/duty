@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 const ff = require('./index.js');
 const fs = require('fs');
 
@@ -129,6 +130,14 @@ commander
     .action(_ => {
         commander.outputHelp();
     });
+
+commander
+    .command('daemon')
+    .description("use to make duty run in background, executing this subcommand from the commandline won't work")
+    .action( _ => {
+        ff.daemon();
+    });
+
 
 commander.parse(process.argv);
 

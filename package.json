@@ -8,7 +8,9 @@
   "dependencies": {
     "colors": "^1.1.2",
     "commander": "^2.9.0",
-    "mkdirp": "^0.5.1"
+    "mkdirp": "^0.5.1",
+    "node-linux": "^0.1.11",
+    "node-notifier": "^5.1.2"
   },
   "license": "MIT",
   "version": "1.0.1",

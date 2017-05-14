@@ -69,7 +69,7 @@ class ExportTodo {
 	writeFileSync(_path, '');
 
 
-	let { m } = _this.MANAGER,
+	let { todoGroup } = _this.MANAGER,
 	    j = 0,
 	    cb = (opt) => {
 		j++;
@@ -96,7 +96,7 @@ class ExportTodo {
 
 		buildHtml = '';
 
-		if ( Object.keys(m).length === j ) {
+		if ( Object.keys(todoGroup).length === j ) {
 
 		    buildHtml = `
   </div>
@@ -146,7 +146,7 @@ class ExportTodo {
 
 	writeFileSync(_path, '');
 
-	let  { m } = _this.MANAGER,
+	let  { todoGroup } = _this.MANAGER,
 	    j = 0,
 	    cb = (opt) => {
 
@@ -179,7 +179,7 @@ class ExportTodo {
 
 		Build_xml = '';
 
-		if ( Object.keys(m).length === j ) {
+		if ( Object.keys(todoGroup).length === j ) {
 
 		    Build_xml = `
 </duty>

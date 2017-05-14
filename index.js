@@ -6,11 +6,11 @@ try {
 
 	const config = require('./config.json');
 
-	const config_locationContent = require(config.location);
+	Object.assign(config, {
+		todoGroup: require(config.location)
+	})
 
-	let { location } = config;
-
-	module.exports = require('./duty.js')({config_locationContent,location});
+	module.exports = new (require('./duty.js'))(config);
 
 
 } catch(ex) {
@@ -38,20 +38,21 @@ try {
 
 				let answer = await askQuestion(
 					`default todo location not found, use \"${DEFAULT}\" as default (y/n) `
-					), obj;
+					), config;
+
 
 				switch(answer) {
 					case 'y':
 
 					interface.close();
 
-					obj = { location: DEFAULT, notification, timeout};
+					config = { location: DEFAULT, notification, timeout};
 
-					fs.writeFileSync(DEFAULT, "{}");
+					fs.writeFileSync(config.location, "{}");
 
-					fs.writeFileSync("./config.json", JSON.stringify(obj));
+					fs.writeFileSync("./config.json", JSON.stringify(config));
 
-					module.exports = require('./duty.js')(DEFAULT);
+					module.exports = new (require('./duty.js'))(config);
 
 					break;
 					case 'n':
@@ -69,13 +70,13 @@ try {
 
 						mkdirp.sync(answer.substr(0,answer.lastIndexOf(path.sep)));
 
-						obj = { location: answer + ".json", notification, timeout};
+						config = { location: answer + ".json", notification, timeout};
 
-						fs.writeFileSync(obj.location, "{}");
+						fs.writeFileSync(config.location, "{}");
 
-						fs.writeFileSync("./config.json", JSON.stringify(obj));
+						fs.writeFileSync("./config.json", JSON.stringify(config));
 
-						module.exports = require('./duty.js')(answer);
+						module.exports = new (require('./duty.js'))(config);
 
 						return ;
 
