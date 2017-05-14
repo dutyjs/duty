@@ -87,7 +87,9 @@ try {
 				}
 
 
-			} catch(ex) {}
+			} catch(ex) {
+				console.log(ex);
+			}
 
 		};
 
