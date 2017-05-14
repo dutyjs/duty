@@ -17,11 +17,10 @@ class Platform {
         
         if (
             fs.existsSync('/etc/systemd/system/duty-js.service')
-                
-        ) {
+            ) {
             return true;
-        }
     }
+}
 }
 
 module.exports = Platform;
