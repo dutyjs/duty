@@ -29,7 +29,7 @@ class DeleteTodo {
 		return true;
 	}
 	hash() {
-		let { DutyTodo , location , todoGroup , _opt: { hash },_this} = this,
+		let { DutyTodo , location , todoGroup , _opt: { value: hash },_this} = this,
 		hashRegex = new RegExp(`^${hash}`),
 		j = 0,
 		cb = ({longHash,hash}) => {
@@ -80,7 +80,7 @@ class DeleteTodo {
 	date() {
 
 		let { DutyTodo, _this, todoGroup, location} = this,
-		{ date: _userDate } = this._opt,
+		{ value: _userDate } = this._opt,
 		isRead = false,j = 0,
 		cb = ({date,modifiedDate,hash}) => {
 			j++;
@@ -106,7 +106,7 @@ class DeleteTodo {
 		});
 	}
 	category() {
-		let { DutyTodo , location , todoGroup , _opt: { category },_this} = this,
+		let { DutyTodo , location , todoGroup , _opt: { value: category },_this} = this,
 		j = 0,isDelete = false,
 		cb = ({hash,category: _category}) => {
 

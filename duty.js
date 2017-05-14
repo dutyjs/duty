@@ -440,21 +440,23 @@ append({hash,text}) {
 	}
 	delete(type, opt = {}) {
 
-		let { date , hash , category} = opt;
+		let { value } = opt;
+
 		if ( ! type ) {
 			DutyTodo.ErrMessage(`type ${type} is not supported`);
 			return false;
-		} else if ( type === 'date' && ( ! date ) ) {
+		} else if ( type === 'date' && ( ! value ) ) {
 			DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in dd/mm/yy`);
 			return false;
-		} else if ( type === 'hash' && ( ! hash || hash.length <= 4)  ) {
+		} else if ( type === 'hash' && ( ! value || value.length <= 4)  ) {
+
 			DutyTodo.ErrMessage(`invalid hash type`);
 			return false;
-		} else if ( type === 'category' && ( ! category ) ) {
+		} else if ( type === 'category' && ( ! value ) ) {
 			DutyTodo.ErrMessage(`category type is not specified`);
 			return false;
-		} else if ( type === 'date' && ! DutyTodo.VERIFY_DATE(date) ) {
-			return DutyTodo.ErrMessage(`invalid date format specfied ${date}. Date should be specfied  in dd/mm/yy`);
+		} else if ( type === 'date' && ! DutyTodo.VERIFY_DATE(value) ) {
+			return DutyTodo.ErrMessage(`invalid date format specfied ${value}. Date should be specfied  in dd/mm/yy`);
 
 		}
 		try {
@@ -682,10 +684,10 @@ append({hash,text}) {
 		}
 	}
 	static NotificationArg(notification) {
-		return ( typeof(notification) === 'boolean' )
+		return /^true$|^false$/.test(notification);
 	}
 	static TimeoutArg(timeout) {
-		return (typeof(timeout) === 'number' );
+		return ! isNaN(Number(timeout));
 	}
 	set_notify(hash,{notification,timeout}) {
 
@@ -725,7 +727,7 @@ append({hash,text}) {
 		.then( _ => {
 			DutyTodo.WriteFile({location,todoGroup});
 		}).catch( _ => {
-			DutyTodo.ErrMessage(`${hash} was not found`);
+			DutyTodo.ErrMessage(`hash value ${hash} was not found`);
 		});
 
 	}
@@ -768,7 +770,7 @@ append({hash,text}) {
 								wait: true
 							});
 
-						},timeout);
+						},Number(timeout));
 					}
 				},
 				self,
