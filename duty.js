@@ -11,80 +11,84 @@ const Notify = require('node-notifier');
 const { resolve, join } = require('path');
 
 class DutyTodo {
-    constructor({m,location}) {
-	this.MANAGER = {
-	    location,
-	    m
-	};
-    }
-    static VERIFY_DATE(date) {
+	constructor({location,todoGroup,notification,timeout}) {
 
-        let _dateChunk = date.split('/');
+		this.MANAGER = {
+			location,
+			todoGroup,
+			notification,
+			timeout
+		};
 
-        let [ month , _day ] = _dateChunk.map(Number);
+	}
+	static VERIFY_DATE(date) {
 
-        let [ , , year] = _dateChunk;
+		let _dateChunk = date.split('/');
 
-        if (
-            (! _day || ! month || ! year)
-                &&
-                ( _day > 31 || month > 12 || year.length !== 4)
-        ) {
-            return false;
-        }
+		let [ month , _day ] = _dateChunk.map(Number);
 
-        return true;
+		let [ , , year] = _dateChunk;
 
-    }
-    static PRINT(text) {
+		if (
+			(! _day || ! month || ! year)
+			&&
+			( _day > 31 || month > 12 || year.length !== 4)
+			) {
+			return false;
+	}
+
+	return true;
+
+}
+static PRINT(text) {
 	process.stdout.write(colors.bold(text));
-    }
-    static REMODIFIYHASH({type,content,text,regex,m,hash}) {
+}
+static REMODIFIYHASH({type,content,text,regex,todoGroup,hash}) {
 
 	content = ((type === 'replace') ? `${content.replace(regex,text)}` : `${content} ${text}`);
 
 	let newHash = crypto.createHash('sha256').update(content)
-		.digest('hex'),
-	    mDate = new Date(),
-	    modifiedDate = mDate.toLocaleDateString(),
-	    longHash = newHash;
+	.digest('hex'),
+	mDate = new Date(),
+	modifiedDate = mDate.toLocaleDateString(),
+	longHash = newHash;
 
 	newHash = newHash.slice(0, newHash.length - 55);
-	m[newHash] = Object.create({});
-	Object.assign(m[newHash],m[hash],{
-	    content,
-	    longHash,
-	    hash: newHash,
-	    modifiedDate
+	todoGroup[newHash] = Object.create({});
+	Object.assign(todoGroup[newHash],todoGroup[hash],{
+		content,
+		longHash,
+		hash: newHash,
+		modifiedDate
 	});
 
-	delete m[hash];
+	delete todoGroup[hash];
 
-    }
-    static NotEmpty({ m }) {
-	return ( Object.keys(m).length !== 0 ) ? true : false;
-    }
-    static URGENCY_ERROR() {
+}
+static NotEmpty({ todoGroup }) {
+	return ( Object.keys(todoGroup).length !== 0 ) ? true : false;
+}
+static URGENCY_ERROR() {
 	return 'URGENCY_ERROR';
-    }
-    static NO_DAEMONMATCH() {
-        return 'NO_DAEMONMATCH';
-    }
-    static DAEMONMATCH() {
-        return 'DAEMONMATCH';
-    }
-    static CALLGENERATORYLOOP(_this,cb) {
+}
+static NO_DAEMONMATCH() {
+	return 'NO_DAEMONMATCH';
+}
+static DAEMONMATCH() {
+	return 'DAEMONMATCH';
+}
+static CALLGENERATORYLOOP(_this,cb) {
 
 	// if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
 
 	return new Promise((resolve,reject) => {
 
-	    const gen = _this.IterateTodo();
+		const gen = _this.IterateTodo();
 
-	    let _n = gen.next(),
+		let _n = gen.next(),
 		f ;
 
-	    while ( ! _n.done  ) {
+		while ( ! _n.done  ) {
 
 		// pass the object to the callback function
 		//   to see if it already exists
