@@ -6,11 +6,11 @@ try {
 
 	const config = require('./config.json');
 
-	const config_locationContent = require(config.location);
+	Object.assign(config, {
+		todoGroup: require(config.location)
+	})
 
-	let { location } = config;
-
-	module.exports = require('./duty.js')({config_locationContent,location});
+	module.exports = new (require('./duty.js'))(config);
 
 
 } catch(ex) {
