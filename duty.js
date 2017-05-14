@@ -125,7 +125,7 @@ static ErrMessage(msg) {
 static WriteFile({location, todoGroup}) {
 	fs.writeFileSync(location, JSON.stringify(todoGroup));
 }
-static SaveTodo({manager: { todoGroup , location },hash,todo,category}) {
+static SaveTodo({manager: { todoGroup , location , notification , timeout },hash,todo,category}) {
 
 	let longHash = hash;
 
@@ -137,6 +137,7 @@ static SaveTodo({manager: { todoGroup , location },hash,todo,category}) {
 	year = DATE.getYear(),
 	completed = false;
 
+
 	todoGroup[hash] = {
 		content: todo,
 		hash,
@@ -144,7 +145,9 @@ static SaveTodo({manager: { todoGroup , location },hash,todo,category}) {
 		date,
 		month,
 		year,
-		completed
+		completed,
+		notification,
+		timeout
 	};
 
 
