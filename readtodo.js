@@ -58,7 +58,9 @@ class ReadTodo {
 			priority,
 			urgency,
 			category,
-			note
+			note,
+                  notification,
+                  timeout
 		} = opt;
 
 		let unicodes = ReadTodo.UNICODE_VALUES();
@@ -73,8 +75,9 @@ category:\t(${category})` : ''} ${priority ? `
 priority:\t${priority}${unicodes[ReadTodo.HANDLE_PRIORITY(priority)]}` : ''} ${urgency ? `
 urgency:\t${urgency} `: ''} ${note ? `
 note:\t\t${note}`: ''}
-content:\t${content}\n
-
+content:\t${content}
+notification:\t${notification}
+timeout:\t${timeout}
 `);
 
 	}
