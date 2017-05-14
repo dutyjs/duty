@@ -746,6 +746,7 @@ append({hash,text}) {
 					_cb({content,hash,due_date}) {
 						Notify.notify({
 							title: `Todo ${hash} is due for today ${due_date}`,
+							icon: path.join(__dirname, 'assets/logo.png'),
 							message: content,
 							sound: true,
 							wait: true
