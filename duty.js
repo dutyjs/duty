@@ -681,7 +681,12 @@ append({hash,text}) {
 			DutyTodo.ErrMessage(`format ${type} is not supported`);
 		}
 	}
-
+	static NotificationArg(notification) {
+		return ( typeof(notification) === 'boolean' )
+	}
+	static TimeoutArg(timeout) {
+		return (typeof(timeout) === 'number' );
+	}
 	set_notify(hash,{notification,timeout}) {
 
 		if ( ! hash ) {
@@ -692,12 +697,14 @@ append({hash,text}) {
 			return false;
 		}
 
-		if ( ! notification ) {
-			this.notifification = notification = true;
+		if ( ! DutyTodo.NotificationArg(notification) ) {
+			DutyTodo.ErrMessage(`notification state argument needs to be true or false`);
+			return false;
 		}
 
-		if ( ! timeout ) {
-			this.timeout = timeout = 60000;
+		if ( ! DutyTodo.TimeoutArg(timeout) ) {
+			DutyTodo.ErrMessage(`timeout that is amount of times the todo should show is not a number`);
+			return false;
 		}
 
 		let {location,todoGroup} = this.MANAGER,
