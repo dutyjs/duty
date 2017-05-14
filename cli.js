@@ -69,20 +69,16 @@ commander
     .command('delete <type>')
     .description(`delete any todo that meets the type criteria
                   valid types are all , hash, completed, date, category, `)
-    .option('--date <date> specifiy date to use')
-    .option('--category <category> delete todos with that belongs to a particular category')
-    .option('--hash <hash> specify a hash to delete ', 'specify a hash to delete')
-    .action((type,options) => {
-	const { date, category, hash } = options;
-	if ( date ) {
-	    return ff.delete(type, { date } );
-	} else if ( category) {
-	    return ff.delete(type, {category});
-	} else if ( hash ) {
-        return ff.delete(type, { hash });
-    } else {
-	    return ff.delete(type);
-	}
+    .action( type => {
+        let argumentArray;
+    	const [ _type, value ] = argumentArray = type.split(':');
+
+        if ( /^all$|^completed$/.test(_type) )  {
+            return ff.delete(_type);
+        } else {
+            return ff.delete(_type,{ value });
+        }
+
     });
 
 
@@ -122,6 +118,13 @@ commander
                  valid export types are xml,html,json`)
     .action( (type,path) => {
 	return ff.export({type,path});
+    });
+
+commander
+    .command("set_notify <hash> <notification> <timeout> ")
+    .description("set notification option for a particular todo")
+    .action((hash,notification,timeout) => {
+        ff.set_notify(hash,{notification,timeout});
     });
 
 commander
