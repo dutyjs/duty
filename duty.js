@@ -752,15 +752,23 @@ append({hash,text}) {
 			let readDaemonObject = {
 				type: "due",
 				opt: {
+
 					date: new Date().toLocaleDateString(),
-					_cb({content,hash,due_date}) {
-						Notify.notify({
-							title: `Todo ${hash} is due for today ${due_date}`,
-							icon: path.join(__dirname, 'assets/logo.png'),
-							message: content,
-							sound: true,
-							wait: true
-						});
+
+					_cb({content,hash,due_date,notification,timeout}) {
+
+						if ( ! notification ) return false;
+
+						setTimeout( _ => {						
+							Notify.notify({
+								title: `Todo ${hash} is due for today ${due_date}`,
+								icon: path.join(__dirname, 'assets/logo.png'),
+								message: content,
+								sound: true,
+								wait: true
+							});
+
+						},timeout);
 					}
 				},
 				self,
