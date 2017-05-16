@@ -42,8 +42,10 @@ __systemd() {
 Description=Duty Todo Daemon
 
 [Service]
+Type=notify
 ExecStart=${_path} daemon
-Restart=on-failure
+Restart=always
+WatchdogSec=5
 Environment=DISPLAY=:0
 
 [Install]
