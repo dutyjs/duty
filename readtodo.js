@@ -46,8 +46,8 @@ class ReadTodo {
 		return ((priority === 'critical') ?  'critical' : 'notcritical');
 	}
 
-	static STYLE_READ(opt,DutyTodo) {
-
+	static STYLE_READ(opt,DutyTodo, { notification: _configNotification , timeout: _configTimeout }) {
+            
 		let {
 			hash,
 			content,
@@ -76,8 +76,8 @@ priority:\t${priority}${unicodes[ReadTodo.HANDLE_PRIORITY(priority)]}` : ''} ${u
 urgency:\t${urgency} `: ''} ${note ? `
 note:\t\t${note}`: ''}
 content:\t${content}
-notification:\t${notification}
-timeout:\t${timeout}
+notification:\t${/^true$|^false$/.test(String(notification)) ? notification : _configNotification}
+timeout:\t${timeout ? timeout : _configTimeout}
 `);
 
 	}
@@ -104,7 +104,8 @@ timeout:\t${timeout}
 		let { DutyTodo, _this, todoGroup } = this;
 
 		DutyTodo.CALLGENERATORYLOOP(_this, ({hash}) => {
-			ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo);
+                  let { notification, timeout} = _this.MANAGER;
+			ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
 		});
 	}
 	due() {
@@ -120,7 +121,8 @@ timeout:\t${timeout}
 					return DutyTodo.DAEMONMATCH;
 				}
 
-				ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo);
+                        let { notification, timeout} = _this.MANAGER;
+                        ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
 				return true;
 			}
 			if ( Object.keys(todoGroup).length === j ) {
@@ -150,7 +152,8 @@ timeout:\t${timeout}
       		if ( category && Array.isArray(category) && category.includes(categoryType)) {
       			isRead = true;
 
-      			ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo);
+                        let { notification, timeout} = _this.MANAGER;
+                        ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
       		}
 
       		if ( ! isRead && Object.keys(todoGroup).length === j ) {
@@ -184,7 +187,8 @@ timeout:\t${timeout}
       		j++;
       		if ( urgency && Array.isArray(urgency) && urgency.includes(urgencyType) ) {
       			isRead = true;
-      			ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo);
+                        let { notification, timeout} = _this.MANAGER;
+                        ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
       		}
 
       		if ( ! isRead && Object.keys(todoGroup).length === j ) {
@@ -207,7 +211,8 @@ timeout:\t${timeout}
       		j++;
       		if ( completed ) {
       			isRead = true;
-      			ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo);
+                        let { notification, timeout} = _this.MANAGER;
+                        ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
       		}
 
       		if ( ! isRead && Object.keys(todoGroup).length === j ) {
@@ -231,7 +236,8 @@ timeout:\t${timeout}
       		j++;
       		if ( ! completed ) {
       			isRead = true;
-      			ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo);
+                        let { notification, timeout} = _this.MANAGER;
+                        ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
       		}
 
       		if ( ! isRead && Object.keys(todoGroup).length === j ) {
@@ -256,10 +262,12 @@ timeout:\t${timeout}
       		if ( (_userDate && date === _userDate) && (_userModifiedDate && modifiedDate === _userModifiedDate)
       			) {
       			isRead = true;
-      		ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo);
+                        let { notification, timeout} = _this.MANAGER;
+                        ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
       	} else if ( (_userDate && date === _userDate) && !_userModifiedDate ) {
       		isRead = true;
-      		ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo);
+                  let { notification, timeout} = _this.MANAGER;
+                  ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
       	}
 
       	if ( ! isRead && Object.keys(todoGroup).length === j ) {
