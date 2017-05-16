@@ -764,7 +764,7 @@ append({hash,text}) {
 						setTimeout( _ => {						
 							Notify.notify({
 								title: `Todo ${hash} is due for today ${due_date}`,
-								icon: path.join(__dirname, 'assets/logo.png'),
+								icon: join(__dirname, 'assets/logo.png'),
 								message: content,
 								sound: true,
 								wait: true
