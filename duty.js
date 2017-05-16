@@ -780,7 +780,7 @@ append({hash,text}) {
 			const daemonRead = ReadTodo.createType();
 			daemonRead.handleRead(readDaemonObject);
 
-		},60000);
+		},20000);
 	}
 }
 
