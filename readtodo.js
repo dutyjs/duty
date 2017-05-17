@@ -24,7 +24,6 @@ class ReadTodo {
 	static HANDLE_DUE_DATE({due_date}) {
 
 		let _date = new Date();
-
 		_date = _date.toLocaleDateString().split('/').join('');
 
 		due_date = due_date.split('/').join('');
@@ -34,9 +33,9 @@ class ReadTodo {
 		const { circle, halfcircle, completecircle } = ReadTodo.UNICODE_VALUES();
 
 		if ( due_date > _date ) {
-			return `${TIME_LEFT}days from now${halfcircle}`;
+			return `${TIME_LEFT}days from now`;
 		} else if ( due_date < _date ) {
-			return `${parseInt(TIME_LEFT) * -1}days before now${circle}`;
+			return `${parseInt(TIME_LEFT) * -1}days before now`;
 		} else if ( due_date === _date ) {
 			return `today ${completecircle}`;
 		}
@@ -89,7 +88,7 @@ timeout:\t${timeout ? timeout : _configTimeout}
 		this._this = _this;
 		this._opt = opt;
 
-		let _matched = this.type.match(/^(urgency|category):([a-z]+)$/);
+		let _matched = this.type.match(/^(urgency|category|eval):([a-z\"\s\d]+)$/);
 		const [,_type,_typeOfType] = _matched ? _matched : [,undefined,undefined];
 
 		if ( _typeOfType ) {
@@ -116,7 +115,21 @@ timeout:\t${timeout ? timeout : _configTimeout}
                         ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
                   }
             }).catch(_ => {
-                  console.log(_);
+                  DutyTodo.ErrMessage(`unknown error while wanting to read for notification todos`);
+            });
+      }
+      eval(strToEval) {
+
+            let { DutyTodo, _this, todoGroup } = this;
+
+            DutyTodo.CALLGENERATORYLOOP(_this, ({due_date,hash}) => {
+
+                  if ( due_date && ReadTodo.HANDLE_DUE_DATE({due_date}) === strToEval) {
+
+                        let { notification, timeout } = _this.MANAGER;
+                        ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
+                  }
+            }).catch(_ => {
                   DutyTodo.ErrMessage(`unknown error while wanting to read for notification todos`);
             });
       }
