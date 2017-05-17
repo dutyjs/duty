@@ -59,10 +59,15 @@ commander
     .option('--modifiedDate <date> specifiy a modified date to search with')
     .action((type,options) => {
 	const { date, modifiedDate } = options;
-	if ( ! date && ! modifiedDate ) {
-	    return ff.read(type);
-	}
-	return ff.read(type, { date , modifiedDate });
+	if ( date && ! modifiedDate ) {
+	   return ff.read(type, { date }); 
+    } else if ( ! date && modifiedDate ) {
+        return ff.read(type, {modifiedDate});
+    } else if ( date && modifiedDate ) {
+        return ff.read(type,{date,modifiedDate});
+    } else {
+        return ff.read(type);
+    }
     });
 
 commander
