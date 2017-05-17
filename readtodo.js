@@ -108,6 +108,18 @@ timeout:\t${timeout ? timeout : _configTimeout}
 			ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
 		});
 	}
+      notification() {
+            let { DutyTodo, _this, todoGroup } = this;
+            DutyTodo.CALLGENERATORYLOOP(_this, ({notification:_notify,hash}) => {
+                  if ( _notify ) {
+                        let { notification, timeout } = _this.MANAGER;
+                        ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
+                  }
+            }).catch(_ => {
+                  console.log(_);
+                  DutyTodo.ErrMessage(`unknown error while wanting to read for notification todos`);
+            });
+      }
 	due() {
 
 		let { DutyTodo, _this, todoGroup } = this,
