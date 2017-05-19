@@ -17,20 +17,13 @@ installDaemon() {
         return 1;
     }
 
-    [[ "$(file $(which init))" =~ (systemd|upstart|sysvinit) ]]
     install_path="$(which ${install_path})"
-    case "${BASH_REMATCH}" in
-        systemd)
 
-            __systemd "${install_path}"
-            ;;
-        upstart)
-            __upstart "${instal_path}"
-            ;;
-        sysvinit)
-            __sysvinit "${instal_path}"
-            ;;
-    esac
+    [[ "$(file $(which init))" =~ (systemd) ]] && {
+        __systemd "${install_path}"
+    } || {
+        printf "%s\n" "only systemd daemon mananger is required";
+    }
     
 
 }
@@ -52,10 +45,6 @@ Environment=DISPLAY=:0
 WantedBy=multi-user.target
 
 EOF
-}
-
-__upstart() {
-    local _path="${1}"
 }
 
 installDaemon "${1}"
