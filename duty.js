@@ -22,62 +22,64 @@ class DutyTodo {
 
 	}
 	static VERIFY_DATE(date) {
+		// month, day, year
+		date = date.split('/').filter(Number);
 
-		let _dateChunk = date.split('/');
-
-		let [ month , _day ] = _dateChunk.map(Number);
-
-		let [ , , year] = _dateChunk;
-
-		if (
-			(! _day || ! month || ! year)
-			&&
-			( _day > 31 || month > 12 || year.length !== 4)
-			) {
+		if ( date.length !== 3 ) {
 			return false;
+		}
+
+		const [ month, day, year ]  = date.map(Number);
+		
+
+		if ( (month >= 1 && month <= 12) && 
+			( day >= 1 && day <= 31) &&
+			( String(year).length === 4 ) ) {
+			return true;
+		}
+
+		return false;
+
+
 	}
+	static PRINT(text) {
+		process.stdout.write(colors.bold(text));
+	}
+	static REMODIFIYHASH({type,content,text,regex,todoGroup,hash}) {
 
-	return true;
+		content = ((type === 'replace') ? `${content.replace(regex,text)}` : `${content} ${text}`);
 
-}
-static PRINT(text) {
-	process.stdout.write(colors.bold(text));
-}
-static REMODIFIYHASH({type,content,text,regex,todoGroup,hash}) {
+		let newHash = crypto.createHash('sha256').update(content)
+		.digest('hex'),
+		mDate = new Date(),
+		modifiedDate = mDate.toLocaleDateString(),
+		longHash = newHash;
 
-	content = ((type === 'replace') ? `${content.replace(regex,text)}` : `${content} ${text}`);
+		newHash = newHash.slice(0, newHash.length - 55);
+		todoGroup[newHash] = Object.create({});
+		Object.assign(todoGroup[newHash],todoGroup[hash],{
+			content,
+			longHash,
+			hash: newHash,
+			modifiedDate
+		});
 
-	let newHash = crypto.createHash('sha256').update(content)
-	.digest('hex'),
-	mDate = new Date(),
-	modifiedDate = mDate.toLocaleDateString(),
-	longHash = newHash;
+		delete todoGroup[hash];
 
-	newHash = newHash.slice(0, newHash.length - 55);
-	todoGroup[newHash] = Object.create({});
-	Object.assign(todoGroup[newHash],todoGroup[hash],{
-		content,
-		longHash,
-		hash: newHash,
-		modifiedDate
-	});
-
-	delete todoGroup[hash];
-
-}
-static NotEmpty({ todoGroup }) {
-	return ( Object.keys(todoGroup).length !== 0 ) ? true : false;
-}
-static URGENCY_ERROR() {
-	return 'URGENCY_ERROR';
-}
-static NO_DAEMONMATCH() {
-	return 'NO_DAEMONMATCH';
-}
-static DAEMONMATCH() {
-	return 'DAEMONMATCH';
-}
-static CALLGENERATORYLOOP(_this,cb) {
+	}
+	static NotEmpty({ todoGroup }) {
+		return ( Object.keys(todoGroup).length !== 0 ) ? true : false;
+	}
+	static URGENCY_ERROR() {
+		return 'URGENCY_ERROR';
+	}
+	static NO_DAEMONMATCH() {
+		return 'NO_DAEMONMATCH';
+	}
+	static DAEMONMATCH() {
+		return 'DAEMONMATCH';
+	}
+	static CALLGENERATORYLOOP(_this,cb) {
 
 	// if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
 
@@ -414,14 +416,15 @@ append({hash,text}) {
 		if ( ! type ) {
 			DutyTodo.ErrMessage(`type ${type} is not supported`);
 			return false;
-		} else if ( type === 'date' && ( ! date && ! modifiedDate)) {
+		} else if ( type === 'date' && ( ! date && ! modifiedDate ) ) {
 			DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in dd/mm/yy`);
 			return false;
 		} else if ( type === 'due' && ! date  ) {
 			DutyTodo.ErrMessage(`expected date argument to be set`);
 			return false;
-		} else if ( type === 'due' && ! DutyTodo.VERIFY_DATE(date) ) {
-			return DutyTodo.ErrMessage(`invalid date format specfied ${date}. Date should be specfied  in dd/mm/yy`);
+		} else if ( (date || modifiedDate) && ! DutyTodo.VERIFY_DATE(date) ) {
+			DutyTodo.ErrMessage(`duh`);
+			return false;
 		}
 
 
@@ -710,18 +713,18 @@ append({hash,text}) {
 		}
 
 		let {location,todoGroup} = this.MANAGER,
-				hashRegex = new RegExp(`^${hash}`),
-				j = 0,
-				cb = ({hash,longHash}) => {
-					j++;
-					if ( hashRegex.test(longHash) ) {
-						Object.assign(todoGroup[hash], { notification, timeout });
-						return true;
-					}
-					if ( Object.keys(todoGroup).length === j ) {
-						return false;
-					}
-				}
+		hashRegex = new RegExp(`^${hash}`),
+		j = 0,
+		cb = ({hash,longHash}) => {
+			j++;
+			if ( hashRegex.test(longHash) ) {
+				Object.assign(todoGroup[hash], { notification, timeout });
+				return true;
+			}
+			if ( Object.keys(todoGroup).length === j ) {
+				return false;
+			}
+		}
 
 		DutyTodo.CALLGENERATORYLOOP(this,cb)
 		.then( _ => {
