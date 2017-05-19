@@ -74,6 +74,7 @@ supported types are
 4. date (requires a date argument in this format dd/mm/yy) < deletes all todo that matches a specific date >
 5. all < removes all todo >
 
+# no longer supported
 **example**
 
 `duty delete hash --hash a591a6d40`
@@ -83,6 +84,18 @@ supported types are
 `duty delete category --category food` 
 
 `duty delete date --date mm/dd/yy`
+
+`duty delete all`
+
+# supported for deleting todos
+
+`duty delete hash:1591a6d40`
+
+`duty delete completed`
+
+`duty delete category:food`
+
+`duty delete date:mm/dd/yy`
 
 `duty delete all`
 
@@ -117,7 +130,15 @@ supported types are
 
 `duty read urgency:today`
 
+## new way of reading todos
 
+**The eval read option , reads the due date of todos as a string**
+
+`duty read eval:"today"`
+
+`duty read eval:"2days before now"`
+
+`duty read eval:"5days from now"`
 
 **urgency**
 
@@ -197,6 +218,17 @@ supported types are
 **NOTE:** 
 
 	hash length that is greater than 4 can be use with any subcommand that requires hash as an argument
+
+# what changed in v2
+
+1. new way of reading todos with the use of eval
+2. the way to delete todos has changed, check the above documentation on how to delete todos
+3. The ability to get notified only in linux systems with systemd as the daemon manager
+
+#FIX
+
+1. Proper date validation
+
 
 ## LICENSE
 
