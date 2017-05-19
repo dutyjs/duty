@@ -225,6 +225,17 @@ supported types are
 2. the way to delete todos has changed, check the above documentation on how to delete todos
 3. The ability to get notified only in linux systems with systemd as the daemon manager
 
+# how to set notification
+
+run the daemon.sh script first
+
+automatically notification is been set for added todo, incase you want to disable notification for a todo do this
+
+`duty set_notify 23abcdef false 3000` // al the arguments are required, the first argument `set_notify` sets the notification, the second argument is the hash to work on, the fourth argument ( false ) disables notification, the fifth argument 3000 specifies the timeout of a notification
+
+# the daemon method
+
+The daemon method is used by systemd , running it from the commandline, won't do anything special
 #FIX
 
 1. Proper date validation
