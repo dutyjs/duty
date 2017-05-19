@@ -54,7 +54,7 @@ commander
 commander
     .command('read <type>')
     .description(`read the todo that meets the type criteria
-                  valid types are all , date , completed, notcompleted, due , category, urgency`)
+                  valid types are all , date , completed, notcompleted, due , category, urgency, eval`)
     .option('--date <date> specifiy date to use')
     .option('--modifiedDate <date> specifiy a modified date to search with')
     .action((type,options) => {
