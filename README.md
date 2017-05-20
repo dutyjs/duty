@@ -245,7 +245,8 @@ automatically notification is been set for added todo, incase you want to disabl
 
 The daemon method is used by systemd , running it from the commandline, won't do anything special
 
-#FIX
+
+# FIX
 
 1. Proper date validation
 
