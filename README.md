@@ -227,7 +227,15 @@ supported types are
 
 # how to set notification
 
-run the daemon.sh script first
+run the daemon.sh script first 
+
+change your working directory to where duty-js was installed
+
+for example
+
+`cd /usr/lib/node_modules/duty-js`
+
+`./daemon.sh _executable_path_of_duty-js`
 
 automatically notification is been set for added todo, incase you want to disable notification for a todo do this
 
@@ -236,6 +244,7 @@ automatically notification is been set for added todo, incase you want to disabl
 # the daemon method
 
 The daemon method is used by systemd , running it from the commandline, won't do anything special
+
 #FIX
 
 1. Proper date validation
