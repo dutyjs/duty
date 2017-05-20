@@ -46,7 +46,7 @@ class ReadTodo {
 	}
 
 	static STYLE_READ(opt,DutyTodo, { notification: _configNotification , timeout: _configTimeout }) {
-            
+
 		let {
 			hash,
 			content,
