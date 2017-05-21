@@ -417,13 +417,13 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`type ${type} is not supported`);
 	    return false;
 	} else if ( type === 'date' && ( ! date && ! modifiedDate ) ) {
-	    DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in dd/mm/yy`);
+	    DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in mm/dd/yy. `);
 	    return false;
 	} else if ( type === 'due' && ! date  ) {
 	    DutyTodo.ErrMessage(`expected date argument to be set`);
 	    return false;
 	} else if ( (date || modifiedDate) && ! DutyTodo.VERIFY_DATE(date) ) {
-	    DutyTodo.ErrMessage(`duh`);
+	    DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in mm/dd/yy.`);
 	    return false;
 	}
 
@@ -449,7 +449,7 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`type ${type} is not supported`);
 	    return false;
 	} else if ( type === 'date' && ( ! value ) ) {
-	    DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in dd/mm/yy`);
+	    DutyTodo.ErrMessage(`expected two argument but got one, second argument should be a date in mm/dd/yy`);
 	    return false;
 	} else if ( type === 'hash' && ( ! value || value.length <= 4)  ) {
 
@@ -459,7 +459,7 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`category type is not specified`);
 	    return false;
 	} else if ( type === 'date' && ! DutyTodo.VERIFY_DATE(value) ) {
-	    return DutyTodo.ErrMessage(`invalid date format specfied ${value}. Date should be specfied  in dd/mm/yy`);
+	    return DutyTodo.ErrMessage(`invalid date format specfied ${value}. Date should be specfied  in mm/dd/yy`);
 
 	}
 	try {
@@ -645,7 +645,7 @@ class DutyTodo {
 	    DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
 	    return false;
 	}  else if ( date && ! DutyTodo.VERIFY_DATE(date) ) {
-	    return DutyTodo.ErrMessage(`invalid date format specfied ${date}. Date should be specfied  in dd/mm/yy`);
+	    return DutyTodo.ErrMessage(`invalid date format specfied ${date}. Date should be specfied  in mm/dd/yy`);
 
 	}
 
