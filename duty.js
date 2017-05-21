@@ -9,6 +9,8 @@ const { platform , homedir } = require('os');
 const util = require('util');
 const Notify = require('node-notifier');
 const { resolve, join } = require('path');
+const control = require('control-js');
+const printf = control.printf.bind(control);
 
 class DutyTodo {
     constructor({location,todoGroup,notification,timeout}) {
@@ -21,10 +23,63 @@ class DutyTodo {
 	};
 
     }
+
+    static CATEGORIES(_this) {
+        
+        let { MANAGER: { todoGroup} } = _this,
+            _categories = new Map(),
+            i = 0,
+            cb = ({category}) => {
+                
+                i++;
+
+                for ( let _cat of category ) {
+                    
+                    if ( _categories.has(_cat) ) {
+                        _categories.set(_cat, _categories.get(_cat) + 1);
+                        continue ;
+                    }
+
+                    _categories.set(_cat, 1);
+                    
+                }
+                
+                if ( Object.keys(todoGroup).length === i ) {
+      		    return true;
+                }
+                
+            };
+
+        const _recurseCategories = cateState => {
+            
+            let { value } = cateState.next();
+            
+            if ( value ) {
+                let [ category, assigned ] = value;
+                DutyTodo.PRINT(`
+${category}
+assigned to: ${assigned} todo
+`);
+                
+                _recurseCategories(cateState);
+                
+            }
+            
+            return 0;
+        };
+        
+        DutyTodo.CALLGENERATORYLOOP(_this, cb) .then( _ => {
+            
+            const _getCategories = _categories.entries();
+            DutyTodo.PRINT('\n');
+            _recurseCategories(_getCategories);
+            
+        });
+    }
     static VERIFY_DATE(date) {
 	// month, day, year
 	date = date.split('/').filter(Number);
-
+        
 	if ( date.length !== 3 ) {
 	    return false;
 	}
@@ -733,6 +788,24 @@ class DutyTodo {
 		DutyTodo.ErrMessage(`hash value ${hash} was not found`);
 	    });
 
+    }
+    status(type = "all" ) {
+
+        if ( type === "all" ) {
+
+            let { MANAGER: { todoGroup } }  = this;
+                
+            try {
+                DutyTodo.PRINT(`total todos are ${Object.keys(todoGroup).length}`.green);
+                DutyTodo.CATEGORIES(this);
+                /*DutyTodo.URGENCY(this);
+                 DutyTodo.DUE_DATE(this);
+                 DutyTodo.PRIORITY(this);*/
+            } catch(ex) {
+                DutyTodo.ErrMessage(`Unexpected Error while reading todos`);
+            }
+            
+        }
     }
     daemon() {
 
