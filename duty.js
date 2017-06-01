@@ -25,61 +25,59 @@ class DutyTodo {
     }
 
     static CATEGORIES(_this) {
-        
-        let { MANAGER: { todoGroup} } = _this,
-            _categories = new Map(),
-            i = 0,
-            cb = ({category}) => {
-                
-                i++;
+	
+	let { MANAGER: { todoGroup} } = _this,
+	    _categories = new Map(),
+	    i = 0,
+	    cb = ({category}) => {
+	        
+	        i++;
 
-                for ( let _cat of category ) {
-                    
-                    if ( _categories.has(_cat) ) {
-                        _categories.set(_cat, _categories.get(_cat) + 1);
-                        continue ;
-                    }
+	        for ( let _cat of category ) {
+	            
+	            if ( _categories.has(_cat) ) {
+	                _categories.set(_cat, _categories.get(_cat) + 1);
+	                continue ;
+	            }
 
-                    _categories.set(_cat, 1);
-                    
-                }
-                
-                if ( Object.keys(todoGroup).length === i ) {
-      		    return true;
-                }
-                
-            };
+	            _categories.set(_cat, 1);
+	            
+	        }
+	        
+	        if ( Object.keys(todoGroup).length === i ) {
+	      	    return true;
+	        }
+	        
+	    };
 
-        const _recurseCategories = cateState => {
+	const _recurseCategories = cateState => {
+	    
+	    let { value } = cateState.next();
             
-            let { value } = cateState.next();
-            
-            if ( value ) {
-                let [ category, assigned ] = value;
-                DutyTodo.PRINT(`
-${category}
-assigned to: ${assigned} todo
-`);
+	    if ( value ) {
+	        let [ category, assigned ] = value;
                 
-                _recurseCategories(cateState);
-                
-            }
+                printf(`%s (%d)`, category, assigned);
+	        
+	        _recurseCategories(cateState);
+	        
+	    }
+	    
+	    return 0;
+	};
+	
+	DutyTodo.CALLGENERATORYLOOP(_this, cb) .then( _ => {
+	    
+	    const _getCategories = _categories.entries();
             
-            return 0;
-        };
-        
-        DutyTodo.CALLGENERATORYLOOP(_this, cb) .then( _ => {
-            
-            const _getCategories = _categories.entries();
-            DutyTodo.PRINT('\n');
-            _recurseCategories(_getCategories);
-            
-        });
+	    _recurseCategories(_getCategories);
+	    
+	});
     }
     static VERIFY_DATE(date) {
 	// month, day, year
 	date = date.split('/').filter(Number);
-        
+	
 	if ( date.length !== 3 ) {
 	    return false;
 	}
@@ -173,7 +171,7 @@ assigned to: ${assigned} todo
 		_n = gen.next();
 	    }
 
-        });
+	});
     }
 
     static ErrMessage(msg) {
@@ -555,11 +553,11 @@ assigned to: ${assigned} todo
 	case "today": break;
 	default:
 	    DutyTodo.ErrMessage(`invalid urgency type, supported urgency type are
-				urgency:pending
-				urgency:waiting
-				urgency:tomorrow
-				urgency:later
-				urgency:today`);
+					urgency:pending
+					urgency:waiting
+					urgency:tomorrow
+					urgency:later
+					urgency:today`);
 	    return false;
 	}
 
@@ -791,21 +789,21 @@ assigned to: ${assigned} todo
     }
     status(type = "all" ) {
 
-        if ( type === "all" ) {
+	if ( type === "all" ) {
 
-            let { MANAGER: { todoGroup } }  = this;
-                
-            try {
-                DutyTodo.PRINT(`total todos are ${Object.keys(todoGroup).length}`.green);
-                DutyTodo.CATEGORIES(this);
-                /*DutyTodo.URGENCY(this);
-                 DutyTodo.DUE_DATE(this);
-                 DutyTodo.PRIORITY(this);*/
-            } catch(ex) {
-                DutyTodo.ErrMessage(`Unexpected Error while reading todos`);
-            }
+	    let { MANAGER: { todoGroup } }  = this;
+	    
+	    DutyTodo.PRINT(`total todos are ${Object.keys(todoGroup).length}`.green);
             
+	    DutyTodo.CATEGORIES(this);
+	    
+	} else if ( type === "category" ) {
+            DutyTodo.CATEGORIES(this);
+        } else {
+            DutyTodo.ErrMessage(`${type} is not supported`);
         }
+
+        
     }
     daemon() {
 
@@ -817,9 +815,9 @@ assigned to: ${assigned} todo
 	    return fs.appendFileSync(
 		join(homedir(), 'duty_log.txt'),
 		`
-				--- ${new Date().toLocaleDatestring()}
-				can't locate the service file
-				`);
+					--- ${new Date().toLocaleDatestring()}
+					can't locate the service file
+					`);
 
 	}
 
