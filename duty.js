@@ -7,7 +7,18 @@ const ExportTodo = require('./exporttodo');
 const Platform = require('./platform');
 const { platform , homedir } = require('os');
 const util = require('util');
-const Notify = require('node-notifier');
+
+let Notify;
+
+try {
+
+ Notify = require('node-notifier');
+
+} catch (ex) {
+	// do nothing
+}
+
+
 const { resolve, join } = require('path');
 const control = require('control-js');
 const printf = control.printf.bind(control);
@@ -807,7 +818,8 @@ class DutyTodo {
     }
     daemon() {
 
-
+  if ( ! Notify ) return false;
+  
 	const platformTest = Platform.createType();
 
 	if ( ! platformTest.checkPlatform(platform()) ) {
