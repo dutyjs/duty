@@ -210,6 +210,13 @@ supported types are
 `duty export xml /root/duty.xml`
 
 
+**status** status subcommand shows you a breakdwon of the todo
+
+`duty status`
+
+The status subcommand receives at least a single argument, which is all or category. If no argument is specified duty reads all todo
+
+
 **help**
 	
 	This subcommand shows all subcommand related to duty.js
