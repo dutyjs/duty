@@ -54,7 +54,7 @@ commander
 commander
     .command('read <type>')
     .description(`read the todo that meets the type criteria
-                  valid types are all , date , completed, notcompleted, due , category, urgency`)
+                  valid types are all , date , completed, notcompleted, due , category, urgency, eval`)
     .option('--date <date> specifiy date to use')
     .option('--modifiedDate <date> specifiy a modified date to search with')
     .action((type,options) => {
@@ -146,14 +146,21 @@ commander
         ff.daemon();
     });
 
+commander
+    .command('status <type>')
+    .description("shows the breakdown of all your todos, it takes one argument which is the type of status you want to read, the types supported are all and category, not specifing a type will read all the todos")
+    .action(type => {
+        ff.status(type);
+    });
+
 
 commander.parse(process.argv);
 
 if ( ! process.argv.slice(2).length ) {
 
     if ( fs.existsSync(JSON.parse(fs.readFileSync(__dirname + "/config.json")).location ) ) {
-	commander.outputHelp();
-	process.exit(0);
+	   commander.outputHelp();
+	   process.exit(0);
     }
 
 }
