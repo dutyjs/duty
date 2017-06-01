@@ -9,11 +9,10 @@
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "mkdirp": "^0.5.1",
-    "node-linux": "^0.1.11",
     "node-notifier": "^5.1.2"
   },
   "license": "MIT",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -28,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/zombieleet/duty/issues"
   },
-  "homepage": "https://github.com/zombieleet/duty#readme"
+  "homepage": "https://github.com/zombieleet/duty#readme",
+  "optionalDependencies": {
+    "node-linux": "^0.1.11"
+  }
 }
