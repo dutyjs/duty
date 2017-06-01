@@ -45,6 +45,10 @@ Environment=DISPLAY=:0
 WantedBy=multi-user.target
 
 EOF
+
+systemctl enable duty-js
+systemctl daemon-reload
+systemctl start duty-js
 }
 
 installDaemon "${1}"
