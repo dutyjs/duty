@@ -27,8 +27,5 @@
   "bugs": {
     "url": "https://github.com/zombieleet/duty/issues"
   },
-  "homepage": "https://github.com/zombieleet/duty#readme",
-  "optionalDependencies": {
-    "node-linux": "^0.1.11"
-  }
+  "homepage": "https://github.com/zombieleet/duty#readme"
 }
