@@ -5,6 +5,10 @@
   "bin": {
     "duty": "./cli.js"
   },
+  "scripts": {
+    "lint": "eslint src/duty.js src/deletetodo.js src/platform.js",
+    "lint_fix": "eslint --fix src/duty.js src/deletetodo.js src/platform.js"
+  },
   "dependencies": {
     "colors": "^1.1.2",
     "commander": "^2.9.0",
