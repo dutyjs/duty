@@ -10,7 +10,7 @@ try {
 		todoGroup: require(config.location)
 	})
 
-	module.exports = new (require('./duty.js'))(config);
+	module.exports = new (require('./src/duty.js'))(config);
 
 
 } catch(ex) {
@@ -52,7 +52,7 @@ try {
 
 					fs.writeFileSync("./config.json", JSON.stringify(config));
 
-					module.exports = new (require('./duty.js'))(config);
+					module.exports = new (require('./src/duty.js'))(config);
 
 					break;
 					case 'n':
@@ -76,7 +76,7 @@ try {
 
 						fs.writeFileSync("./config.json", JSON.stringify(config));
 
-						module.exports = new (require('./duty.js'))(config);
+						module.exports = new (require('./src/duty.js'))(config);
 
 						return ;
 
