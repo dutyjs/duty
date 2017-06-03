@@ -11,16 +11,7 @@ const {
 } = require('os');
 const util = require('util');
 
-let Notify;
-
-try {
-
-    Notify = require('node-notifier');
-
-} catch (ex) {
-    // do nothing
-}
-
+let Notify = require('node-notifier');
 
 const {
     resolve,
@@ -1055,8 +1046,6 @@ class DutyTodo {
 
     }
     daemon() {
-
-        if (!Notify) return false;
 
         const platformTest = Platform.createType();
 
