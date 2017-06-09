@@ -6,8 +6,8 @@
     "duty": "./cli.js"
   },
   "scripts": {
-    "lint": "eslint src/duty.js src/deletetodo.js src/platform.js",
-    "lint_fix": "eslint --fix src/duty.js src/deletetodo.js src/platform.js"
+    "lint": "eslint src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js",
+    "lint_fix": "eslint --fix src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js"
   },
   "dependencies": {
     "colors": "^1.1.2",
