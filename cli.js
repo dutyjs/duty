@@ -153,13 +153,20 @@ commander
         ff.status(type);
     });
 
+commander
+    .command('create-service')
+    .description("creates a service file to handle daemons for background notification")
+    .action(() => {
+        ff.execDaemon();
+    });
+
 
 commander.parse(process.argv);
 
 if ( ! process.argv.slice(2).length ) {
 
     if ( fs.existsSync(JSON.parse(fs.readFileSync(__dirname + "/config.json")).location ) ) {
-	   commander.outputHelp();
+       commander.outputHelp();
 	   process.exit(0);
     }
 
