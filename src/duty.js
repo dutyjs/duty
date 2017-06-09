@@ -1054,6 +1054,7 @@ class DutyTodo {
             throw ex
         }
     }
+    // this daemon method is to be use only the daemon manager
     daemon() {
 
         const platformTest = Platform.createType()
