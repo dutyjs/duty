@@ -1,25 +1,28 @@
-const fs = require('fs');
+const fs = require("fs")
 
 class Platform {
 
     constructor() {}
 
     static createType() {
-        return new Platform();
+        return new Platform()
     }
 
     checkPlatform(platform) {
-        return this[platform]();
+        return this[platform]()
     }
 
     linux() {
 
         if (
-            fs.existsSync('/etc/systemd/system/duty-js.service')
+            fs.existsSync("/etc/systemd/system/duty-js.service")
         ) {
-            return true;
-        }
+            return true
+        } 
+
+        return false
+
     }
 }
 
-module.exports = Platform;
+module.exports = Platform

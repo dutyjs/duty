@@ -1,7 +1,7 @@
 class DeleteTodo {
     constructor() {}
     static createType() {
-        return new DeleteTodo();
+        return new DeleteTodo()
     }
     handleDelete({
         type,
@@ -13,16 +13,16 @@ class DeleteTodo {
         let {
             todoGroup,
             location
-        } = _this.MANAGER;
+        } = _this.MANAGER
 
-        this.type = type;
-        this.DutyTodo = DutyTodo;
-        this.todoGroup = todoGroup;
-        this._this = _this;
-        this._opt = opt;
-        this.location = location;
+        this.type = type
+        this.DutyTodo = DutyTodo
+        this.todoGroup = todoGroup
+        this._this = _this
+        this._opt = opt
+        this.location = location
 
-        this[this.type]();
+        this[this.type]()
     }
     all() {
 
@@ -33,18 +33,18 @@ class DeleteTodo {
             },
             todoGroup,
             location
-        } = this;
+        } = this
 
-        delete MANAGER[todoGroup];
+        delete MANAGER[todoGroup]
 
-        todoGroup = {};
+        todoGroup = {}
 
         DutyTodo.WriteFile({
             location,
             todoGroup
-        });
+        })
 
-        return true;
+        return true
     }
     hash() {
         let {
@@ -56,30 +56,30 @@ class DeleteTodo {
             },
             _this
         } = this,
-        hashRegex = new RegExp(`^${hash}`),
+            hashRegex = new RegExp(`^${hash}`),
             j = 0,
             cb = ({
                 longHash,
                 hash
             }) => {
-                j++;
+                j++
                 if (hashRegex.test(longHash)) {
-                    delete todoGroup[hash];
-                    return true;
+                    delete todoGroup[hash]
+                    return true
                 } else if (Object.keys(todoGroup).length === j) {
-                    return false;
+                    return false
                 }
-            };
+            }
 
         DutyTodo.CALLGENERATORYLOOP(_this, cb)
             .then(_ => {
                 DutyTodo.WriteFile({
                     location,
                     todoGroup
-                });
+                })
             }).catch(_ => {
-                DutyTodo.ErrMessage(`${hash} was not found`);
-            });
+                DutyTodo.ErrMessage(`${hash} was not found`)
+            })
     }
     completed() {
         let {
@@ -89,36 +89,36 @@ class DeleteTodo {
             _this
         } = this,
 
-        isDelete, j = 0,
+            isDelete, j = 0,
 
             cb = ({
                 hash,
                 completed
             }) => {
-                j++;
+                j++
                 if (completed) {
-                    delete todoGroup[hash];
-                    isDelete = true;
-                    j--;
+                    delete todoGroup[hash]
+                    isDelete = true
+                    j--
                 }
 
                 if (!isDelete && Object.keys(todoGroup).length === j) {
-                    return false;
+                    return false
                 } else if (isDelete && Object.keys(todoGroup).length === j) {
-                    return true;
+                    return true
                 }
-            };
+            }
 
         DutyTodo.CALLGENERATORYLOOP(_this, cb)
             .then(_ => {
                 DutyTodo.WriteFile({
                     location,
                     todoGroup
-                });
-                process.stdout.write(`completed todos have been deleted\n`);
+                })
+                process.stdout.write("completed todos have been deleted\n")
             }).catch(_ => {
-                DutyTodo.ErrMessage(`Nothing was removed`);
-            });
+                DutyTodo.ErrMessage("Nothing was removed")
+            })
     }
     date() {
 
@@ -136,30 +136,30 @@ class DeleteTodo {
                 modifiedDate,
                 hash
             }) => {
-                j++;
+                j++
                 if (_userDate === date) {
-                    delete todoGroup[hash];
-                    isRead = true;
-                    j--;
+                    delete todoGroup[hash]
+                    isRead = true
+                    j--
                 }
 
                 if (!isRead && Object.keys(todoGroup).length === j) {
-                    return false;
+                    return false
                 } else if (isRead && Object.keys(todoGroup).length === j) {
-                    return true;
+                    return true
                 }
-            };
+            }
 
         DutyTodo.CALLGENERATORYLOOP(_this, cb)
             .then(_ => {
                 DutyTodo.WriteFile({
                     location,
                     todoGroup
-                });
+                })
             })
             .catch(_ => {
-                process.stdout.write(`no match for the specified date was found\n`);
-            });
+                process.stdout.write("no match for the specified date was found\n")
+            })
     }
     category() {
         let {
@@ -171,37 +171,37 @@ class DeleteTodo {
             },
             _this
         } = this,
-        j = 0, isDelete = false,
+            j = 0, isDelete = false,
             cb = ({
                 hash,
                 category: _category
             }) => {
 
-                j++;
+                j++
 
                 if (_category && _category.includes(category)) {
-                    delete todoGroup[hash];
-                    isDelete = true;
-                    j--;
+                    delete todoGroup[hash]
+                    isDelete = true
+                    j--
                 }
 
                 if (Object.keys(todoGroup).length === j && (!isDelete)) {
-                    return false;
+                    return false
                 } else if (Object.keys(todoGroup).length === j && (isDelete)) {
-                    return true;
+                    return true
                 }
-            };
+            }
 
         DutyTodo.CALLGENERATORYLOOP(_this, cb)
             .then(_ => {
                 DutyTodo.WriteFile({
                     location,
                     todoGroup
-                });
+                })
             }).catch(_ => {
-                DutyTodo.ErrMessage(`${category} was not found`);
-            });
+                DutyTodo.ErrMessage(`${category} was not found`)
+            })
     }
 }
 
-module.exports = DeleteTodo;
+module.exports = DeleteTodo
