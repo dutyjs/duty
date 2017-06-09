@@ -3,7 +3,7 @@
 [![Logo](assets/logo.png)](assets/logo.jpg)
 
 
-[duty.js](https://github.com/zombieleet/duty) is a lightweight commandline todo application written with [node.js](https://nodejs.org)
+[duty.js](https://github.com/zombieleet/duty) is a lightweight commandline todo application with desktop notification 
 
 
 ## Installation
@@ -73,19 +73,6 @@ supported types are
 3. category:type < deletes all todo with a `type` category >
 4. date (requires a date argument in this format dd/mm/yy) < deletes all todo that matches a specific date >
 5. all < removes all todo >
-
-# no longer supported
-**example**
-
-`duty delete hash --hash a591a6d40`
-
-`duty delete completed`
-
-`duty delete category --category food` 
-
-`duty delete date --date mm/dd/yy`
-
-`duty delete all`
 
 # supported for deleting todos
 
@@ -234,19 +221,13 @@ The status subcommand receives at least a single argument, which is all or categ
 
 # how to set notification
 
-run the daemon.sh script first 
+run `duty create-service`
 
-change your working directory to where duty-js was installed
-
-for example
-
-`cd /usr/lib/node_modules/duty-js`
-
-`./daemon.sh _executable_path_of_duty-js`
+it should be noted that for now notification only works for linux O.S with systemd as the daemon manager
 
 automatically notification is been set for added todo, incase you want to disable notification for a todo do this
 
-`duty set_notify 23abcdef false 3000` // al the arguments are required, the first argument `set_notify` sets the notification, the second argument is the hash to work on, the fourth argument ( false ) disables notification, the fifth argument 3000 specifies the timeout of a notification
+`duty set_notify 23abcdef false 3000` // all the arguments are required, the first argument `set_notify` sets the notification, the second argument is the hash to work on, the fourth argument ( false ) disables notification, the fifth argument 3000 specifies the timeout of a notification
 
 # the daemon method
 
