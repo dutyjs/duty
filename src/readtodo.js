@@ -88,7 +88,7 @@ timeout:\t${timeout ? timeout : _configTimeout}
 		this._this = _this;
 		this._opt = opt;
 
-		let _matched = this.type.match(/^(urgency|category|eval):([a-z\"\s\d]+)$/);
+		let _matched = this.type.match(/^(urgency|category|eval):([a-zA-Z0-9\"\s]+)$/);
 		const [,_type,_typeOfType] = _matched ? _matched : [,undefined,undefined];
 
 		if ( _typeOfType ) {
