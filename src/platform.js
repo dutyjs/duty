@@ -1,6 +1,7 @@
 const fs = require("fs")
+const FILE_MAP = require('./daemon.js')
 
-class Platform {
+module.exports = class Platform {
 
     constructor() {}
 
@@ -13,16 +14,9 @@ class Platform {
     }
 
     linux() {
-
-        if (
-            fs.existsSync("/etc/systemd/system/duty-js.service")
-        ) {
-            return true
-        } 
-
-        return false
-
+        return fs.existsSync(FILE_MAP.get("linux"));
+    }
+    darwin() {
+        return fs.existsSync(FILE_MAP.get("darwin"));
     }
 }
-
-module.exports = Platform
