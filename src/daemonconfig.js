@@ -19,7 +19,16 @@ const WINDOWS = {
 }
 
 const DARWIN = {
-
+    key: {
+        Label: [{string: "com.duty.js"}],
+        ProgramArguments: {
+            array: [{ string: `${process.argv[1]}` },{ string: "daemon" }]
+        },
+        StartInterval: [{integer: 3e2}],
+        ThrottleInterval: [{integer: 30}],
+        RunAtLoad: true,
+        KeepAlive: true
+    }
 }
 
 module.exports = {
