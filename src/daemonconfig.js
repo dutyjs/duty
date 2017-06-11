@@ -18,18 +18,29 @@ const WINDOWS = {
 
 }
 
-const DARWIN = {
-    key: {
-        Label: [{string: "com.duty.js"}],
-        ProgramArguments: {
-            array: [{ string: `${process.argv[1]}` },{ string: "daemon" }]
-        },
-        StartInterval: [{integer: 3e2}],
-        ThrottleInterval: [{integer: 30}],
-        RunAtLoad: true,
-        KeepAlive: true
-    }
-}
+const DARWIN = `
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>com.duty.js</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>${process.argv[0]}</string>
+            <string>daemon</string>
+        </array>
+        <key>StartInterval</key>
+        <integer>${3e2}</integer>
+        <key>ThrottleInterval</key>
+        <integer>30</integer>
+        <key>RunAtLoad</key>
+        </true>
+        <key>KeepAlive</key>
+        </true>
+    </dict>
+</plist>
+`
 
 module.exports = {
     LINUX,
