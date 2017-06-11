@@ -5,7 +5,7 @@ const ReadTodo = require("./readtodo")
 const DeleteTodo = require("./deletetodo")
 const ExportTodo = require("./exporttodo")
 const Platform = require("./platform")
-const Daemon = require("./daemon")
+const { Daemon } = require("./daemon")
 const {
     platform,
     homedir
@@ -1049,7 +1049,9 @@ class DutyTodo {
     execDaemon() {
 
         try {
-            Daemon.CreateDaemon(platform())
+            Daemon.CreateDaemon(platform());
+            DutyTodo.PRINT(`service has been created...`);
+            process.exit(0);
         } catch(ex) {
             throw ex
         }
