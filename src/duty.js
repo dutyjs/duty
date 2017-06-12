@@ -1069,6 +1069,7 @@ class DutyTodo {
         const self = this
 
         setInterval(_ => {
+            console.log('hi')
             let readDaemonObject = {
                 type: "due",
                 opt: {
@@ -1086,6 +1087,7 @@ class DutyTodo {
                         if (!notification) return false
 
                         setTimeout(_ => {
+                            console.log('hello');
                             Notify.notify({
                                 title: `Todo ${hash} is due for today ${due_date}`,
                                 icon: join(__dirname, "assets/logo.png"),

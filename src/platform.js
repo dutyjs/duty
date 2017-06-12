@@ -1,5 +1,5 @@
 const fs = require("fs")
-const FILE_MAP = require('./daemon.js')
+const { FILE_MAP } = require('./daemon.js')
 
 module.exports = class Platform {
 

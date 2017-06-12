@@ -1,12 +1,12 @@
 const LINUX = {
     Unit: {
-        Description: "Duty Todasdfasdfo Daemon"
+        Description: "Duty Todo Daemon"
     },
     Service: {
         Type: "Notify",
         ExecStart:`${process.argv[1]} daemon`,
         Restart: "always",
-        WatchdogSec: "5",
+        WatchdogSec: "10",
         Environment: "DISPLAY=:0"
     },
     Install: {
