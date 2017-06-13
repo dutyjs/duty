@@ -6,7 +6,7 @@ const fs = require('fs');
 const commander = require('commander');
 
 commander
-    .version('0.0.1')
+    .version('3.0.0')
     .command('add <todo> [category...]')
     .description('Add todo into category, category is optional')
     .action((todo,category) => {
