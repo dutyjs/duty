@@ -4,6 +4,7 @@ const fs = require("fs")
 const ReadTodo = require("./readtodo")
 const DeleteTodo = require("./deletetodo")
 const ExportTodo = require("./exporttodo")
+const keyPress = require('keypress')(process.stdin);
 
 const Daemon = require("./daemon")
 const moment = require("moment")
@@ -132,6 +133,19 @@ class DutyTodo {
     }) {
 
         content = ((type === "replace") ? `${content.replace(regex,text)}` : `${content} ${text}`)
+        switch(type) {
+            case "replace":
+                content = content.replace(regex,text);
+                break;
+            case "append":
+                content = `${content} ${text}`
+                break;
+            case "edit":
+                content = text;
+                break;
+            default:
+                DutyTodo.ErrMessage(`invalid type <${type}>`);
+        }
 
         let newHash = crypto.createHash("sha256").update(content)
             .digest("hex"),
@@ -1011,6 +1025,56 @@ class DutyTodo {
                     return false
                 }
             }
+
+        DutyTodo.CALLGENERATORYLOOP(this, cb)
+            .then(_ => {
+                DutyTodo.WriteFile({
+                    location,
+                    todoGroup
+                })
+            }).catch(_ => {
+                DutyTodo.ErrMessage(`hash value ${hash} was not found`)
+            })
+
+    }
+    edit({hash,text}) {
+        if (!hash) {
+            DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`)
+            return false
+        } else if (hash && hash.length < 4) {
+            DutyTodo.ErrMessage("length of hash should be greater than or equal to 4")
+            return false
+        }
+
+        let {
+            location,
+            todoGroup
+        } = this.MANAGER,
+            hashRegex = new RegExp(`^${hash}`),
+            j = 0,
+            cb = ({
+                longHash,
+                content
+            }) => {
+                j++
+                if (hashRegex.test(longHash)) {    
+                    const type = "edit"
+                    DutyTodo.REMODIFIYHASH({
+                        type,
+                        content,
+                        text,
+                        undefined,
+                        todoGroup,
+                        hash
+                    });
+                    return true
+                }
+                if (Object.keys(todoGroup).length === j) {
+                    return false
+                }
+            }
+
+
 
         DutyTodo.CALLGENERATORYLOOP(this, cb)
             .then(_ => {
