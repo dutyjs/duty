@@ -4,8 +4,10 @@ const fs = require("fs")
 const ReadTodo = require("./readtodo")
 const DeleteTodo = require("./deletetodo")
 const ExportTodo = require("./exporttodo")
-const Platform = require("./platform")
-const { Daemon } = require("./daemon")
+
+const Daemon = require("./daemon")
+const moment = require("moment")
+
 const {
     platform,
     homedir
@@ -133,8 +135,8 @@ class DutyTodo {
 
         let newHash = crypto.createHash("sha256").update(content)
             .digest("hex"),
-            mDate = new Date(),
-            modifiedDate = mDate.toLocaleDateString(),
+            mDate = moment().format("DD/MM/YYYY"),
+            modifiedDate = mDate,
             longHash = newHash
 
         newHash = newHash.slice(0, newHash.length - 55)
@@ -230,10 +232,8 @@ class DutyTodo {
 
         hash = hash.slice(0, hash.length - 55)
 
-        const DATE = new Date(),
-            date = DATE.toLocaleDateString(),
-            month = DATE.getMonth(),
-            year = DATE.getYear(),
+        const DATE = moment().format("DD/MM/YYYY"),
+            date = DATE,
             completed = false
 
 
@@ -242,8 +242,6 @@ class DutyTodo {
             hash,
             longHash,
             date,
-            month,
-            year,
             completed,
             notification,
             timeout
@@ -310,6 +308,7 @@ class DutyTodo {
             longHash
         }) => {
             j++
+
             if (longHash === hash) {
                 isAdded = true
                 return false
@@ -1047,34 +1046,25 @@ class DutyTodo {
 
     }
     execDaemon() {
-
         try {
-            Daemon.CreateDaemon(platform());
-            DutyTodo.PRINT(`service has been created...`);
-            process.exit(0);
+            Daemon.CreateDaemon(platform())
+            DutyTodo.PRINT("service has been created...")
+            process.exit(0)
         } catch(ex) {
             throw ex
         }
     }
     // this daemon method is to be use only the daemon manager
     daemon() {
-
-        const platformTest = Platform.createType()
-
-        if (!platformTest.checkPlatform(platform())) {
-            return false
-        }
-
-
-        const self = this
+        const self = this;
 
         setInterval(_ => {
-            console.log('hi')
+            
             let readDaemonObject = {
                 type: "due",
                 opt: {
 
-                    date: new Date().toLocaleDateString(),
+                    date: moment().format("MM/DD/YYYY"),
 
                     _cb({
                         content,
@@ -1083,11 +1073,10 @@ class DutyTodo {
                         notification,
                         timeout
                     }) {
-
+                        
                         if (!notification) return false
 
                         setTimeout(_ => {
-                            console.log('hello');
                             Notify.notify({
                                 title: `Todo ${hash} is due for today ${due_date}`,
                                 icon: join(__dirname, "assets/logo.png"),
@@ -1106,7 +1095,7 @@ class DutyTodo {
             const daemonRead = ReadTodo.createType()
             daemonRead.handleRead(readDaemonObject)
 
-        }, 20000)
+        }, 20000);
     }
 }
 
