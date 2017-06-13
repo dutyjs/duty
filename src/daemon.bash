@@ -81,11 +81,11 @@ __launchd() {
         <string>com.duty.js</string>
         <key>ProgramArguments</key>
         <array>
-            <string>${process.argv[0]}</string>
+            <string>${_path}</string>
             <string>daemon</string>
         </array>
         <key>StartInterval</key>
-        <integer>${3e2}</integer>
+        <integer>3000</integer>
         <key>ThrottleInterval</key>
         <integer>30</integer>
         <key>RunAtLoad</key>
