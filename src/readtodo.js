@@ -1,7 +1,10 @@
 // to avoid cyclic dependency issues,
 //   it is important to avoid require duty.js and extending
 //   the below class with DutyTodo class
+
 const colors = require('colors');
+const moment = require('moment');
+
 class ReadTodo {
 	constructor() {}
 	static createType() {
@@ -23,10 +26,10 @@ class ReadTodo {
 	}
 	static HANDLE_DUE_DATE({due_date}) {
 
-		let _date = new Date();
-		_date = _date.toLocaleDateString().split('/').join('');
-
-		due_date = due_date.split('/').join('');
+		let _date = moment().format('MM/DD/YYYY')
+            
+		due_date = Number(due_date.split('/').join(''));
+            _date = Number(_date.split('/').join(''));
 
 		const TIME_LEFT = String((due_date - _date)).replace(/0+$/,'');
 
@@ -63,6 +66,9 @@ class ReadTodo {
 		} = opt;
 
 		let unicodes = ReadTodo.UNICODE_VALUES();
+// moment(date).format('MM/DD/YYYY') to support
+//    todo added with previous version of duty-js
+
 
 		DutyTodo.PRINT(`
 
