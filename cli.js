@@ -159,7 +159,12 @@ commander
     .action(() => {
         ff.execDaemon();
     });
-
+commander
+    .command("edit <hash> <text>")
+    .description("this subcommand edits a todo")
+    .action((hash,text) => {
+        ff.edit({hash,text});
+    })
 
 commander.parse(process.argv);
 
