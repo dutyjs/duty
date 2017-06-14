@@ -197,11 +197,16 @@ supported types are
 `duty export xml /root/duty.xml`
 
 
-**status** status subcommand shows you a breakdwon of the todo
-
+**status** status subcommand shows you a breakdwon of the todos
 `duty status`
 
 The status subcommand receives at least a single argument, which is all or category. If no argument is specified duty reads all todo
+
+**edit** edit subcommand edits a todo, this subcommand takes two compulsory arguments
+
+The first argument is the hash of the todo, while the second argument is the text to use
+
+`duty edit <hash> <text>`
 
 
 **help**
@@ -217,15 +222,23 @@ The status subcommand receives at least a single argument, which is all or categ
 
 1. new way of reading todos with the use of eval
 2. the way to delete todos has changed, check the above documentation on how to delete todos
-3. The ability to get notified only in linux systems with systemd as the daemon manager
+3. The ability to get notified only in OSX ( with launchd ) ( behaviour not defined ) and linux systems with systemd as the daemon manager
 
 # how to set notification
 
 run `duty create-service`
 
-it should be noted that for now notification only works for linux O.S with systemd as the daemon manager
+Notification is supported on both OSX ( with launchd as it's daemon manager) ( the behaviour is not defined ) and linux ( with systemd daemon manager )
 
-automatically notification is been set for added todo, incase you want to disable notification for a todo do this
+Before the notification feature will work , you have to set the due date of that particular todo
+
+`duty due <hash> <date>` 
+
+The date format should be in MM/DD/YYYY
+
+**set_notify** This subcommand takes three argument
+
+The first argument is the hash value of the todo, the second argument is to set the notification of that hash to be true or false , the third argument is the timeout of the notification
 
 `duty set_notify 23abcdef false 3000` // all the arguments are required, the first argument `set_notify` sets the notification, the second argument is the hash to work on, the fourth argument ( false ) disables notification, the fifth argument 3000 specifies the timeout of a notification
 
