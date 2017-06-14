@@ -244,7 +244,7 @@ The first argument is the hash value of the todo, the second argument is to set 
 
 # the daemon method
 
-The daemon method is used by systemd , running it from the commandline, won't do anything special
+The daemon method is used by the daemon manager of your O.S , running it from the command line won't do anything special
 
 
 # FIX
