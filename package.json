@@ -1,7 +1,7 @@
 {
   "name": "duty-js",
   "author": "zombieleet",
-  "description": "Duty is a todo list manager will cool features",
+  "description": "Duty is a todo list manager with notification support",
   "bin": {
     "duty": "./cli.js"
   },
@@ -12,7 +12,9 @@
   "dependencies": {
     "colors": "^1.1.2",
     "commander": "^2.9.0",
+    "keypress": "^0.2.1",
     "mkdirp": "^0.5.1",
+    "moment": "^2.18.1",
     "node-notifier": "^5.1.2"
   },
   "license": "MIT",
