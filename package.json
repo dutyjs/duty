@@ -7,9 +7,11 @@
   },
   "scripts": {
     "start": "node ./cli.js",
-    "lint": "eslint src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js",
-    "lint_fix": "eslint --fix src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js",
-    "test": "jasmine test/*"
+    "lint": "eslint src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js src/readtodo.js src/exporttodo.js cli.js index.js",
+    "lint_fix": "eslint --fix src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js src/readtodo.js src/exporttodo.js cli.js index.js",
+    "test": "jasmine test/*",
+    "coverage": "istanbul cover node_modules/jasmine/bin/jasmine.js test/*",
+    "showcoverage": ""
   },
   "dependencies": {
     "colors": "^1.1.2",
@@ -36,5 +38,9 @@
   "bugs": {
     "url": "https://github.com/zombieleet/duty/issues"
   },
-  "homepage": "https://github.com/zombieleet/duty#readme"
+  "homepage": "https://github.com/zombieleet/duty#readme",
+  "devDependencies": {
+    "istanbul": "^0.4.5",
+    "jasmine": "^2.6.0"
+  }
 }
