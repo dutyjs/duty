@@ -2,7 +2,7 @@
 
 const ff = require("./index.js")
 const fs = require("fs")
-
+const path = require("path")
 const commander = require("commander")
 
 commander
@@ -60,7 +60,7 @@ commander
     .action((type,options) => {
         const { date, modifiedDate } = options
         if ( date && ! modifiedDate ) {
-	   return ff.read(type, { date }) 
+	        return ff.read(type, { date }) 
         } else if ( ! date && modifiedDate ) {
             return ff.read(type, {modifiedDate})
         } else if ( date && modifiedDate ) {
@@ -168,12 +168,31 @@ commander
 
 commander.parse(process.argv)
 
-if ( ! process.argv.slice(2).length ) {
 
-    if ( fs.existsSync(JSON.parse(fs.readFileSync(__dirname + "/config.json")).location ) ) {
-        commander.outputHelp()
-	   process.exit(0)
+
+if ( ! process.argv.slice(2).length ) {
+    process.stdout.write(isExists("/config.json"));
+}    
+
+function isExists(file) {
+        
+    let fileContent,
+        _file = path.join(__dirname, file)
+    
+    if ( fs.existsSync(_file) && (fileContent = fs.readFileSync(_file) ) && 
+        fs.existsSync(JSON.parse(fileContent.toString()).location) )  {
+        
+        if ( process.env.NODE_ENV  ) {
+            commander.outputHelp()
+            return
+        }
+
+        return "Enjoy..."
     }
+    
+    return "error while reading config file"
 
 }
-//module.exports = ff;
+
+
+module.exports = isExists
