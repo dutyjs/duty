@@ -3,9 +3,10 @@
   "author": "zombieleet",
   "description": "Duty is a todo list manager with notification support",
   "bin": {
-    "duty": "./cli.js"
+    "duty": "node ./cli.js"
   },
   "scripts": {
+    "start": "node ./cli.js",
     "lint": "eslint src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js",
     "lint_fix": "eslint --fix src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js"
   },
