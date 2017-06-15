@@ -132,7 +132,7 @@ class DutyTodo {
         hash
     }) {
 
-        content = ((type === "replace") ? `${content.replace(regex,text)}` : `${content} ${text}`)
+        
         switch(type) {
             case "replace":
                 content = content.replace(regex,text);
