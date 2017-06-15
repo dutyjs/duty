@@ -3,7 +3,7 @@
   "author": "zombieleet",
   "description": "Duty is a todo list manager with notification support",
   "bin": {
-    "duty": "node ./cli.js"
+    "duty": "./cli.js"
   },
   "scripts": {
     "start": "node ./cli.js",
@@ -19,7 +19,7 @@
     "node-notifier": "^5.1.2"
   },
   "license": "MIT",
-  "version": "2.4.2",
+  "version": "2.4.2~rc1",
   "main": "index.js",
   "repository": {
     "type": "git",
