@@ -4,7 +4,7 @@ const fs = require("fs")
 const ReadTodo = require("./readtodo")
 const DeleteTodo = require("./deletetodo")
 const ExportTodo = require("./exporttodo")
-const keyPress = require('keypress')(process.stdin);
+
 
 const Daemon = require("./daemon")
 const moment = require("moment")
@@ -21,8 +21,8 @@ const {
     resolve,
     join
 } = require("path")
-const control = require("control-js")
-const printf = control.printf.bind(control)
+const { printf } = require("control-js");
+
 
 class DutyTodo {
     constructor({
@@ -132,7 +132,7 @@ class DutyTodo {
         hash
     }) {
 
-        content = ((type === "replace") ? `${content.replace(regex,text)}` : `${content} ${text}`)
+        
         switch(type) {
             case "replace":
                 content = content.replace(regex,text);

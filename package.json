@@ -6,19 +6,21 @@
     "duty": "./cli.js"
   },
   "scripts": {
+    "start": "node ./cli.js",
     "lint": "eslint src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js",
     "lint_fix": "eslint --fix src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js"
   },
   "dependencies": {
     "colors": "^1.1.2",
     "commander": "^2.9.0",
+    "control-js": "^1.0.2",
     "keypress": "^0.2.1",
     "mkdirp": "^0.5.1",
     "moment": "^2.18.1",
     "node-notifier": "^5.1.2"
   },
   "license": "MIT",
-  "version": "2.4.1",
+  "version": "2.4.2rc1",
   "main": "index.js",
   "repository": {
     "type": "git",
