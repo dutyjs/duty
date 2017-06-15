@@ -250,7 +250,7 @@ The daemon method is used by the daemon manager of your O.S , running it from th
 # FIX
 
 1. Proper date validation
-
+2. Proper directory handling in windows, when duty is executed for the first time
 
 ## LICENSE
 
