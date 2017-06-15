@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const mkdirp = require('mkdirp');
-
+// const mkdirp = require('mkdirp');
+const os = require('os');
 try {
 
     const config = require('./config.json');
@@ -20,7 +20,7 @@ try {
     ;
     (() => {
         const rl = require('readline');
-        const DEFAULT = `${process.env.HOME}/.duty.json`;
+        const DEFAULT = `${path.join(os.homedir(), ".duty.json")}`;
         const notification = true;
         const timeout = 60000;
 
@@ -66,33 +66,35 @@ try {
                     case 'n':
 
                         answer = await askQuestion(
-                            `specify a location to save the information: `
+                            `specify a directory to save the todos `
                         );
 
                         interface.close();
 
                         if (answer.length === 0) {
                             console.error(`invalid input specified\n`);
-                            return;
-                        } else {
-
-                            mkdirp.sync(answer.substr(0, answer.lastIndexOf(path.sep)));
-
-                            config = {
-                                location: answer + ".json",
-                                notification,
-                                timeout
-                            };
-
-                            fs.writeFileSync(config.location, "{}");
-
-                            fs.writeFileSync("./config.json", JSON.stringify(config));
-
-                            module.exports = new(require('./src/duty.js'))(config);
-
-                            return;
-
+                            break;
                         }
+
+                        // mkdirp.sync(answer.substr(0, answer.lastIndexOf(path.sep)));
+
+                        if ( ! fs.existsSync(answer) ) {
+                            console.error(`${answer} does not exists`);
+                            return ;
+                        }
+                        
+                        config = {
+                            location: `${path.join(answer, ".duty.json")}`,
+                            notification,
+                            timeout
+                        };
+
+                        fs.writeFileSync(config.location, "{}");
+
+                        fs.writeFileSync("./config.json", JSON.stringify(config));
+
+                        module.exports = new(require('./src/duty.js'))(config);
+
                         break;
                     default:
                         _f();
