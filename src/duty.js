@@ -13,7 +13,7 @@ const {
     platform,
     homedir
 } = require("os");
-const util = require("util");
+
 
 let Notify = require("node-notifier");
 

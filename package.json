@@ -9,7 +9,7 @@
     "start": "node ./cli.js",
     "lint": "eslint src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js src/readtodo.js src/exporttodo.js cli.js index.js",
     "lint_fix": "eslint --fix src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js src/readtodo.js src/exporttodo.js cli.js index.js",
-    "test": "jasmine test/*",
+    "test": "jasmine test/general_test.js",
     "coverage": "istanbul cover node_modules/jasmine/bin/jasmine.js test/*",
     "showcoverage": ""
   },
