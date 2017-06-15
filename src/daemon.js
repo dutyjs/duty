@@ -1,5 +1,5 @@
-const fs = require("fs")
-const cp = require("child_process")
+const fs = require("fs");
+const cp = require("child_process");
 
 module.exports = class Daemon {
     static CreateDaemon(platform) {
@@ -7,18 +7,18 @@ module.exports = class Daemon {
         //  static method is just to make the code,
         //  dependency injectable
 
-        Daemon[platform]()
+        Daemon[platform]();
     }
     static wait() {
-        process.stdout.write("wait while the daemon is been enabled...")        
+        process.stdout.write("wait while the daemon is been enabled...");        
     }
     static execSetupScript() {
-        Daemon.wait()
+        Daemon.wait();
         try {
-            cp.execSync(`${__dirname}/daemon.bash duty`)
+            cp.execSync(`${__dirname}/daemon.bash duty`);
         } catch(ex) {
             console.log(ex);
-            throw("error encountered while enabling service")
+            throw("error encountered while enabling service");
         }
 
         return true;
@@ -33,4 +33,4 @@ module.exports = class Daemon {
     static darwin() {
         return Daemon.execSetupScript();
     }
-}
+};
