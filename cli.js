@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 
 const ff = require("./index.js");
-const fs = require("fs");
-const path = require("path");
 const commander = require("commander");
+const { appendOption, addOption, isExists } = require("./src/utils.js");
+
+
 
 commander
     .version("3.0.0")
     .command("add <todo> [category...]")
     .description("Add todo into category, category is optional")
     .action((todo,category) => {
-        return ( category ? ff.add({todo,category}) : ff.add({todo}));
+        return addOption(todo,category,ff);
     });
 
 
@@ -19,7 +20,7 @@ commander
     .command("append <hash> <text>")
     .description("Append text into todo with the id of hash")
     .action((hash,text) => {
-        return ff.append({hash,text});
+        return appendOption(hash,text,ff);
     });
 
 commander
@@ -171,28 +172,6 @@ commander.parse(process.argv);
 
 
 if ( ! process.argv.slice(2).length ) {
-    process.stdout.write(isExists("/config.json"));
+    isExists("/config.json",commander);
 }    
 
-function isExists(file) {
-
-    let fileContent,
-        _file = path.join(__dirname, file);
-
-    if ( fs.existsSync(_file) && (fileContent = fs.readFileSync(_file) ) && 
-fs.existsSync(JSON.parse(fileContent.toString()).location) )  {
-
-        if ( process.env.NODE_ENV !== "development" ) {
-            commander.outputHelp();
-            return;
-        }
-
-        return "Enjoy...";
-    }
-
-    return "error while reading config file";
-
-}
-
-
-module.exports = isExists;

@@ -38,7 +38,7 @@ class DutyTodo {
             notification,
             timeout
         };
-
+        
     }
 
     static CATEGORIES(_this) {
@@ -179,6 +179,12 @@ class DutyTodo {
     static DAEMONMATCH() {
         return "DAEMONMATCH";
     }
+    static HASH_ERROR() {
+        return "HASH ERROR";
+    }
+    static EXISTS_ERROR() {
+        return "EXISTS_ERROR";
+    }
     static CALLGENERATORYLOOP(_this, cb) {
 
         // if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
@@ -214,6 +220,10 @@ class DutyTodo {
                 } else if (f === DutyTodo.URGENCY_ERROR()) {
                     reject(_n.value);
                     break;
+                } else if ( f === DutyTodo.HASH_ERROR() ) {
+                    reject("hash was not found");
+                } else if ( f === DutyTodo.EXISTS_ERROR() ) {
+                    reject("this todo already exists");
                 }
                 _n = gen.next();
             }
@@ -278,9 +288,9 @@ class DutyTodo {
             location,
             todoGroup
         });
-        DutyTodo.PRINT(`New todo has been added\nTotal todo is ${Object.keys(todoGroup).length}\n`.green);
-    } *
-    IterateTodo() {
+        return`New todo has been added\nTotal todo is ${Object.keys(todoGroup).length}\n.green`;
+    } 
+    * IterateTodo() {
         let {
             todoGroup
         } = this.MANAGER;
@@ -294,27 +304,14 @@ class DutyTodo {
     }
     add({
         todo,
-        category
-    }) {
-
-        if (!todo) {
-            DutyTodo.ErrMessage("A todo content needs to be added");
-            return false;
-        }
-
-        let hash = crypto.createHash("sha256").update(todo).digest("hex"),
-            manager, {
-                todoGroup
-            } = manager = this.MANAGER;
+        category,
+        hash
+    },manager) {
+        
+        let { todoGroup } = manager;
 
         if (!DutyTodo.NotEmpty(manager)) {
-            DutyTodo.SaveTodo({
-                manager,
-                hash,
-                todo,
-                category
-            });
-            return true;
+            return Promise.resolve();
         }
         let j = 0,
             isAdded = false;
@@ -325,42 +322,24 @@ class DutyTodo {
 
             if (longHash === hash) {
                 isAdded = true;
-                return false;
+                return DutyTodo.EXISTS_ERROR();
             } else if ((Object.keys(todoGroup).length === j) && (!isAdded)) {
                 return true;
             }
         };
 
-        DutyTodo.CALLGENERATORYLOOP(this, cb)
-            .then(_ => {
-                DutyTodo.SaveTodo({
-                    manager,
-                    hash,
-                    todo,
-                    category
-                });
-            })
-            .catch(_ => {
-                DutyTodo.ErrMessage("This todo already exists");
-            });
+        return DutyTodo.CALLGENERATORYLOOP(this, cb);
     }
 
     append({
         hash,
         text
     }) {
-        if (!hash) {
-            DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
-            return false;
-        } else if (!text) {
-            DutyTodo.ErrMessage(`got ${typeof(text)} instead of text`);
-            return false;
-        } else if (hash.length <= 4) {
-            DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
-            return false;
+
+        if ( hash.length < 9 ) {
+            return Promise.reject("length of hash should not be less than 9");
         }
-
-
+        
         let hashRegex = new RegExp(`^${hash}`),
             {
                 location,
@@ -390,20 +369,11 @@ class DutyTodo {
                 } else if (Object.keys(todoGroup).length === j) {
                     // this block of code should never run if a true hash
                     //     was found
-                    return false;
+                    return DutyTodo.HASH_ERROR();
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(this, cb)
-            .then(_ => {
-                DutyTodo.WriteFile({
-                    location,
-                    todoGroup
-                });
-            })
-            .catch(_ => {
-                DutyTodo.ErrMessage(`${hash} was not found, todo is not in list`);
-            });
+        return DutyTodo.CALLGENERATORYLOOP(this, cb);
     }
     replace({
         hash,

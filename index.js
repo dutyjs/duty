@@ -14,9 +14,9 @@ try {
 
 
 } catch (ex) {
-    if ( process.env.NODE_ENV === "development" ) {
-        console.log(ex);
-    }
+    // if ( process.env.NODE_ENV === "development" ) {
+    //     console.log(ex);
+    // }
     ;
     (() => {
         const rl = require('readline');
