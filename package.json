@@ -40,6 +40,7 @@
   },
   "homepage": "https://github.com/zombieleet/duty#readme",
   "devDependencies": {
+    "eslint": "^4.0.0",
     "istanbul": "^0.4.5",
     "jasmine": "^2.6.0"
   }
