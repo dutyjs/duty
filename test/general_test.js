@@ -1,6 +1,6 @@
 
 const path = require("path");
-const { appendOption, addOption, isExists, node_env } = require("../src/utils.js");
+const { noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists, node_env } = require("../src/utils.js");
 
 describe("#duty test", () => {
 
@@ -23,8 +23,8 @@ describe("#duty test", () => {
             notification: true,
             timeout: 60000,
         }));
-        
-    
+
+
         parsedConfig = JSON.parse(fs.readFileSync(test_config2,"utf8"));
 
         Object.assign(parsedConfig, {
@@ -67,13 +67,12 @@ describe("#duty test", () => {
 
             expect(isExists("./test/test_config2.json")).toEqual("Enjoy...");
         });
-        
+
     });
     describe("adding todos without category", () => {
         it("should add todo successfully", done => {
             addOption("hello world",undefined,DutyInstance)
                 .then( result => {
-
                     expect(result).toEqual(jasmine.any(Object));
                     done();
                 });
@@ -120,12 +119,12 @@ describe("#duty test", () => {
     describe("appending a todo", () => {
         // 402fa814b15f892d898ecf6d1c903fe2899018b46caf9c92ea1cb1e3719bbf86
         it("should return a failed promise, if hash length is not greater than 9", done => {
-            
+
             appendOption("402fa"," ---",DutyInstance)
                 .then( result => {
                     expect(result).toEqual("failed");
                     done();
-                })
+                });
         });
         it("should return a failed promise, if the specified hash value is not found", done => {
             appendOption("8a27b264090c4", " --- ", DutyInstance)
@@ -142,7 +141,99 @@ describe("#duty test", () => {
                     expect(currentHash).not.toMatch(_prev);
                     done();
                 });
-        })
-    })
-    
+        });
+    });
+
+    describe("replace todos", () => {
+        //b71419e58709541b5d30a5a197dc73ce84e9eb1db141925c5347e3d98d531a93
+        it("should return failed promise for invalid hash", done => {
+            replaceOption("8a27b264090c4",/earthlings/, "world",DutyInstance)
+                .then(result => {
+                    expect(result).toEqual("failed");
+                    done();
+                });
+        });
+        it("should return fulfilled promise for valid hash", done => {
+            replaceOption("b71419e58709541b5d30a5",/earthlings/,"world",DutyInstance)
+                .then( result => {
+                    const { previousHash, currentHash } = result;
+                    const { content } = parsedConfig.todoGroup[currentHash];
+                    const _prev = new RegExp(`^${previousHash}`);
+                    expect(currentHash).not.toMatch(_prev);
+                    expect(content).toMatch("world");
+                    done();
+
+                });
+        });
+        it("should return failed promise for hash values that are less than 9", done => {
+            replaceOption("b71419",/earthlings/,"world",DutyInstance)
+                .then( result => {
+                    expect(result).toEqual("failed");
+                    done();
+                });
+        });
+    });
+    describe("check if todo have been successfully marked completed", () => {
+        it("should return a failed promise for invalid hash", done => {
+            markCompletedOption("8a27b264090c4",DutyInstance)
+                .then( result => {
+                    expect(result).toEqual("failed");
+                    done();
+                });
+        });
+        it("should return a failed promise for hash length less than 9", done => {
+            markCompletedOption("b71",DutyInstance)
+                .then( result => {
+                    expect(result).toEqual("failed");
+                    done();
+                });
+        });
+        it("should return a fulfilled promise for valid hash", done => {
+            markCompletedOption("b9b2839a75e400d56ca5e",DutyInstance)
+                .then( result => {
+                    const { completed } = result;
+                    const { todoGroup: { completed: _completed } } = parsedConfig;
+                    expect(completed).toBe(completed);
+                    expect(completed).toBeTruthy();
+                    done();
+                });
+        });
+    });
+
+    describe("adding notes", () => {
+        it("should return a failed promise for invalid hash", done => {
+            noteOption("8a27b264090c4","fffffffffffffffffffffffffffffffffff",DutyInstance)
+                .then( result => {
+                    expect(result).toEqual("failed");
+                    done();
+                });
+        });
+        it("should return a failed promise for hash length less than 9", done => {
+            noteOption("b71","fffffffffffffffffffffffffffffffffff",DutyInstance)
+                .then( result => {
+                    expect(result).toEqual("failed");
+                    done();
+                });
+        });
+        it("should return a fulfilled promise for valid hash", done => {
+            noteOption("b9b2839a75e400d56ca5e","fffffffffffffffffffffffffffffffffff",DutyInstance)
+                .then( result => {
+
+                    const { note } = result;
+                    const { note: _note } = parsedConfig.todoGroup["b9b2839a7"];
+
+                    expect(_note).toBeDefined();
+
+                    expect(note).toBeDefined();
+
+                    expect(_note).toEqual(note);
+
+                    expect("fffffffffffffffffffffffffffffffffff").toEqual(note);
+
+                    done();
+
+                });
+        });
+    });
+
 });

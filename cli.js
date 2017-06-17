@@ -2,7 +2,7 @@
 
 const ff = require("./index.js");
 const commander = require("commander");
-const { appendOption, addOption, isExists } = require("./src/utils.js");
+const { noteOption, markCompleted, replaceOption, appendOption, addOption, isExists } = require("./src/utils.js");
 
 
 
@@ -27,21 +27,22 @@ commander
     .command("replace <hash> <regexp> <text>")
     .description("replace a text speicified by regexp with text into todo with id of hash")
     .action((hash,regexp,text) => {
-        return ff.replace({hash,regexp,text});
+        return replaceOption(hash,regexp,text,ff);
     });
 
 commander
     .command("markcompleted <hash>")
     .description("mark a todo with the id of hash completed")
     .action( hash => {
-        return ff.markcompleted({hash});
+        // return ff.markcompleted({hash});
+        return markCompletedOption(hash,ff);
     });
 
 commander
     .command("note <hash> <note>")
     .description("add a little note in a todo with id of hash")
     .action( (hash,note) => {
-        return ff.note({hash,note});
+        return noteOption(hash,note,ff);
     });
 
 
@@ -61,7 +62,7 @@ valid types are all , date , completed, notcompleted, due , category, urgency, e
     .action((type,options) => {
         const { date, modifiedDate } = options;
         if ( date && ! modifiedDate ) {
-            return ff.read(type, { date }); 
+            return ff.read(type, { date });
         } else if ( ! date && modifiedDate ) {
             return ff.read(type, {modifiedDate});
         } else if ( date && modifiedDate ) {
@@ -173,5 +174,4 @@ commander.parse(process.argv);
 
 if ( ! process.argv.slice(2).length ) {
     isExists("/config.json",commander);
-}    
-
+}

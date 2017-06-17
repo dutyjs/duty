@@ -38,7 +38,7 @@ class DutyTodo {
             notification,
             timeout
         };
-        
+
     }
 
     static CATEGORIES(_this) {
@@ -132,7 +132,7 @@ class DutyTodo {
         hash
     }) {
 
-        
+
         switch(type) {
         case "replace":
             content = content.replace(regex,text);
@@ -289,7 +289,7 @@ class DutyTodo {
             todoGroup
         });
         return`New todo has been added\nTotal todo is ${Object.keys(todoGroup).length}\n.green`;
-    } 
+    }
     * IterateTodo() {
         let {
             todoGroup
@@ -307,7 +307,7 @@ class DutyTodo {
         category,
         hash
     },manager) {
-        
+
         let { todoGroup } = manager;
 
         if (!DutyTodo.NotEmpty(manager)) {
@@ -339,7 +339,7 @@ class DutyTodo {
         if ( hash.length < 9 ) {
             return Promise.reject("length of hash should not be less than 9");
         }
-        
+
         let hashRegex = new RegExp(`^${hash}`),
             {
                 location,
@@ -380,18 +380,8 @@ class DutyTodo {
         regexp,
         text
     }) {
-        if (!hash) {
-            DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
-            return false;
-        } else if (!text) {
-            DutyTodo.ErrMessage(`got ${typeof(text)} instead of string`);
-            return false;
-        } else if (hash.length <= 4) {
-            DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
-            return false;
-        } else if (!regexp) {
-            DutyTodo.ErrMessage("not regexp was set");
-            return false;
+        if (hash.length < 9) {
+            return Promise.reject("hash value should not be less than 9");
         }
 
         let {
@@ -421,30 +411,21 @@ class DutyTodo {
                     });
                     return true;
                 } else if (Object.keys(todoGroup).length === j) {
-                    return false;
+                    return DutyTodo.HASH_ERROR();
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(this, cb)
-            .then(_ => {
-                DutyTodo.WriteFile({
-                    location,
-                    todoGroup
-                });
-            }).catch(_ => {
-                DutyTodo.ErrMessage(`${hash} was not found`);
-            });
+        return DutyTodo.CALLGENERATORYLOOP(this,cb);
     }
     markcompleted({
         hash
     }) {
-        if (!hash) {
-            DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
-            return false;
-        } else if (hash.length <= 4) {
-            DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
-            return false;
+
+        if (hash.length < 9) {
+
+            return Promise.reject("hash length should be less than 9");
         }
+
         let {
             location,
             todoGroup
@@ -465,35 +446,18 @@ class DutyTodo {
                 } else if (hashRegex.test(longHash) && completed) {
                     return true;
                 } else if (Object.keys(todoGroup).length === j) {
-                    return false;
+                    return DutyTodo.HASH_ERROR();
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(this, cb)
-            .then(_ => {
-                DutyTodo.WriteFile({
-                    location,
-                    todoGroup
-                });
-            }).catch(_ => {
-                DutyTodo.ErrMessage(`${hash} was not found`);
-            });
-
-
+        return DutyTodo.CALLGENERATORYLOOP(this,cb);
     }
     note({
         hash,
         note
     }) {
-        if (!hash) {
-            DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
-            return false;
-        } else if (hash.length <= 4) {
-            DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
-            return false;
-        } else if (!note) {
-            DutyTodo.ErrMessage("note is not defined");
-            return false;
+        if (hash.length < 9) {
+            return Promise.reject("hash length should not be less than 9");
         }
 
         let {
@@ -523,19 +487,11 @@ class DutyTodo {
                     });
                     return true;
                 } else if (Object.keys(todoGroup).length === j) {
-                    return false;
+                    return DutyTodo.HASH_ERROR();
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(this, cb)
-            .then(_ => {
-                DutyTodo.WriteFile({
-                    location,
-                    todoGroup
-                });
-            }).catch(_ => {
-                DutyTodo.ErrMessage(`${hash} was not found`);
-            });
+        return DutyTodo.CALLGENERATORYLOOP(this, cb);
 
     }
     removenote({
@@ -790,16 +746,8 @@ class DutyTodo {
                     return false;
                 }
             };
-        DutyTodo.CALLGENERATORYLOOP(this, cb)
-            .then(_ => {
-                DutyTodo.WriteFile({
-                    location,
-                    todoGroup
-                });
-            }).catch(_ => {
-                DutyTodo.ErrMessage(`${hash} was not found`);
-            });
 
+        return DutyTodo.CALLGENERATORYLOOP(this,cb);
     }
     categorize({
         hash,
@@ -1027,7 +975,7 @@ class DutyTodo {
                 content
             }) => {
                 j++;
-                if (hashRegex.test(longHash)) {    
+                if (hashRegex.test(longHash)) {
                     const type = "edit";
                     DutyTodo.REMODIFIYHASH({
                         type,
@@ -1093,7 +1041,7 @@ class DutyTodo {
         const self = this;
 
         setInterval(_ => {
-            
+
             let readDaemonObject = {
                 type: "due",
                 opt: {
@@ -1107,7 +1055,7 @@ class DutyTodo {
                         notification,
                         timeout
                     }) {
-                        
+
                         if (!notification) return false;
 
                         setTimeout(_ => {
