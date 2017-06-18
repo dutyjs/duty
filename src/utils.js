@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const DutyTodo = require("./duty.js");
+const ReadTodo = require("./readtodo.js");
 const path = require("path");
 const fs = require("fs");
 
@@ -21,7 +22,9 @@ const getProperty = todoGroup => {
 
     return todoGroup[__hash];
 }
-
+const getNotePropetry = todoGroup => {
+    return { note: getProperty(todoGroup).note }
+}
 function isExists(file,commander) {
 
     let fileContent,
@@ -144,21 +147,57 @@ function noteOption(hash,note,ff) {
 
             node_env() ? DutyTodo.PRINT(_pMessage) : "";
 
-            return {
-                note: getProperty(todoGroup).note
-            }
+            return getNotePropetry(todoGroup);
+
         }).catch(_ => {
             node_env() ? DutyTodo.ErrMessage(_) : console.log();
             return "failed";
         });
 }
 
+function removenoteOption(hash,ff) {
+    let { todoGroup, location } = ff.MANAGER;
+    return ff.removenote({hash}).then( _ => {
+            let _pMessage = DutyTodo.WriteFile({
+                location,
+                todoGroup
+            });
+
+            node_env() ? DutyTodo.PRINT(_pMessage) : "";
+
+            return getNotePropetry(todoGroup);
+
+        }).catch(_ => {
+            node_env() ? DutyTodo.ErrMessage(_) : console.log();
+            return "failed";
+        });
+}
+
+function readOption(type,opt,ff) {
+    // let { notification, timeout, todoGroup} = ff.MANAGER;
+    // return ff.read(type,opt)
+    //     .then( result => {
+            
+    //         result.forEach( res => {
+    //             ReadTodo.STYLE_READ(todoGroup[res],DutyTodo,{notification,timeout});
+    //         });
+            
+    //         return result;
+            
+    //     }).catch( _ => {
+    //         node_env() ? DutyTodo.ErrMessage(_) : console.log(_);
+    //         return "failed";
+    //     });
+    // 
+}
 module.exports = {
     addOption,
     appendOption,
     replaceOption,
     markCompletedOption,
     noteOption,
+    removenoteOption,
+    readOption,
     isExists,
     node_env
 };

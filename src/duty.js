@@ -224,6 +224,9 @@ class DutyTodo {
                     reject("hash was not found");
                 } else if ( f === DutyTodo.EXISTS_ERROR() ) {
                     reject("this todo already exists");
+                } else if ( Buffer[Symbol.hasInstance](f) ) {
+                    resolve(f);
+                    break;
                 }
                 _n = gen.next();
             }
@@ -498,12 +501,8 @@ class DutyTodo {
         hash
     }) {
 
-        if (!hash) {
-            DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
-            return false;
-        } else if (hash.length <= 4) {
-            DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
-            return false;
+        if (hash.length < 9 ) {
+            return Promise.reject("hash value length should not be less than 9");
         }
 
         let {
@@ -523,20 +522,11 @@ class DutyTodo {
                 } else if (hashRegex.test(longHash) && !todoGroup[hash].note) {
                     return true;
                 } else if (Object.keys(todoGroup).length === j) {
-                    return false;
+                    return DutyTodo.HASH_ERROR();
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(this, cb)
-            .then(_ => {
-                DutyTodo.WriteFile({
-                    location,
-                    todoGroup
-                });
-            }).catch(_ => {
-                DutyTodo.ErrMessage(`${hash} was not found`);
-            });
-
+        return DutyTodo.CALLGENERATORYLOOP(this, cb)
     }
     read(type, opt = {}) {
 
@@ -545,34 +535,29 @@ class DutyTodo {
             date,
             modifiedDate
         } = opt;
-        if (!type) {
-            DutyTodo.ErrMessage(`type ${type} is not supported`);
-            return false;
-        } else if (type === "date" && (!date && !modifiedDate)) {
-            DutyTodo.ErrMessage("expected two argument but got one, second argument should be a date in mm/dd/yy. ");
-            return false;
+        if (type === "date" && (!date && !modifiedDate)) {
+            return Promise.reject("expected two argument but got one, second argument should be a date in mm/dd/yy. ");
         } else if (type === "due" && !date) {
-            DutyTodo.ErrMessage("expected date argument to be set");
-            return false;
+            return Promise.reject("expected date argument to be set");
+            
         } else if ((date || modifiedDate) && !DutyTodo.VERIFY_DATE(date)) {
-            DutyTodo.ErrMessage("expected two argument but got one, second argument should be a date in mm/dd/yy.");
-            return false;
+            return Promise.reject("expected two argument but got one, second argument should be a date in mm/dd/yy.");
         }
 
 
         try {
             const p = ReadTodo.createType();
             const self = this;
-
-            p.handleRead({
-                type,
-                opt,
-                self,
-                DutyTodo
-            });
+            // this is also a promise, the resolved value will be used
+            //   in utils.js
+            return p.handleRead({
+                    type,
+                    opt,
+                    self,
+                    DutyTodo
+                });
         } catch (ex) {
-            DutyTodo.ErrMessage(`${type} is not supported`);
-            return false;
+            return Promise.reject(`${type} is not supported`);
         }
     }
     delete(type, opt = {}) {

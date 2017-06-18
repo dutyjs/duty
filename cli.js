@@ -2,7 +2,7 @@
 
 const ff = require("./index.js");
 const commander = require("commander");
-const { noteOption, markCompleted, replaceOption, appendOption, addOption, isExists } = require("./src/utils.js");
+const { removenoteOption, noteOption, markCompleted, replaceOption, appendOption, addOption, isExists } = require("./src/utils.js");
 
 
 
@@ -50,7 +50,7 @@ commander
     .command("removenote <hash>")
     .description("remove note that has been added to todo with the id of hash")
     .action( hash => {
-        return ff.removenote({hash});
+        return removenoteOption(hash);
     });
 
 commander

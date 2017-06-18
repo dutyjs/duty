@@ -1,6 +1,6 @@
 
 const path = require("path");
-const { noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists, node_env } = require("../src/utils.js");
+const { removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists, node_env } = require("../src/utils.js");
 
 describe("#duty test", () => {
 
@@ -215,7 +215,7 @@ describe("#duty test", () => {
                     done();
                 });
         });
-        it("should return a fulfilled promise for valid hash", done => {
+        it("should return a fulfilled promise for valid hash ( note should be added )", done => {
             noteOption("b9b2839a75e400d56ca5e","fffffffffffffffffffffffffffffffffff",DutyInstance)
                 .then( result => {
 
@@ -235,5 +235,40 @@ describe("#duty test", () => {
                 });
         });
     });
+    describe("remove notes", () => {
+        it("should return a failed promise for invalid hash ( note should not be removed ) ", done => {
+            removenoteOption("8a27b264090c4",DutyInstance)
+                .then( result => {
+                    expect(result).toEqual("failed");
+                    done();
+                });
+        });
+        it("should return a failed promise for hash length less than 9 ( note should not be removed ) ", done => {
+            removenoteOption("b71",DutyInstance)
+                .then( result => {
+                    expect(result).toEqual("failed");
+                    done();
+                });
+        });
+        it("should return a fulfilled promise for valid hash ( note should be removed )", done => {
+            removenoteOption("b9b2839a75e400d56ca5e",DutyInstance)
+                .then( result => {
+
+                    const { note } = result;
+                    const { note: _note } = parsedConfig.todoGroup["b9b2839a7"];
+
+                    expect(_note).toBeUndefined();
+
+                    expect(note).toBeUndefined();
+
+                    expect(_note).toEqual(note);
+
+                    done();
+
+                });
+        });
+    });
+
+    
 
 });
