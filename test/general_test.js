@@ -1,6 +1,6 @@
 
 const path = require("path");
-const { removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists, node_env } = require("../src/utils.js");
+const { readOption, removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists, node_env } = require("../src/utils.js");
 
 describe("#duty test", () => {
 
@@ -20,7 +20,7 @@ describe("#duty test", () => {
 
         fs.writeFileSync(test_config2, JSON.stringify({
             location: _test,
-            notification: true,
+            notification: "yes",
             timeout: 60000,
         }));
 
@@ -269,6 +269,85 @@ describe("#duty test", () => {
         });
     });
 
-    
+    describe("reading of todos", () => {
+        describe("all todos", () => {
+            it("should return a successful promise for reading all todos", done => {
+                readOption("all", undefined, DutyInstance)
+                    .then( result => {
+                        const { todoGroup } = parsedConfig;
+                        expect(result).toBeDefined();
+                        expect(result).toEqual(jasmine.any(Array));
+                        expect(result.length).toBeGreaterThan(0);
+                        done();
+                    });
+            });
+            // it("should return a failed promise when no todos are available for all", done => {
+            //     readOption("all", undefined, DutyInstance)
+            //         .then( result => {
+            //             console.log(result);
+            //             done();
+            //         });
+            // })            
+        });
+
+        describe("category todos", () => {
+            it("should return a successfull promise for reading categories", done => {
+                readOption("category:earthlings",undefined,DutyInstance)
+                    .then( result => {
+                        const { todoGroup } = parsedConfig;
+                        expect(result).toBeDefined();
+                        expect(result).toEqual(jasmine.any(Array));
+                        expect(result.length).toBeGreaterThan(0);
+                        done();
+                    })
+            });
+            it("should return a failed promise for reading invalid categories", done => {
+                readOption("category:notavailable", undefined, DutyInstance)
+                    .then( result => {
+                        expect(result).toEqual("failed");
+                        done();
+                    })
+            });
+        });
+
+        describe("reading notificatons", () => {
+            let handleNotification;
+            beforeEach( done => {
+                let main_key;
+
+                handleNotification = (type) => {
+                    addOption("without notificaton", undefined, DutyInstance)
+                        .then( result => {
+                            const { todoGroup } = parsedConfig;
+                            
+                            for ( let [key,val] of Object.entries(todoGroup) )
+                                DutyInstance.set_notify(key, { notification: type, timeout: 3000});
+                        });
+                }
+                done();
+            });
+            afterEach(() => {
+                handleNotification = undefined;
+            })
+            it("should return successfull promise for notification that is set to yes", done => {
+                handleNotification("yes");
+                readOption("notification", undefined, DutyInstance)
+                    .then( result => {
+                        let { todoGroup } = parsedConfig;
+                        expect(todoGroup[result[0]].notification).toEqual("yes");
+                        done();
+                    });
+            });
+            it("should return a no notificaton for todos", done => {
+                handleNotification("no");
+                readOption("notification", undefined, DutyInstance)
+                    .then( result => {
+                        let { todoGroup } = parsedConfig;
+                        expect(todoGroup[result[0]].notification).toEqual("no");
+                        done();
+                    });                
+            })
+        });
+    });
 
 });

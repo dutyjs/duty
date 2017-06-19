@@ -44,6 +44,21 @@ class ReadTodo {
         }
 
     }
+    static NO_NOTCOMPLETED() {
+        return "NO_NOTCOMPLETED";
+    }
+    static NO_COMPLETED() {
+        return "NO_COMPLETED";
+    }
+    static NO_DATE() {
+        return "NO_DATE";
+    }
+    static NO_CATEGORY() {
+        return "NO_CATEGORY";
+    }
+    static NO_URGENCY() {
+        return "NO_URGENCY";
+    }
     static HANDLE_PRIORITY(priority) {
         return ((priority === "critical") ?  "critical" : "notcritical");
     }
@@ -81,7 +96,7 @@ priority:\t${priority}${unicodes[ReadTodo.HANDLE_PRIORITY(priority)]}` : ""} ${u
 urgency:\t${urgency} `: ""} ${note ? `
 note:\t\t${note}`: ""}
 content:\t${content}
-notification:\t${/^true$|^false$/.test(String(notification)) ? notification : _configNotification}
+notification:\t${/^yes$|^no$/.test(notification) ? notification : _configNotification}
 timeout:\t${timeout ? timeout : _configTimeout}
 `);
 
@@ -98,106 +113,113 @@ timeout:\t${timeout ? timeout : _configTimeout}
         const [,_type,_typeOfType] = _matched ? _matched : [,undefined,undefined];
 
         if ( _typeOfType ) {
-            this[_type](_typeOfType);
-            return ;
+            return this[_type](_typeOfType);
+            
         }
 
-        this[this.type]();
+        return this[this.type]();
     }
+
+    static MakeBuffer(hashValues) {
+        return Buffer.from(hashValues);
+    }
+
     all() {
 
-        let { DutyTodo, _this, todoGroup } = this;
+        let { DutyTodo, _this, todoGroup } = this,
+            hashValues = [], j = 0,
+            cb = ({hash}) => {
+                j++;
+                if ( Object.keys(todoGroup).length !== j ) {
+                    hashValues.push(hash);
+                } else {
+                    return hashValues;
+                }
+            };
 
-        DutyTodo.CALLGENERATORYLOOP(_this, ({hash}) => {
-            let { notification, timeout} = _this.MANAGER;
-            ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
-        });
+        return DutyTodo.CALLGENERATORYLOOP(_this, cb);
     }
     notification() {
-        let { DutyTodo, _this, todoGroup } = this;
-        DutyTodo.CALLGENERATORYLOOP(_this, ({notification:_notify,hash}) => {
-            if ( _notify ) {
-                let { notification, timeout } = _this.MANAGER;
-                ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
-            }
-        }).catch(_ => {
-            DutyTodo.ErrMessage("unknown error while wanting to read for notification todos");
-        });
+        let { DutyTodo, _this, todoGroup } = this,
+            hashValues = [], j = 0,
+
+            cb = ({notification:_notify,hash}) => {
+                j++;
+                if ( Object.keys(todoGroup).length !== j ) {
+                    if ( _notify === "yes" ) {
+                        hashValues.push(hash);
+                    }
+                } else {
+                    return hashValues;
+                }
+            };
+
+        return DutyTodo.CALLGENERATORYLOOP(_this, cb);
     }
     eval(strToEval) {
 
-        let { DutyTodo, _this, todoGroup } = this;
+        let { DutyTodo, _this, todoGroup } = this,
+            hashValues = [], j = 0,
 
-        DutyTodo.CALLGENERATORYLOOP(_this, ({due_date,hash}) => {
+            cb =  ({due_date,hash}) => {
+                j++;
+                if ( Object.keys(todoGroup).length !== j ) {
 
-            if ( due_date && ReadTodo.HANDLE_DUE_DATE({due_date}) === strToEval) {
+                    if ( due_date && 
+                        ReadTodo.HANDLE_DUE_DATE({due_date}) === strToEval ) {
+                        hashValues.push(hash);
+                    }
 
-                let { notification, timeout } = _this.MANAGER;
-                ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
+                } else {
+                    return hashValues;
+                }
             }
-        }).catch(_ => {
-            DutyTodo.ErrMessage("unknown error while wanting to read for notification todos");
-        });
+
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb)
     }
     due() {
 
         let { DutyTodo, _this, todoGroup } = this,
-            { date: _dueDate,_cb} = this._opt, j = 0,
+            { date: _dueDate } = this._opt, j = 0,
+            hashValues = [],
             cb = ({hash,due_date}) => {
-
                 j++;
-                if ( due_date && _dueDate === due_date ) {
-                    if ( _cb ) {
-                        _cb(todoGroup[hash]);
-                        return DutyTodo.DAEMONMATCH;
-                    }
 
-                    let { notification, timeout} = _this.MANAGER;
-                    ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
-                    return true;
-                }
-                if ( Object.keys(todoGroup).length === j ) {
+                if ( Object.keys(todoGroup).length !== j ) {
 
-                    if ( ! _cb ) return false;
+                    if ( due_date && _dueDate === due_date ) {
+                        hashValues.push(hash);
+                    }    
 
-                    return DutyTodo.NO_DAEMONMATCH;
+                } else {
+                    return hashValues;
                 }
             };
 
-        // the catch block is entirely useless
-        //   when due is executed from the daemon
-        //   an extra check will be made to see if a due date is set
 
-        DutyTodo.CALLGENERATORYLOOP(_this,cb)
-            .catch( _ => {
-                process.stdout.write("specified due date was not found\n");
-            });
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
 
     }
     category(categoryType) {
 
         let { DutyTodo, _this, todoGroup } = this,
             isRead = false, j = 0,
+            hashValues = [],
             cb = ({hash,category}) => {
                 j++;
                 if ( category && Array.isArray(category) && category.includes(categoryType)) {
                     isRead = true;
-
-                    let { notification, timeout} = _this.MANAGER;
-                    ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
+                    hashValues.push(hash);
                 }
 
                 if ( ! isRead && Object.keys(todoGroup).length === j ) {
-                    return false;
+                    return ReadTodo.NO_CATEGORY();
                 } else if ( isRead && Object.keys(todoGroup).length === j ) {
-                    return true;
+                    return hashValues;
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(_this,cb)
-            .catch( _ => {
-                process.stdout.write("no todo with such category\n");
-            });
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
     }
     urgency(urgencyType) {
 
@@ -209,109 +231,95 @@ timeout:\t${timeout ? timeout : _configTimeout}
         case "later":break;
         case "today": break;
         default:
-            DutyTodo.ErrMessage("invalid urgency type to read");
-            return false;
+            return Promise.reject("invalid urgency type to read");
         }
 
         let isRead = false, j = 0,
+            hashValues = [],
             cb = ({hash,urgency}) => {
                 j++;
                 if ( urgency && Array.isArray(urgency) && urgency.includes(urgencyType) ) {
                     isRead = true;
-                    let { notification, timeout} = _this.MANAGER;
-                    ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
+                    hashValues.push(hash);
                 }
 
                 if ( ! isRead && Object.keys(todoGroup).length === j ) {
-                    return false;
+                    return ReadTodo.NO_URGENCY();
                 } else if ( isRead && Object.keys(todoGroup).length === j ) {
-                    return true;
+                    return hashValues;
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(_this,cb)
-            .catch( _ => {
-                process.stdout.write("no todo with such urgency\n");
-            });
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
 
     }
     completed() {
         let { DutyTodo, _this, todoGroup } = this,
             isRead = false,j = 0,
+            hashValues = [],
             cb = ({completed,hash}) => {
                 j++;
                 if ( completed ) {
                     isRead = true;
-                    let { notification, timeout} = _this.MANAGER;
-                    ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
+                    hashValues.push(hash);
                 }
 
                 if ( ! isRead && Object.keys(todoGroup).length === j ) {
-                    return false;
+                    return ReadTodo.NO_COMPLETED();
                 } else if ( isRead && Object.keys(todoGroup).length === j ) {
-                    return true;
+                    return hashValues;
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(_this,cb)
-            .catch( _ => {
-                process.stdout.write("nothing complete to read\n");
-            });
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
 
     }
     notcompleted() {
 
         let { DutyTodo, _this, todoGroup } = this,
             isRead = false,j = 0,
+            hashValues = [],
             cb = ({completed,hash}) => {
                 j++;
                 if ( ! completed ) {
                     isRead = true;
-                    let { notification, timeout} = _this.MANAGER;
-                    ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
+                    hashValues.push(hash);
                 }
 
                 if ( ! isRead && Object.keys(todoGroup).length === j ) {
-                    return false;
+                    return ReadTodo.NO_NOTCOMPLETED();
                 } else if ( isRead && Object.keys(todoGroup).length === j ) {
-                    return true;
+                    return hashValues;
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(_this,cb)
-            .catch( _ => {
-                process.stdout.write("nothing complete to read\n");
-            });
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
 
     }
     date() {
         let { DutyTodo, _this, todoGroup } = this,
             { date: _userDate , modifiedDate: _userModifiedDate} = this._opt,
             isRead = false,j = 0,
+            hashValues = [],
             cb = ({date,modifiedDate,hash}) => {
                 j++;
                 if ( (_userDate && date === _userDate) && (_userModifiedDate && modifiedDate === _userModifiedDate)
                 ) {
                     isRead = true;
-                    let { notification, timeout} = _this.MANAGER;
-                    ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
+                    hashValues.push(hash);
                 } else if ( (_userDate && date === _userDate) && !_userModifiedDate ) {
                     isRead = true;
-                    let { notification, timeout} = _this.MANAGER;
-                    ReadTodo.STYLE_READ(todoGroup[hash],DutyTodo,{notification,timeout});
+                    hashValues.push(hash);
                 }
 
                 if ( ! isRead && Object.keys(todoGroup).length === j ) {
-                    return false;
+                    return ReadTodo.NO_DATE();
                 } else if ( isRead && Object.keys(todoGroup).length === j ) {
-                    return true;
+                    return hashValues;
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(_this,cb)
-            .catch( _ => {
-                process.stdout.write("no match for the specified date was found\n");
-            });
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
     }
 
 

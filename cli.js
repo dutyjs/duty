@@ -2,7 +2,7 @@
 
 const ff = require("./index.js");
 const commander = require("commander");
-const { removenoteOption, noteOption, markCompleted, replaceOption, appendOption, addOption, isExists } = require("./src/utils.js");
+const { readOption, removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists } = require("./src/utils.js");
 
 
 
@@ -62,13 +62,13 @@ valid types are all , date , completed, notcompleted, due , category, urgency, e
     .action((type,options) => {
         const { date, modifiedDate } = options;
         if ( date && ! modifiedDate ) {
-            return ff.read(type, { date });
+            return readOption(type, { date },ff);
         } else if ( ! date && modifiedDate ) {
-            return ff.read(type, {modifiedDate});
+            return readOption(type, {modifiedDate},ff);
         } else if ( date && modifiedDate ) {
-            return ff.read(type,{date,modifiedDate});
+            return readOption(type,{date,modifiedDate},ff);
         } else {
-            return ff.read(type);
+            return readOption(type,undefined,ff);
         }
     });
 

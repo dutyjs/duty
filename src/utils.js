@@ -47,7 +47,7 @@ function addOption(todo,category = ["general"],ff) {
         manager = ff.MANAGER;
 
     return ff.add({todo,category,hash},manager)
-        .then(_ => {
+        .then( message => {
 
             let _pMessage = DutyTodo.SaveTodo({
                 manager,
@@ -55,7 +55,7 @@ function addOption(todo,category = ["general"],ff) {
                 todo,
                 category
             });
-            node_env() ? DutyTodo.PRINT(_pMessage) : "";
+            node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
 
             return {
                 manager,
@@ -77,13 +77,13 @@ function appendOption(hash,text,ff) {
     let { location, todoGroup } = ff.MANAGER;
 
     return ff.append({hash,text})
-        .then(_ => {
+        .then( message => {
             let _pMessage = DutyTodo.WriteFile({
                 location,
                 todoGroup
             });
 
-            node_env() ? DutyTodo.PRINT(_pMessage) : "";
+            node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
 
             return getPrevCurrHash(hash,todoGroup);
         })
@@ -98,14 +98,14 @@ function replaceOption(hash,regexp,text,ff) {
 
     let { todoGroup, location } = ff.MANAGER;
 
-    return ff.replace({hash,regexp,text}).then(_ => {
+    return ff.replace({hash,regexp,text}).then( messaeg => {
 
         let _pMessage = DutyTodo.WriteFile({
             location,
             todoGroup
         });
 
-        node_env() ? DutyTodo.PRINT(_pMessage) : "";
+        node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
 
         return getPrevCurrHash(hash,todoGroup);
 
@@ -119,14 +119,14 @@ function markCompletedOption(hash,ff) {
 
     let { todoGroup, location } = ff.MANAGER;
 
-    return ff.markcompleted({hash}).then(_ => {
+    return ff.markcompleted({hash}).then( message => {
 
             let _pMessage = DutyTodo.WriteFile({
                 location,
                 todoGroup
             });
 
-            node_env() ? DutyTodo.PRINT(_pMessage) : "";
+            node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
 
             return {
                 completed: getProperty(todoGroup).completed
@@ -139,13 +139,14 @@ function markCompletedOption(hash,ff) {
 
 function noteOption(hash,note,ff) {
     let { todoGroup, location } = ff.MANAGER;
-    return ff.note({hash,note}).then( _ => {
+    return ff.note({hash,note}).then( message => {
+
             let _pMessage = DutyTodo.WriteFile({
                 location,
                 todoGroup
             });
 
-            node_env() ? DutyTodo.PRINT(_pMessage) : "";
+            node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
 
             return getNotePropetry(todoGroup);
 
@@ -157,13 +158,14 @@ function noteOption(hash,note,ff) {
 
 function removenoteOption(hash,ff) {
     let { todoGroup, location } = ff.MANAGER;
-    return ff.removenote({hash}).then( _ => {
+    return ff.removenote({hash}).then( message => {
+
             let _pMessage = DutyTodo.WriteFile({
                 location,
                 todoGroup
             });
 
-            node_env() ? DutyTodo.PRINT(_pMessage) : "";
+            node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
 
             return getNotePropetry(todoGroup);
 
@@ -174,21 +176,23 @@ function removenoteOption(hash,ff) {
 }
 
 function readOption(type,opt,ff) {
-    // let { notification, timeout, todoGroup} = ff.MANAGER;
-    // return ff.read(type,opt)
-    //     .then( result => {
-            
-    //         result.forEach( res => {
-    //             ReadTodo.STYLE_READ(todoGroup[res],DutyTodo,{notification,timeout});
-    //         });
-            
-    //         return result;
-            
-    //     }).catch( _ => {
-    //         node_env() ? DutyTodo.ErrMessage(_) : console.log(_);
-    //         return "failed";
-    //     });
-    // 
+
+    let { notification, timeout, todoGroup} = ff.MANAGER;
+
+    return ff.read(type,opt)
+            .then( result => {
+                
+                result.forEach( res => {
+                    node_env() ? ReadTodo.STYLE_READ(todoGroup[res],DutyTodo,{notification,timeout}) : "";
+                });
+                
+                return result;
+                
+            }).catch( _ => {
+                node_env() ? DutyTodo.ErrMessage(_) : console.log();
+                return "failed";
+            });
+    
 }
 module.exports = {
     addOption,

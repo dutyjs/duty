@@ -173,17 +173,29 @@ class DutyTodo {
     static URGENCY_ERROR() {
         return "URGENCY_ERROR";
     }
-    static NO_DAEMONMATCH() {
-        return "NO_DAEMONMATCH";
-    }
-    static DAEMONMATCH() {
-        return "DAEMONMATCH";
-    }
     static HASH_ERROR() {
-        return "HASH ERROR";
+        return "HASH_ERROR";
     }
     static EXISTS_ERROR() {
         return "EXISTS_ERROR";
+    }
+    static TODO_MARKCOMPLETED() {
+        return "TODO_MARKCOMPLETED";
+    }
+    static TODO_REPLACE() {
+        return "TODO_REPLACE";
+    }
+    static TODO_APPENDED() {
+        return "TODO_APPENDED";
+    }
+    static TODO_ADDED() {
+        return "TODO_ADDED";
+    }
+    static NOTE_REMOVED() {
+        return "NOTE_REMOVED";
+    }
+    static NOTE_ADDED() {
+        return "NOTE_ADDED";
     }
     static CALLGENERATORYLOOP(_this, cb) {
 
@@ -207,26 +219,56 @@ class DutyTodo {
 
                 f = cb(_n.value);
 
-                // different values will be returned
-                //  so f === false and f === true
-                //  is not a bad coding practice
+                switch (f) {
+                    case "URGENCY_ERROR":
+                        reject(_n.value);       
+                        break;
+                    case "EXISTS_ERROR":
+                        reject("this todo already exists");
+                        break;
+                    case "NO_CATEGORY":
+                        reject("specified category does not exists");
+                        break;
+                    case "NO_DATE":
+                        reject("specified date was not found")
+                        break;
+                    case "HASH_ERROR":
+                        reject("hash was not found");
+                        break;
+                    case "NO_URGENCY":
+                        reject("specified urgency was not found");
+                        break;
+                    case "NO_NOTCOMPLETED":
+                        reject("all todos are marked completed");
+                        break;
+                    case "NO_NOTCOMPLETED":
+                        reject("no todo is marked as completed yet");
+                        break;
+                    case "TODO_APPENDED":
+                        resolve("todo appended successfully");
+                        break;
+                    case "TODO_ADDED":
+                        resolve("todo has been added successfully");
+                        break;
+                    case "TODO_REPLACE":
+                        resolve("todo has been replaced");
+                        break;
+                    case "TODO_MARKCOMPLETED":
+                        resolve("todo has been marked as completed");
+                        break;
+                    case "NOTE_ADDED":
+                        resolve("note has been added successfully");
+                        break;
+                    case "NOTE_REMOVED":
+                        resolve("note has been removed");
+                        break;
+                    default:
 
-                if (f === false) {
-                    reject();
-                    break;
-                } else if (f === true) {
-                    resolve();
-                    break;
-                } else if (f === DutyTodo.URGENCY_ERROR()) {
-                    reject(_n.value);
-                    break;
-                } else if ( f === DutyTodo.HASH_ERROR() ) {
-                    reject("hash was not found");
-                } else if ( f === DutyTodo.EXISTS_ERROR() ) {
-                    reject("this todo already exists");
-                } else if ( Buffer[Symbol.hasInstance](f) ) {
-                    resolve(f);
-                    break;
+                         if ( Array.isArray(f) && f.length !== 0 ) {
+                            resolve(f);
+                        }
+
+                        break;
                 }
                 _n = gen.next();
             }
@@ -291,7 +333,7 @@ class DutyTodo {
             location,
             todoGroup
         });
-        return`New todo has been added\nTotal todo is ${Object.keys(todoGroup).length}\n.green`;
+        return`Total todo is ${Object.keys(todoGroup).length}\n.green`;
     }
     * IterateTodo() {
         let {
@@ -327,7 +369,7 @@ class DutyTodo {
                 isAdded = true;
                 return DutyTodo.EXISTS_ERROR();
             } else if ((Object.keys(todoGroup).length === j) && (!isAdded)) {
-                return true;
+                return DutyTodo.TODO_ADDED();
             }
         };
 
@@ -368,7 +410,7 @@ class DutyTodo {
                         hash
                     });
 
-                    return true;
+                    return DutyTodo.TODO_APPENDED();
                 } else if (Object.keys(todoGroup).length === j) {
                     // this block of code should never run if a true hash
                     //     was found
@@ -412,7 +454,7 @@ class DutyTodo {
                         todoGroup,
                         hash
                     });
-                    return true;
+                    return DutyTodo.TODO_REPLACE();
                 } else if (Object.keys(todoGroup).length === j) {
                     return DutyTodo.HASH_ERROR();
                 }
@@ -445,9 +487,9 @@ class DutyTodo {
                     Object.assign(todoGroup[hash], {
                         completed: true
                     });
-                    return true;
+                    return DutyTodo.TODO_MARKCOMPLETED();
                 } else if (hashRegex.test(longHash) && completed) {
-                    return true;
+                    return DutyTodo.TODO_MARKCOMPLETED();
                 } else if (Object.keys(todoGroup).length === j) {
                     return DutyTodo.HASH_ERROR();
                 }
@@ -479,7 +521,7 @@ class DutyTodo {
                     Object.assign(todoGroup[hash], {
                         note
                     });
-                    return true;
+                    return DutyTodo.NOTE_ADDED();
 
                 } else if (hashRegex.test(longHash) && todoGroup[hash].note) {
 
@@ -488,7 +530,7 @@ class DutyTodo {
                     Object.assign(todoGroup[hash], {
                         note
                     });
-                    return true;
+                    return DutyTodo.NOTE_ADDED();
                 } else if (Object.keys(todoGroup).length === j) {
                     return DutyTodo.HASH_ERROR();
                 }
@@ -518,15 +560,15 @@ class DutyTodo {
                 j++;
                 if (hashRegex.test(longHash) && todoGroup[hash].note) {
                     delete todoGroup[hash].note;
-                    return true;
+                    return DutyTodo.NOTE_REMOVED();
                 } else if (hashRegex.test(longHash) && !todoGroup[hash].note) {
-                    return true;
+                    return DutyTodo.NOTE_REMOVED();
                 } else if (Object.keys(todoGroup).length === j) {
                     return DutyTodo.HASH_ERROR();
                 }
             };
 
-        return DutyTodo.CALLGENERATORYLOOP(this, cb)
+        return DutyTodo.CALLGENERATORYLOOP(this, cb);
     }
     read(type, opt = {}) {
 
@@ -535,6 +577,7 @@ class DutyTodo {
             date,
             modifiedDate
         } = opt;
+
         if (type === "date" && (!date && !modifiedDate)) {
             return Promise.reject("expected two argument but got one, second argument should be a date in mm/dd/yy. ");
         } else if (type === "due" && !date) {
@@ -550,12 +593,13 @@ class DutyTodo {
             const self = this;
             // this is also a promise, the resolved value will be used
             //   in utils.js
+            
             return p.handleRead({
-                    type,
-                    opt,
-                    self,
-                    DutyTodo
-                });
+                type,
+                opt,
+                self,
+                DutyTodo
+            });
         } catch (ex) {
             return Promise.reject(`${type} is not supported`);
         }
@@ -878,7 +922,7 @@ class DutyTodo {
         }
     }
     static NotificationArg(notification) {
-        return /^true$|^false$/.test(notification);
+        return ( notification === "yes" || notification === "no" );
     }
     static TimeoutArg(timeout) {
         return !isNaN(Number(timeout));
