@@ -2,6 +2,11 @@ const fs = require('fs');
 const path = require('path');
 // const mkdirp = require('mkdirp');
 const os = require('os');
+
+
+function isCFGLocation(location) {
+    return fs.existsSync(location);
+}
 try {
 
     const config = require('./config.json');
@@ -40,64 +45,66 @@ try {
             try {
 
                 let answer = await askQuestion(
-                        `default todo location not found, use \"${DEFAULT}\" as default (y/n) `
-                    ),
+                    `default todo location not found, use \"${DEFAULT}\" as default (y/n) `
+                ),
                     config;
 
 
                 switch (answer) {
-                    case 'y':
+                case 'y':
 
-                        interface.close();
+                    interface.close();
 
-                        config = {
-                            location: DEFAULT,
-                            notification,
-                            timeout
-                        };
+                    config = {
+                        location: DEFAULT,
+                        notification,
+                        timeout
+                    };
 
+                    if ( ! isCFGLocation(config.location) )
                         fs.writeFileSync(config.location, "{}");
 
-                        fs.writeFileSync("./config.json", JSON.stringify(config));
+                    fs.writeFileSync("./config.json", JSON.stringify(config));
 
-                        module.exports = new(require('./src/duty.js'))(config);
+                    module.exports = new(require('./src/duty.js'))(config);
 
+                    break;
+                case 'n':
+
+                    answer = await askQuestion(
+                        `specify a directory to save the todos `
+                    );
+
+                    interface.close();
+
+                    if (answer.length === 0) {
+                        console.error(`invalid input specified\n`);
                         break;
-                    case 'n':
+                    }
 
-                        answer = await askQuestion(
-                            `specify a directory to save the todos `
-                        );
+                    // mkdirp.sync(answer.substr(0, answer.lastIndexOf(path.sep)));
 
-                        interface.close();
-
-                        if (answer.length === 0) {
-                            console.error(`invalid input specified\n`);
-                            break;
-                        }
-
-                        // mkdirp.sync(answer.substr(0, answer.lastIndexOf(path.sep)));
-
-                        if ( ! fs.existsSync(answer) ) {
-                            console.error(`${answer} does not exists`);
-                            return ;
-                        }
-                        
+                    if ( ! fs.existsSync(answer) ) {
+                        console.error(`${answer} does not exists`);
+                        return ;
+                    } else {
                         config = {
                             location: `${path.join(answer, ".duty.json")}`,
                             notification,
                             timeout
                         };
+                    }
 
+                    if ( ! isCFGLocation(config.location) )
                         fs.writeFileSync(config.location, "{}");
+                    
+                    fs.writeFileSync("./config.json", JSON.stringify(config));
 
-                        fs.writeFileSync("./config.json", JSON.stringify(config));
+                    module.exports = new(require('./src/duty.js'))(config);
 
-                        module.exports = new(require('./src/duty.js'))(config);
-
-                        break;
-                    default:
-                        _f();
+                    break;
+                default:
+                    _f();
 
                 }
 
