@@ -4,9 +4,10 @@ const ff = require("./index.js")
 const fs = require("fs")
 
 const commander = require("commander")
+const pkgJson = require("./package.json");
 
 commander
-    .version("3.0.0")
+    .version(pkgJson.version)
     .command("add <todo> [category...]")
     .description("Add todo into category, category is optional")
     .action((todo,category) => {
