@@ -1,6 +1,9 @@
 
 const path = require("path");
-const { readOption, removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists, node_env } = require("../src/utils.js");
+const { dueOption, readOption, removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists, node_env } = require("../src/utils.js");
+const crypto = require("crypto");
+const moment = require("moment");
+const ReadTodo = require("../src/readtodo.js");
 
 describe("#duty test", () => {
 
@@ -73,7 +76,10 @@ describe("#duty test", () => {
         it("should add todo successfully", done => {
             addOption("hello world",undefined,DutyInstance)
                 .then( result => {
+                    let { content, longHash } = result;
                     expect(result).toEqual(jasmine.any(Object));
+                    expect(content).toEqual("hello world");
+                    expect(longHash).toEqual(crypto.createHash("sha256").update(content).digest("hex"));
                     done();
                 });
         });
@@ -82,7 +88,7 @@ describe("#duty test", () => {
             addOption("hello world",undefined,DutyInstance)
                 .then( result => {
 
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual("this todo already exists");
 
                     expect(Object.keys(parsedConfig.todoGroup).length).toEqual(1);
                     done();
@@ -101,7 +107,8 @@ describe("#duty test", () => {
         it("should add todo with categories successfully", done => {
             addOption("hello earthlings",category,DutyInstance)
                 .then( result => {
-                    expect(result.category).toEqual(jasmine.arrayContaining(["greetings","earthlings"]));
+                    const { category } = result;
+                    expect(category).toEqual(jasmine.arrayContaining(["greetings","earthlings"]));
                     done();
                 });
         });
@@ -109,7 +116,7 @@ describe("#duty test", () => {
         it("should not add todo for already existing todos", done => {
             addOption("hello earthlings",category,DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual("this todo already exists");
                     expect(Object.keys(parsedConfig.todoGroup).length).toEqual(2);
                     done();
                 });
@@ -119,17 +126,17 @@ describe("#duty test", () => {
     describe("appending a todo", () => {
         // 402fa814b15f892d898ecf6d1c903fe2899018b46caf9c92ea1cb1e3719bbf86
         it("should return a failed promise, if hash length is not greater than 9", done => {
-
-            appendOption("402fa"," ---",DutyInstance)
+            let hash = "402fa";
+            appendOption(hash," ---",DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual(`hash length is suppose to be 9 but got ${hash.length}`);
                     done();
                 });
         });
         it("should return a failed promise, if the specified hash value is not found", done => {
             appendOption("8a27b264090c4", " --- ", DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual("hash was not found");
                     done();
                 });
         });
@@ -149,7 +156,7 @@ describe("#duty test", () => {
         it("should return failed promise for invalid hash", done => {
             replaceOption("8a27b264090c4",/earthlings/, "world",DutyInstance)
                 .then(result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual("hash was not found");
                     done();
                 });
         });
@@ -166,9 +173,10 @@ describe("#duty test", () => {
                 });
         });
         it("should return failed promise for hash values that are less than 9", done => {
-            replaceOption("b71419",/earthlings/,"world",DutyInstance)
+            let hash = "b71419";
+            replaceOption(hash,/earthlings/,"world",DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual(`hash length is suppose to be 9 but got ${hash.length}`);
                     done();
                 });
         });
@@ -177,14 +185,15 @@ describe("#duty test", () => {
         it("should return a failed promise for invalid hash", done => {
             markCompletedOption("8a27b264090c4",DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual("hash was not found");
                     done();
                 });
         });
         it("should return a failed promise for hash length less than 9", done => {
-            markCompletedOption("b71",DutyInstance)
+            let hash = "b71";
+            markCompletedOption(hash,DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual(`hash length is suppose to be 9 but got ${hash.length}`);
                     done();
                 });
         });
@@ -204,14 +213,15 @@ describe("#duty test", () => {
         it("should return a failed promise for invalid hash", done => {
             noteOption("8a27b264090c4","fffffffffffffffffffffffffffffffffff",DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual("hash was not found");
                     done();
                 });
         });
         it("should return a failed promise for hash length less than 9", done => {
-            noteOption("b71","fffffffffffffffffffffffffffffffffff",DutyInstance)
+            let hash = "b71";
+            noteOption(hash,"fffffffffffffffffffffffffffffffffff",DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual(`hash length is suppose to be 9 but got ${hash.length}`);
                     done();
                 });
         });
@@ -239,14 +249,15 @@ describe("#duty test", () => {
         it("should return a failed promise for invalid hash ( note should not be removed ) ", done => {
             removenoteOption("8a27b264090c4",DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual("hash was not found");
                     done();
                 });
         });
         it("should return a failed promise for hash length less than 9 ( note should not be removed ) ", done => {
-            removenoteOption("b71",DutyInstance)
+            let hash = "b71";
+            removenoteOption(hash,DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("failed");
+                    expect(result).toEqual(`hash length is suppose to be 9 but got ${hash.length}`);
                     done();
                 });
         });
@@ -268,9 +279,42 @@ describe("#duty test", () => {
                 });
         });
     });
+    describe("setting the due date of todos", () => {
+        let hash = "b9b23";
+        it("should return a failed promise for  hash less than 9 when setting the due date of todo", done => {
+            dueOption(hash,"10/15/2017",DutyInstance)
+                .then( result => {
+                    expect(result).toEqual(`hash length is suppose to be 9 but got ${hash.length}`);
+                    done();
+                });
+        });
+        it("should return a failed promise for invalid date formats", done => {
+            dueOption("b9b2839a75e400d56ca5e","2017/12/12",DutyInstance)
+                .then( result => {
+                    expect(result).toEqual("invalid date format specfied 2017/12/12. Date should be specfied  in mm/dd/yy");
+                    done();
+                });
+        });
+        it("should set the due date of a todo when all requirements are met", done => {
 
+            dueOption("b9b2839a75e400d56ca5e","10/15/2017",DutyInstance)
+                .then( result => {
+                    const { due_date } = result;
+                    expect(due_date).toBeDefined();
+                    expect(due_date).toEqual("10/15/2017");
+                    done();
+                });
+        });
+        it("should return a failed promise if a hash value was not found", done => {
+            dueOption("b39543fe2c3458a", "10/15/2017", DutyInstance)
+                .then( result => {
+                    expect(result).toEqual("hash was not found");
+                    done();
+                });
+        });
+    });
     describe("reading of todos", () => {
-        describe("all todos", () => {
+        describe("reading all todos", () => {
             it("should return a successful promise for reading all todos", done => {
                 readOption("all", undefined, DutyInstance)
                     .then( result => {
@@ -281,16 +325,22 @@ describe("#duty test", () => {
                         done();
                     });
             });
-            // it("should return a failed promise when no todos are available for all", done => {
-            //     readOption("all", undefined, DutyInstance)
-            //         .then( result => {
-            //             console.log(result);
-            //             done();
-            //         });
-            // })            
+            describe("# return failed promise when no todo is available", () => {
+                beforeEach(() => {
+                    // delete todo here
+                });
+                // it("should return a failed promise when no todos are available for all", done => {
+                //     readOption("all", undefined, DutyInstance)
+                //         .then( result => {
+                //             console.log(result);
+                //             done();
+                //         });
+                // }); 
+            });
+           
         });
 
-        describe("category todos", () => {
+        describe("reading category todos", () => {
             it("should return a successfull promise for reading categories", done => {
                 readOption("category:earthlings",undefined,DutyInstance)
                     .then( result => {
@@ -299,19 +349,19 @@ describe("#duty test", () => {
                         expect(result).toEqual(jasmine.any(Array));
                         expect(result.length).toBeGreaterThan(0);
                         done();
-                    })
+                    });
             });
             it("should return a failed promise for reading invalid categories", done => {
                 readOption("category:notavailable", undefined, DutyInstance)
                     .then( result => {
-                        expect(result).toEqual("failed");
+                        expect(result).toEqual("the specified type is not available for reading");
                         done();
-                    })
+                    });
             });
         });
 
         describe("reading notificatons", () => {
-            let handleNotification;
+            let handleNotification, loopNotification;
             beforeEach( done => {
                 let main_key;
 
@@ -323,18 +373,26 @@ describe("#duty test", () => {
                             for ( let [key,val] of Object.entries(todoGroup) )
                                 DutyInstance.set_notify(key, { notification: type, timeout: 3000});
                         });
-                }
+                };
+
+                loopNotification = (result,type) => {
+                    for ( let i of result ) {
+                        let { notification } = i;
+                        expect(notification).toEqual(type);
+                    }
+                };
+
                 done();
             });
             afterEach(() => {
                 handleNotification = undefined;
-            })
+            });
             it("should return successfull promise for notification that is set to yes", done => {
                 handleNotification("yes");
                 readOption("notification", undefined, DutyInstance)
                     .then( result => {
-                        let { todoGroup } = parsedConfig;
-                        expect(todoGroup[result[0]].notification).toEqual("yes");
+                        expect(result).toEqual(jasmine.any(Array));
+                        loopNotification(result,"yes");
                         done();
                     });
             });
@@ -342,11 +400,36 @@ describe("#duty test", () => {
                 handleNotification("no");
                 readOption("notification", undefined, DutyInstance)
                     .then( result => {
-                        let { todoGroup } = parsedConfig;
-                        expect(todoGroup[result[0]].notification).toEqual("no");
+                        expect(result).toEqual(jasmine.any(Array));
+                        loopNotification(result,"no");
                         done();
                     });                
-            })
+            });
+        });
+        describe("reading todo by evaluating strings", () => {
+            beforeEach( done => {
+                addOption("Hello adding new todo",undefined,DutyInstance)
+                    .then( result => {
+                        const { hash } = result;
+                        dueOption(hash,moment().add(2, "days").format("MM/DD/YYYY"), DutyInstance)
+                            .then( result => { /* do nothing */ });
+                        done();
+                    });
+            });
+            it("should evaluate strings as date", done => {
+
+                readOption("eval:2 days from now",undefined,DutyInstance)
+                    .then( result => {
+
+                        expect(result).toEqual(jasmine.any(Array));
+
+                        for ( let i of result ) {
+                            let { due_date } = i;
+                            expect(ReadTodo.HANDLE_DUE_DATE({due_date})).toEqual("2 days from now");
+                        }
+                        done();
+                    });
+            });
         });
     });
 
