@@ -36,9 +36,9 @@ class ReadTodo {
         const { circle, halfcircle, completecircle } = ReadTodo.UNICODE_VALUES();
 
         if ( due_date > _date ) {
-            return `${TIME_LEFT}days from now`;
+            return `${TIME_LEFT} days from now`;
         } else if ( due_date < _date ) {
-            return `${parseInt(TIME_LEFT) * -1}days before now`;
+            return `${parseInt(TIME_LEFT) * -1} days before now`;
         } else if ( due_date === _date ) {
             return `today ${completecircle}`;
         }
@@ -120,21 +120,21 @@ timeout:\t${timeout ? timeout : _configTimeout}
         return this[this.type]();
     }
 
-    static MakeBuffer(hashValues) {
-        return Buffer.from(hashValues);
-    }
+ 
 
     all() {
 
         let { DutyTodo, _this, todoGroup } = this,
-            hashValues = [], j = 0,
+            hashValues = [], j = 0, isRead = false,
             cb = ({hash}) => {
                 j++;
                 if ( Object.keys(todoGroup).length !== j ) {
+                    isRead = true;
                     hashValues.push(hash);
-                } else {
-                    return hashValues;
                 }
+                let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
+                
+                if ( retval ) return retval;                
             };
 
         return DutyTodo.CALLGENERATORYLOOP(_this, cb);
@@ -142,16 +142,19 @@ timeout:\t${timeout ? timeout : _configTimeout}
     notification() {
         let { DutyTodo, _this, todoGroup } = this,
             hashValues = [], j = 0,
-
+            isRead = false,
             cb = ({notification:_notify,hash}) => {
                 j++;
                 if ( Object.keys(todoGroup).length !== j ) {
                     if ( _notify === "yes" ) {
+                        isRead = true;
                         hashValues.push(hash);
                     }
-                } else {
-                    return hashValues;
                 }
+
+                let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
+                
+                if ( retval ) return retval;                
             };
 
         return DutyTodo.CALLGENERATORYLOOP(_this, cb);
@@ -160,40 +163,54 @@ timeout:\t${timeout ? timeout : _configTimeout}
 
         let { DutyTodo, _this, todoGroup } = this,
             hashValues = [], j = 0,
-
+            isRead = false,
             cb =  ({due_date,hash}) => {
-                j++;
-                if ( Object.keys(todoGroup).length !== j ) {
-
-                    if ( due_date && 
-                        ReadTodo.HANDLE_DUE_DATE({due_date}) === strToEval ) {
+                
+                if ( Object.keys(todoGroup).length !== j++ ) {
+                    if ( due_date && ReadTodo.HANDLE_DUE_DATE({due_date}) === strToEval ) {
+                        isRead = true;
                         hashValues.push(hash);
                     }
+                } 
+                
+                let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
+                
+                if ( retval ) return retval;
 
-                } else {
-                    return hashValues;
-                }
             }
 
-        return DutyTodo.CALLGENERATORYLOOP(_this,cb)
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb).catch( e => console.log(e))
+    }
+    static CheckState(isRead,todoGroup,j,hashValues,DutyTodo) {
+        if ( ! isRead && Object.keys(todoGroup).length === j ) {
+            return DutyTodo.NO_READ();
+        } else if ( isRead && Object.keys(todoGroup).length === j ) {
+            
+            return hashValues;
+        } 
+        return undefined;
     }
     due() {
 
         let { DutyTodo, _this, todoGroup } = this,
             { date: _dueDate } = this._opt, j = 0,
             hashValues = [],
+            isRead = false,
             cb = ({hash,due_date}) => {
                 j++;
 
                 if ( Object.keys(todoGroup).length !== j ) {
 
                     if ( due_date && _dueDate === due_date ) {
+                        isRead = true;
                         hashValues.push(hash);
                     }    
 
-                } else {
-                    return hashValues;
                 }
+
+                let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
+                
+                if ( retval ) return retval;
             };
 
 
@@ -212,11 +229,9 @@ timeout:\t${timeout ? timeout : _configTimeout}
                     hashValues.push(hash);
                 }
 
-                if ( ! isRead && Object.keys(todoGroup).length === j ) {
-                    return ReadTodo.NO_CATEGORY();
-                } else if ( isRead && Object.keys(todoGroup).length === j ) {
-                    return hashValues;
-                }
+                let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
+                
+                if ( retval ) return retval;
             };
 
         return DutyTodo.CALLGENERATORYLOOP(_this,cb);
@@ -243,11 +258,9 @@ timeout:\t${timeout ? timeout : _configTimeout}
                     hashValues.push(hash);
                 }
 
-                if ( ! isRead && Object.keys(todoGroup).length === j ) {
-                    return ReadTodo.NO_URGENCY();
-                } else if ( isRead && Object.keys(todoGroup).length === j ) {
-                    return hashValues;
-                }
+                let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
+                
+                if ( retval ) return retval;
             };
 
         return DutyTodo.CALLGENERATORYLOOP(_this,cb);
@@ -264,11 +277,9 @@ timeout:\t${timeout ? timeout : _configTimeout}
                     hashValues.push(hash);
                 }
 
-                if ( ! isRead && Object.keys(todoGroup).length === j ) {
-                    return ReadTodo.NO_COMPLETED();
-                } else if ( isRead && Object.keys(todoGroup).length === j ) {
-                    return hashValues;
-                }
+                let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
+                
+                if ( retval ) return retval;
             };
 
         return DutyTodo.CALLGENERATORYLOOP(_this,cb);
@@ -286,11 +297,9 @@ timeout:\t${timeout ? timeout : _configTimeout}
                     hashValues.push(hash);
                 }
 
-                if ( ! isRead && Object.keys(todoGroup).length === j ) {
-                    return ReadTodo.NO_NOTCOMPLETED();
-                } else if ( isRead && Object.keys(todoGroup).length === j ) {
-                    return hashValues;
-                }
+                let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
+                
+                if ( retval ) return retval;
             };
 
         return DutyTodo.CALLGENERATORYLOOP(_this,cb);
@@ -312,11 +321,9 @@ timeout:\t${timeout ? timeout : _configTimeout}
                     hashValues.push(hash);
                 }
 
-                if ( ! isRead && Object.keys(todoGroup).length === j ) {
-                    return ReadTodo.NO_DATE();
-                } else if ( isRead && Object.keys(todoGroup).length === j ) {
-                    return hashValues;
-                }
+                let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
+                
+                if ( retval ) return retval;
             };
 
         return DutyTodo.CALLGENERATORYLOOP(_this,cb);
