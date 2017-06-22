@@ -8,12 +8,15 @@ const node_env = () => {
     return process.env.NODE_ENV !== "development";
 };
 
+const env = (message) => {
+    return node_env() ? DutyTodo.PRINT(message ): message;
+};
 const getPrevCurrHash = (previousHash, todoGroup) => {
     return {
         previousHash,
         currentHash: getProperty(todoGroup).hash
-    }
-}
+    };
+};
 
 const getProperty = todoGroup => {
 
@@ -21,10 +24,10 @@ const getProperty = todoGroup => {
     __hash = __hash[__hash.length - 1];
 
     return todoGroup[__hash];
-}
+};
 const getNotePropetry = todoGroup => {
-    return { note: getProperty(todoGroup).note }
-}
+    return { note: getProperty(todoGroup).note };
+};
 function isExists(file,commander) {
 
     let fileContent,
@@ -47,27 +50,22 @@ function addOption(todo,category = ["general"],ff) {
         manager = ff.MANAGER;
 
     return ff.add({todo,category,hash},manager)
-        .then( message => {
+        .then( () => {
 
-            let _pMessage = DutyTodo.SaveTodo({
+            let currentSave = DutyTodo.SaveTodo({
                 manager,
                 hash,
                 todo,
                 category
             });
-            node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
+            
+            env("");
 
-            return {
-                manager,
-                hash,
-                todo,
-                category
-            };
+            return currentSave;
 
         }).catch(_ => {
 
-            node_env() ? DutyTodo.ErrMessage(_) : "";
-            return "failed";
+            return (_);;
 
         });
 }
@@ -83,13 +81,13 @@ function appendOption(hash,text,ff) {
                 todoGroup
             });
 
-            node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
+            env(_pMessage);
 
             return getPrevCurrHash(hash,todoGroup);
         })
         .catch( _  => {
-            node_env() ? DutyTodo.ErrMessage(_ ? _ : `content of ${hash} appended succefully`) : "";
-            return "failed";
+            return (_);;
+            
         });
 
 }
@@ -105,13 +103,12 @@ function replaceOption(hash,regexp,text,ff) {
             todoGroup
         });
 
-        node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
+        env(_pMessage);
 
         return getPrevCurrHash(hash,todoGroup);
 
     }).catch(_ => {
-        node_env() ? DutyTodo.ErrMessage(_) : console.log();
-        return "failed";
+        return (_);
     });
 }
 
@@ -121,77 +118,96 @@ function markCompletedOption(hash,ff) {
 
     return ff.markcompleted({hash}).then( message => {
 
-            let _pMessage = DutyTodo.WriteFile({
-                location,
-                todoGroup
-            });
-
-            node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
-
-            return {
-                completed: getProperty(todoGroup).completed
-            }
-        }).catch(_ => {
-            node_env() ? DutyTodo.ErrMessage(_) : console.log();
-            return "failed";
+        let _pMessage = DutyTodo.WriteFile({
+            location,
+            todoGroup
         });
+
+        env(_pMessage);
+
+        return {
+            completed: getProperty(todoGroup).completed
+        };
+    }).catch(_ => {
+        return (_);;
+        
+    });
 }
 
 function noteOption(hash,note,ff) {
     let { todoGroup, location } = ff.MANAGER;
     return ff.note({hash,note}).then( message => {
 
-            let _pMessage = DutyTodo.WriteFile({
-                location,
-                todoGroup
-            });
-
-            node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
-
-            return getNotePropetry(todoGroup);
-
-        }).catch(_ => {
-            node_env() ? DutyTodo.ErrMessage(_) : console.log();
-            return "failed";
+        let _pMessage = DutyTodo.WriteFile({
+            location,
+            todoGroup
         });
+
+        env(_pMessage);
+
+        return getNotePropetry(todoGroup);
+
+    }).catch(_ => {
+        return (_);;
+        
+    });
 }
 
 function removenoteOption(hash,ff) {
     let { todoGroup, location } = ff.MANAGER;
     return ff.removenote({hash}).then( message => {
 
+        let _pMessage = DutyTodo.WriteFile({
+            location,
+            todoGroup
+        });
+
+        env(_pMessage);
+
+        return getNotePropetry(todoGroup);
+
+    }).catch(_ => {
+        return (_);;
+        
+    });
+}
+
+function dueOption(hash,date,ff) {
+    let { todoGroup , location } = ff.MANAGER;
+
+    return ff.due({hash,date})
+        .then( result => {
+
             let _pMessage = DutyTodo.WriteFile({
                 location,
                 todoGroup
             });
 
-            node_env() ? DutyTodo.PRINT(message + "\n" + _pMessage ): "";
-
-            return getNotePropetry(todoGroup);
-
+            env(_pMessage);
+            return result;
         }).catch(_ => {
-            node_env() ? DutyTodo.ErrMessage(_) : console.log();
-            return "failed";
+            return (_);
         });
 }
 
 function readOption(type,opt,ff) {
 
     let { notification, timeout, todoGroup} = ff.MANAGER;
-
+    
     return ff.read(type,opt)
-            .then( result => {
-                
-                result.forEach( res => {
-                    node_env() ? ReadTodo.STYLE_READ(todoGroup[res],DutyTodo,{notification,timeout}) : "";
-                });
-                
-                return result;
-                
-            }).catch( _ => {
-                node_env() ? DutyTodo.ErrMessage(_) : console.log();
-                return "failed";
+        .then( result => {
+            const _readTodo = [];
+            result.forEach( res => {
+                _readTodo.push(todoGroup[res]);
+                return node_env() ? ReadTodo.STYLE_READ(todoGroup[res],DutyTodo,{notification,timeout}) : "";
             });
+                
+            return _readTodo;
+                
+        }).catch( _ => {
+
+            return (_);;
+        });
     
 }
 module.exports = {
@@ -203,5 +219,6 @@ module.exports = {
     removenoteOption,
     readOption,
     isExists,
+    dueOption,
     node_env
 };
