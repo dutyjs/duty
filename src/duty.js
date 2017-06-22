@@ -197,6 +197,12 @@ class DutyTodo {
     static NOTE_ADDED() {
         return "NOTE_ADDED";
     }
+    static DUE_DATE_SET() {
+        return "DUE_DATE_SET";
+    }
+    static NO_READ() {
+        return "NO_READ";
+    }
     static CALLGENERATORYLOOP(_this, cb) {
 
         // if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
@@ -218,7 +224,7 @@ class DutyTodo {
                 //   modified object
 
                 f = cb(_n.value);
-
+                
                 switch (f) {
                     case "URGENCY_ERROR":
                         reject(_n.value);       
@@ -226,41 +232,32 @@ class DutyTodo {
                     case "EXISTS_ERROR":
                         reject("this todo already exists");
                         break;
-                    case "NO_CATEGORY":
-                        reject("specified category does not exists");
-                        break;
-                    case "NO_DATE":
-                        reject("specified date was not found")
+                    case "NO_READ":
+                        reject("the specified type is not available for reading");
                         break;
                     case "HASH_ERROR":
                         reject("hash was not found");
                         break;
-                    case "NO_URGENCY":
-                        reject("specified urgency was not found");
-                        break;
-                    case "NO_NOTCOMPLETED":
-                        reject("all todos are marked completed");
-                        break;
-                    case "NO_NOTCOMPLETED":
-                        reject("no todo is marked as completed yet");
-                        break;
                     case "TODO_APPENDED":
-                        resolve("todo appended successfully");
+                        resolve(_n.value);
                         break;
                     case "TODO_ADDED":
-                        resolve("todo has been added successfully");
+                        resolve();
                         break;
                     case "TODO_REPLACE":
-                        resolve("todo has been replaced");
+                        resolve(_n.value);
                         break;
                     case "TODO_MARKCOMPLETED":
-                        resolve("todo has been marked as completed");
+                        resolve(_n.value);
                         break;
                     case "NOTE_ADDED":
-                        resolve("note has been added successfully");
+                        resolve(_n.value);
                         break;
                     case "NOTE_REMOVED":
-                        resolve("note has been removed");
+                        resolve(_n.value);
+                        break;
+                    case "DUE_DATE_SET":
+                        resolve(_n.value);
                         break;
                     default:
 
@@ -279,11 +276,14 @@ class DutyTodo {
     static ErrMessage(msg) {
         process.stderr.write(colors.bold(`${msg}\n`.red));
     }
+    static PrintHashError(hash) {
+        return Promise.reject(`hash length is suppose to be 9 but got ${hash.length}`);
+    }
     static WriteFile({
         location,
         todoGroup
     }) {
-        fs.writeFileSync(location, JSON.stringify(todoGroup));
+        return fs.writeFileSync(location, JSON.stringify(todoGroup));
     }
     static SaveTodo({
         manager: {
@@ -333,7 +333,8 @@ class DutyTodo {
             location,
             todoGroup
         });
-        return`Total todo is ${Object.keys(todoGroup).length}\n.green`;
+        if ( process.env.NODE_ENV !== "development" ) DutyTodo.PRINT(`Total todo is ${Object.keys(todoGroup).length}\n.green`);
+        return todoGroup[hash];
     }
     * IterateTodo() {
         let {
@@ -382,7 +383,7 @@ class DutyTodo {
     }) {
 
         if ( hash.length < 9 ) {
-            return Promise.reject("length of hash should not be less than 9");
+            return DutyTodo.PrintHashError(hash);
         }
 
         let hashRegex = new RegExp(`^${hash}`),
@@ -426,7 +427,7 @@ class DutyTodo {
         text
     }) {
         if (hash.length < 9) {
-            return Promise.reject("hash value should not be less than 9");
+            return DutyTodo.PrintHashError(hash);
         }
 
         let {
@@ -468,7 +469,7 @@ class DutyTodo {
 
         if (hash.length < 9) {
 
-            return Promise.reject("hash length should be less than 9");
+            return DutyTodo.PrintHashError(hash);
         }
 
         let {
@@ -502,7 +503,7 @@ class DutyTodo {
         note
     }) {
         if (hash.length < 9) {
-            return Promise.reject("hash length should not be less than 9");
+            return  DutyTodo.PrintHashError(hash);
         }
 
         let {
@@ -544,7 +545,7 @@ class DutyTodo {
     }) {
 
         if (hash.length < 9 ) {
-            return Promise.reject("hash value length should not be less than 9");
+            return  DutyTodo.PrintHashError(hash);
         }
 
         let {
@@ -601,7 +602,10 @@ class DutyTodo {
                 DutyTodo
             });
         } catch (ex) {
-            return Promise.reject(`${type} is not supported`);
+            if ( process.env.NODE_ENV === "development" ) {
+                console.log(ex)
+                return Promise.reject(`${type} is not supported`);
+            }
         }
     }
     delete(type, opt = {}) {
@@ -854,15 +858,11 @@ class DutyTodo {
         hash,
         date
     } = {}) {
-        if (!hash || !date) {
-            DutyTodo.ErrMessage("hash and due date needs to be specified");
-            return false;
-        } else if (hash.length <= 4) {
-            DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
-            return false;
-        } else if (date && !DutyTodo.VERIFY_DATE(date)) {
-            return DutyTodo.ErrMessage(`invalid date format specfied ${date}. Date should be specfied  in mm/dd/yy`);
 
+        if (hash.length < 9) {
+            return  DutyTodo.PrintHashError(hash);
+        } else if (!DutyTodo.VERIFY_DATE(date)) {
+            return Promise.reject(`invalid date format specfied ${date}. Date should be specfied  in mm/dd/yy`);
         }
 
         let {
@@ -880,22 +880,14 @@ class DutyTodo {
                     Object.assign(todoGroup[hash], {
                         due_date: date
                     });
-                    return true;
+                    return DutyTodo.DUE_DATE_SET();
                 }
                 if (Object.keys(todoGroup).length === j) {
-                    return false;
+                    return DutyTodo.HASH_ERROR();
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(this, cb)
-            .then(_ => {
-                DutyTodo.WriteFile({
-                    location,
-                    todoGroup
-                });
-            }).catch(_ => {
-                DutyTodo.ErrMessage(`${hash} was not found`);
-            });
+        return DutyTodo.CALLGENERATORYLOOP(this, cb);
     }
     export ({
         type,
