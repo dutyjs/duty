@@ -2,7 +2,7 @@
 
 const ff = require("./index.js");
 const commander = require("commander");
-const { readOption, removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists } = require("./src/utils.js");
+const { dueOption, readOption, removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists } = require("./src/utils.js");
 
 
 
@@ -116,7 +116,7 @@ commander
     .command("due <hash> <date>")
     .description("set the date in which hash is due")
     .action((hash,date) => {
-        return ff.due({hash,date});
+        return dueOption(hash,date,ff);
     });
 
 commander
