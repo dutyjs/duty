@@ -4,10 +4,11 @@ const ff = require("./index.js");
 const commander = require("commander");
 const { dueOption, readOption, removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists } = require("./src/utils.js");
 
+const pkgJson = require("./package.json");
 
 
 commander
-    .version("3.0.0")
+    .version(pkgJson.version)
     .command("add <todo> [category...]")
     .description("Add todo into category, category is optional")
     .action((todo,category) => {
