@@ -628,7 +628,7 @@ class DutyTodo {
         } else if (type === "due" && !date) {
             DutyTodo.ErrMessage("expected date argument to be set")
             return false
-        } else if ((date || modifiedDate) && !DutyTodo.VERIFY_DATE(date)) {
+        } else if ((date || modifiedDate) && !DutyTodo.VERIFY_DATE(date || modifiedDate)) {
             DutyTodo.ErrMessage("expected two argument but got one, second argument should be a date in mm/dd/yy.")
             return false
         }
