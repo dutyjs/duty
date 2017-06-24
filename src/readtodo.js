@@ -26,11 +26,10 @@ class ReadTodo {
     }
     static HANDLE_DUE_DATE({due_date}) {
 
-        let _date = moment().format("MM/DD/YYYY");
-
+        let _date = moment().format("DD/MM/YYYY");
         due_date = Number(due_date.split("/").join(""));
         _date = Number(_date.split("/").join(""));
-
+        
         const TIME_LEFT = String((due_date - _date)).replace(/0+$/,"");
 
         const { circle, halfcircle, completecircle } = ReadTodo.UNICODE_VALUES();
