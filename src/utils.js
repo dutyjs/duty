@@ -9,7 +9,7 @@ const node_env = () => {
 };
 
 const env = (message) => {
-    return node_env() ? DutyTodo.PRINT(message ): message;
+    return node_env() ? DutyTodo.PRINT(message + "\n" ): message;
 };
 const getPrevCurrHash = (previousHash, todoGroup) => {
     return {
@@ -35,7 +35,7 @@ function isExists(file,commander) {
 
     if ( fs.existsSync(_file) && (fileContent = fs.readFileSync(_file) ) &&
 fs.existsSync(JSON.parse(fileContent.toString()).location) )  {
-
+        
         return node_env() ? commander.outputHelp() : "Enjoy...";
 
     }
@@ -59,12 +59,13 @@ function addOption(todo,category = ["general"],ff) {
                 category
             });
             
-            env("");
+            env(currentSave);
 
             return currentSave;
 
         }).catch(_ => {
-
+            
+            env(_);
             return (_);;
 
         });
@@ -174,7 +175,7 @@ function removenoteOption(hash,ff) {
 
 function dueOption(hash,date,ff) {
     let { todoGroup , location } = ff.MANAGER;
-
+    
     return ff.due({hash,date})
         .then( result => {
 
@@ -190,6 +191,27 @@ function dueOption(hash,date,ff) {
         });
 }
 
+function urgencyOption(hash,urgency,ff) {
+    let { todoGroup , location } = ff.MANAGER;
+
+    return ff.urgency({hash,urgency})
+        .then( result => {
+            
+            let _pMessage = DutyTodo.WriteFile({
+                location,
+                todoGroup
+            });
+
+            env(_pMessage);
+            
+            return result;
+            
+        }).catch( _ => {
+            env(_);
+            return _;
+        });
+}
+
 function readOption(type,opt,ff) {
 
     let { notification, timeout, todoGroup} = ff.MANAGER;
@@ -201,14 +223,34 @@ function readOption(type,opt,ff) {
                 _readTodo.push(todoGroup[res]);
                 return node_env() ? ReadTodo.STYLE_READ(todoGroup[res],DutyTodo,{notification,timeout}) : "";
             });
-                
+            
             return _readTodo;
                 
         }).catch( _ => {
-
+            env(_);
             return (_);;
         });
     
+}
+
+function priorityOption(hash,priority,ff) {
+    let { location, todoGroup } = ff.MANAGER;
+
+    return ff.setpriority({hash,priority})
+        .then( result => {
+            let _pMessage = DutyTodo.WriteFile({
+                location,
+                todoGroup
+            });
+            
+            env(_pMessage);
+
+            return result;
+
+        }).catch( _ => {
+            env(_);
+            return (_);
+        });
 }
 module.exports = {
     addOption,
@@ -218,6 +260,8 @@ module.exports = {
     noteOption,
     removenoteOption,
     readOption,
+    urgencyOption,
+    priorityOption,
     isExists,
     dueOption,
     node_env
