@@ -43,21 +43,6 @@ class ReadTodo {
         }
 
     }
-    static NO_NOTCOMPLETED() {
-        return "NO_NOTCOMPLETED";
-    }
-    static NO_COMPLETED() {
-        return "NO_COMPLETED";
-    }
-    static NO_DATE() {
-        return "NO_DATE";
-    }
-    static NO_CATEGORY() {
-        return "NO_CATEGORY";
-    }
-    static NO_URGENCY() {
-        return "NO_URGENCY";
-    }
     static HANDLE_PRIORITY(priority) {
         return ((priority === "critical") ?  "critical" : "notcritical");
     }
@@ -164,7 +149,7 @@ timeout:\t${timeout ? timeout : _configTimeout}
             hashValues = [], j = 0,
             isRead = false,
             cb =  ({due_date,hash}) => {
-                
+
                 if ( Object.keys(todoGroup).length !== j++ ) {
                     if ( due_date && ReadTodo.HANDLE_DUE_DATE({due_date}) === strToEval ) {
                         isRead = true;
@@ -178,7 +163,7 @@ timeout:\t${timeout ? timeout : _configTimeout}
 
             }
 
-        return DutyTodo.CALLGENERATORYLOOP(_this,cb).catch( e => console.log(e))
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
     }
     static CheckState(isRead,todoGroup,j,hashValues,DutyTodo) {
         if ( ! isRead && Object.keys(todoGroup).length === j ) {
@@ -196,9 +181,8 @@ timeout:\t${timeout ? timeout : _configTimeout}
             hashValues = [],
             isRead = false,
             cb = ({hash,due_date}) => {
-                j++;
 
-                if ( Object.keys(todoGroup).length !== j ) {
+                if ( Object.keys(todoGroup).length !== j++ ) {
 
                     if ( due_date && _dueDate === due_date ) {
                         isRead = true;
@@ -318,10 +302,13 @@ timeout:\t${timeout ? timeout : _configTimeout}
                 } else if ( (_userDate && date === _userDate) && !_userModifiedDate ) {
                     isRead = true;
                     hashValues.push(hash);
+                } else if ( ! _userDate && ( _userModifiedDate && modifiedDate === _userModifiedDate) ) {
+                    isRead = true;
+                    hashValues.push(hash);
                 }
 
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
-                
+
                 if ( retval ) return retval;
             };
 
