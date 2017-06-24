@@ -161,7 +161,7 @@ timeout:\t${timeout ? timeout : _configTimeout}
                 
                 if ( retval ) return retval;
 
-            }
+            };
 
         return DutyTodo.CALLGENERATORYLOOP(_this,cb);
     }

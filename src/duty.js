@@ -316,8 +316,8 @@ class DutyTodo {
         hash = hash.slice(0, hash.length - 55);
 
         const DATE = moment().format("DD/MM/YYYY"),
-              date = DATE,
-              completed = false;
+            date = DATE,
+            completed = false;
 
 
         todoGroup[hash] = {
