@@ -1,9 +1,24 @@
 
 const path = require("path");
-const { dueOption, readOption, removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists, node_env } = require("../src/utils.js");
+const {  priorityOption,
+         urgencyOption,
+         dueOption,
+         readOption,
+         removenoteOption,
+         noteOption,
+         markCompletedOption,
+         replaceOption,
+         appendOption,
+         addOption,
+         isExists,
+         node_env } = require("../src/utils.js");
+
 const crypto = require("crypto");
 const moment = require("moment");
 const ReadTodo = require("../src/readtodo.js");
+const { $it ,
+        $beforeEach,
+        $afterEach } = require("async-await-jasmine");
 
 describe("#duty test", () => {
 
@@ -291,29 +306,101 @@ describe("#duty test", () => {
         it("should return a failed promise for invalid date formats", done => {
             dueOption("b9b2839a75e400d56ca5e","2017/12/12",DutyInstance)
                 .then( result => {
-                    expect(result).toEqual("invalid date format specfied 2017/12/12. Date should be specfied  in mm/dd/yy");
+                    expect(result).toEqual("invalid date format specfied 2017/12/12. Date should be specfied  in dd/mm/yyyy");
                     done();
                 });
         });
         it("should set the due date of a todo when all requirements are met", done => {
 
-            dueOption("b9b2839a75e400d56ca5e","10/15/2017",DutyInstance)
+            dueOption("b9b2839a75e400d56ca5e","15/10/2017",DutyInstance)
                 .then( result => {
                     const { due_date } = result;
                     expect(due_date).toBeDefined();
-                    expect(due_date).toEqual("10/15/2017");
+                    expect(due_date).toEqual("15/10/2017");
                     done();
                 });
         });
         it("should return a failed promise if a hash value was not found", done => {
-            dueOption("b39543fe2c3458a", "10/15/2017", DutyInstance)
+            dueOption("b39543fe2c3458a", "15/10/2017", DutyInstance)
                 .then( result => {
                     expect(result).toEqual("hash was not found");
                     done();
                 });
         });
     });
+
+
+
+    describe("setting urgencies for todo", () => {
+        let hash;
+        // stupid framework ( async-await-jasmine ) does not handle scoping properly in $beforeEach,
+        //   this framework will be changed in the future
+        $it("should return a failed promise for invalid urgency specification", async () => {
+            
+            ({ hash } = await addOption("set urgency for todos", undefined, DutyInstance));
+            
+            let result = await urgencyOption(hash,"urgency:fakeurgency",DutyInstance);
+
+            expect(result).toEqual(`invalid urgency type, supported urgency type are
+					urgency:pending
+					urgency:waiting
+					urgency:tomorrow
+					urgency:later
+					urgency:today`);
+        });
+        
+        $it("should return a failed promise for invalid hash i.e hash values not greaterthan or equal 9", async () => {
+            let result = await urgencyOption("1233","urgency:pending",DutyInstance);
+            expect(result).toEqual("hash length is suppose to be 9 but got 4");
+        });
+        
+        $it("should return a failed promise for hash that does not exists", async () => {
+            let result = await urgencyOption("1234abcdefgh","urgency:pending", DutyInstance);
+            expect(result).toEqual("hash was not found");
+        });
+        
+        $it("should return a sucessfull promise for all urgency options", async () => {
+            
+            let { urgency } = await urgencyOption(hash,"urgency:pending",DutyInstance);
+
+            expect(urgency).toBeDefined();
+            expect(urgency).toEqual(jasmine.any(Array));
+            expect(urgency).toContain("pending");
+
+            ({urgency} = await urgencyOption(hash,"urgency:waiting", DutyInstance));
+
+            expect(urgency).toContain("waiting");
+
+            ({urgency} = await urgencyOption(hash,"urgency:tomorrow", DutyInstance));
+
+            expect(urgency).toContain("tomorrow");
+
+            ({urgency} = await urgencyOption(hash,"urgency:later", DutyInstance));
+
+            expect(urgency).toContain("later");
+            
+            ({urgency} = await urgencyOption(hash,"urgency:today", DutyInstance));
+            
+            expect(urgency).toContain("today");
+
+        });
+
+        $it("should return a rejected promise if an already existing urgency type in a todo is readded", async () => {
+            // pending already exists
+            let result = await urgencyOption(hash,"urgency:pending",DutyInstance);
+
+            expect(result).toEqual("the specfied urgency type already exists on this todo");
+        });        
+    });
+    
     describe("reading of todos", () => {
+        $it("should return a failed promises when invalid read option is specified", async () => {
+            
+            let result = await readOption("readread", undefined, DutyInstance);
+            
+            expect(result).toEqual("readread is not supported");
+            
+        });
         describe("reading all todos", () => {
             it("should return a successful promise for reading all todos", done => {
                 readOption("all", undefined, DutyInstance)
@@ -337,7 +424,7 @@ describe("#duty test", () => {
                 //         });
                 // }); 
             });
-           
+            
         });
 
         describe("reading category todos", () => {
@@ -411,18 +498,17 @@ describe("#duty test", () => {
                 addOption("Hello adding new todo",undefined,DutyInstance)
                     .then( result => {
                         const { hash } = result;
-                        dueOption(hash,moment().add(2, "days").format("MM/DD/YYYY"), DutyInstance)
+                        dueOption(hash,moment().add(2, "days").format("DD/MM/YYYY"), DutyInstance)
                             .then( result => { /* do nothing */ });
                         done();
                     });
             });
             it("should evaluate strings as date", done => {
-
+                
                 readOption("eval:2 days from now",undefined,DutyInstance)
                     .then( result => {
-
                         expect(result).toEqual(jasmine.any(Array));
-
+                        
                         for ( let i of result ) {
                             let { due_date } = i;
                             expect(ReadTodo.HANDLE_DUE_DATE({due_date})).toEqual("2 days from now");
@@ -431,6 +517,187 @@ describe("#duty test", () => {
                     });
             });
         });
-    });
+        describe("reading todo with due date", () => {
+            $it("should return a failed promise when due is set as type and date is undefined", async ()  => {
+                let result = await readOption("due",{date: undefined },DutyInstance);
+                expect(result).toEqual("expected date argument to be set");
+            });
+            
+            $it("should return a successfull promise when due is set as type and date is undefined", async () => {
+                let result = await addOption("Hello adding todo to be read",undefined,DutyInstance),
+                    { hash } = result;
+                
+                result = await dueOption(hash,"10/12/2017",DutyInstance);
 
+                result = await readOption("due",{date: "10/12/2017"},DutyInstance);
+                expect(result).toEqual(jasmine.any(Array));
+                result.forEach( res => {
+                    const { due_date } = res;
+                    expect(due_date).toBeDefined();
+                    expect(due_date).toEqual("10/12/2017");
+                });
+
+                
+            });
+        });
+        describe("reading completed or notcompleted todos", () => {
+            
+            $it("should return a successful promise when completed todos are required to be read", async () => {
+                let result = await readOption("completed",undefined,DutyInstance);
+                expect(result).toEqual(jasmine.any(Array));
+                result.forEach( res => {
+                    const { completed } = res;
+                    expect(completed).toBeDefined();
+                    expect(completed).toBeTruthy();
+                });
+            });
+            $it("should return a sucessfull promise when todo that are not yet completed are required to be read", async () => {
+                let result = await readOption("notcompleted", undefined, DutyInstance);
+                expect(result).toEqual(jasmine.any(Array));
+                result.forEach( res => {
+                    const { completed } = res;
+                    expect(completed).toBeDefined();
+                    expect(completed).toBeFalsy();
+                });
+            });
+        });
+    });
+    describe("reading todos with date option", () => {
+        let modifiedDate, date;
+        $beforeEach( () => {
+            modifiedDate = date = moment().format("DD/MM/YYYY");
+        });
+        $it("should return a failed promise if type is date and modified date and date is undefined" , async () => {
+            let result = await readOption("date", undefined, DutyInstance);
+
+            expect(result).toEqual("expected two argument but got one, second argument should be a date in dd/mm/yyyy.");
+        });
+        $it("should return a failed promise when an invalid date type is specified", async () => {
+            let result = await readOption("date", { date: "2017/06/05" }, DutyInstance);
+            
+            expect(result).toEqual("expected two argument but got one, second argument should be a date in dd/mm/yyyy.");
+            
+            result = await readOption("date", { modifiedDate: "2017/06/05" }, DutyInstance);
+            
+            expect(result).toEqual("expected two argument but got one, second argument should be a date in dd/mm/yyyy.");                        
+        });
+        $it("should return a sucessfull promse when todo with valid date is accessed", async () => {
+            
+            let result = await readOption("date", { date }, DutyInstance);
+
+            expect(result).toEqual(jasmine.any(Array));
+
+            result.forEach( res => {
+                let { date: _todoDate } = res;
+                expect(_todoDate).toEqual(date);
+            });
+        });
+        $it("should return a sucessfull promise when todo with valid modifiedDate is accessed", async () => {
+            
+            let result = await addOption("modified todo", undefined, DutyInstance),
+                { hash } = result;
+            
+            result = await replaceOption(hash,/modified/, "modifying", DutyInstance);
+            
+            // main test
+            
+            result = await readOption("date", { modifiedDate }, DutyInstance);
+            
+            expect(result).toEqual(jasmine.any(Array));
+            
+            result.forEach( res => {
+                let { modifiedDate: _todoDateModified } = res;
+                expect(_todoDateModified).toBeDefined();
+                expect(_todoDateModified).toEqual(modifiedDate);
+            });
+        });
+        $it("should return a sucessful promise when todo with valid modifiedDate and date is specified", async () => {
+            
+            let result = await readOption("date", { date , modifiedDate }, DutyInstance);
+
+            expect(result).toEqual(jasmine.any(Array));
+
+            result.forEach( res => {
+                let { date: _todoDate, modifiedDate: _todoDateModified } = res;
+
+                expect(_todoDate).toEqual(date);
+                expect(_todoDateModified).toBeDefined();
+                expect(_todoDateModified).toEqual(modifiedDate);
+            });
+        });
+        
+        describe("reading todos with urgency type", () => {
+            $it("should return a failed promise for invalid urgency type", async () => {
+                let result = await readOption("urgency:fakeurgencytype",undefined,DutyInstance);
+                expect(result).toEqual("invalid urgency type to read");
+            });
+            $it("should read todo with valid urgency", async () => {
+                let [ { urgency } ] = await readOption("urgency:pending",undefined,DutyInstance);
+
+                expect(urgency).toBeDefined();
+                expect(urgency).toEqual(jasmine.any(Array));
+                expect(urgency).toContain("pending");
+                
+                [ { urgency } ] = await readOption("urgency:waiting",undefined,DutyInstance);
+
+                expect(urgency).toContain("waiting");
+
+                [ { urgency } ] = await readOption("urgency:tomorrow",undefined,DutyInstance);
+
+                expect(urgency).toContain("tomorrow");
+
+                [ { urgency } ] = await readOption("urgency:later", undefined, DutyInstance);
+
+                expect(urgency).toContain("later");
+                
+                [ { urgency } ] = await readOption("urgency:today", undefined,DutyInstance);
+                
+                expect(urgency).toContain("today");
+                
+            });
+        });
+    });
+    
+    describe("setting todo priority", () => {
+        
+        let priorFunc;
+        
+        $beforeEach( () => {
+            
+            priorFunc = async (type) => {
+                let { hash } = await addOption(`set priority of todo ${Math.random(5)}`,undefined,DutyInstance);
+
+                let result = await priorityOption(hash,type,DutyInstance);
+
+                return result;
+            };
+            
+        });
+        
+        $afterEach( () => {
+            priorFunc = undefined;
+            // delete todo here
+        });
+        
+        $it("should return a failed promise if hash length is less than 9 ", async () => {
+            let result = await priorityOption("1233","critical",DutyInstance);
+            expect(result).toEqual("hash length is suppose to be 9 but got 4");
+        });
+        $it("should return a failed promise if hash is not found", async () => {
+            let result = await priorityOption("1233444444444","critical",DutyInstance);
+            expect(result).toEqual("hash was not found");
+        });
+        $it("should return a fulfilled promise if hash is found and critical priority is set", async () => {
+            let { priority } = await priorFunc("critical");
+            expect(priority).toEqual("critical");
+        });
+        $it("should return a fulfilled promise if hash is found and critical priority is set", async () => {
+            let { priority } = await priorFunc("notcritical");
+            expect(priority).toEqual("notcritical");
+        });
+        $it("should return a failed promise for invalid priority type" , async () => {
+            let result = await priorFunc("fakepriority");
+            expect(result).toEqual("invalid priority type. Use critical or notcritical");
+        });
+    });
 });
