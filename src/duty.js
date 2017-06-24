@@ -100,21 +100,22 @@ class DutyTodo {
         });
     }
     static VERIFY_DATE(date) {
-        // month, day, year
+        // day,month,year
         date = date.split("/").filter(Number);
 
         if (date.length !== 3) {
             return false;
         }
 
-        const [month, day, year] = date.map(Number);
+        const [day, month, year] = date.map(Number);
 
 
-        if ((month >= 1 && month <= 12) &&
-            (day >= 1 && day <= 31) &&
+        if ((day >=1 && day <= 31) &&
+            (month >=1 && month <= 12) &&
             (String(year).length === 4)) {
             return true;
         }
+        
 
         return false;
 
@@ -203,6 +204,12 @@ class DutyTodo {
     static NO_READ() {
         return "NO_READ";
     }
+    static URGENCY_SET() {
+        return "URGENCY_SET";
+    }
+    static PRIORITY_SET() {
+        return "PRIORITY_SET";
+    }
     static CALLGENERATORYLOOP(_this, cb) {
 
         // if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
@@ -226,46 +233,52 @@ class DutyTodo {
                 f = cb(_n.value);
                 
                 switch (f) {
-                    case "URGENCY_ERROR":
-                        reject(_n.value);       
-                        break;
-                    case "EXISTS_ERROR":
-                        reject("this todo already exists");
-                        break;
-                    case "NO_READ":
-                        reject("the specified type is not available for reading");
-                        break;
-                    case "HASH_ERROR":
-                        reject("hash was not found");
-                        break;
-                    case "TODO_APPENDED":
-                        resolve(_n.value);
-                        break;
-                    case "TODO_ADDED":
-                        resolve();
-                        break;
-                    case "TODO_REPLACE":
-                        resolve(_n.value);
-                        break;
-                    case "TODO_MARKCOMPLETED":
-                        resolve(_n.value);
-                        break;
-                    case "NOTE_ADDED":
-                        resolve(_n.value);
-                        break;
-                    case "NOTE_REMOVED":
-                        resolve(_n.value);
-                        break;
-                    case "DUE_DATE_SET":
-                        resolve(_n.value);
-                        break;
-                    default:
+                case "URGENCY_ERROR":
+                    reject("the specfied urgency type already exists on this todo");
+                    break;
+                case "EXISTS_ERROR":
+                    reject("this todo already exists");
+                    break;
+                case "NO_READ":
+                    reject("the specified type is not available for reading");
+                    break;
+                case "HASH_ERROR":
+                    reject("hash was not found");
+                    break;
+                case "TODO_APPENDED":
+                    resolve(_n.value);
+                    break;
+                case "TODO_ADDED":
+                    resolve();
+                    break;
+                case "TODO_REPLACE":
+                    resolve(_n.value);
+                    break;
+                case "TODO_MARKCOMPLETED":
+                    resolve(_n.value);
+                    break;
+                case "NOTE_ADDED":
+                    resolve(_n.value);
+                    break;
+                case "NOTE_REMOVED":
+                    resolve(_n.value);
+                    break;
+                case "DUE_DATE_SET":
+                    resolve(_n.value);
+                    break;
+                case "URGENCY_SET":
+                    resolve(_n.value);
+                    break;
+                case "PRIORITY_SET":
+                    resolve(_n.value);
+                    break;
+                default:
 
-                         if ( Array.isArray(f) && f.length !== 0 ) {
-                            resolve(f);
-                        }
+                    if ( Array.isArray(f) && f.length !== 0 ) {
+                        resolve(f);
+                    }
 
-                        break;
+                    break;
                 }
                 _n = gen.next();
             }
@@ -283,7 +296,8 @@ class DutyTodo {
         location,
         todoGroup
     }) {
-        return fs.writeFileSync(location, JSON.stringify(todoGroup));
+        fs.writeFileSync(location, JSON.stringify(todoGroup));
+        return "changes have been saved\n".green;
     }
     static SaveTodo({
         manager: {
@@ -302,8 +316,8 @@ class DutyTodo {
         hash = hash.slice(0, hash.length - 55);
 
         const DATE = moment().format("DD/MM/YYYY"),
-            date = DATE,
-            completed = false;
+              date = DATE,
+              completed = false;
 
 
         todoGroup[hash] = {
@@ -333,17 +347,18 @@ class DutyTodo {
             location,
             todoGroup
         });
-        if ( process.env.NODE_ENV !== "development" ) DutyTodo.PRINT(`Total todo is ${Object.keys(todoGroup).length}\n.green`);
-        return todoGroup[hash];
+        if ( process.env.NODE_ENV === "development" )
+            return todoGroup[hash];
+        return `Total todo is ${Object.keys(todoGroup).length}\n`.green;
     }
     * IterateTodo() {
         let {
             todoGroup
         } = this.MANAGER;
-            // Object.keys and Object.entries
-            //   in this case i choose to use Object.keys
-            //   because Object.entries shows you the members of all
-            //   the objects, and that is wanted is just the property names
+        // Object.keys and Object.entries
+        //   in this case i choose to use Object.keys
+        //   because Object.entries shows you the members of all
+        //   the objects, and that is wanted is just the property names
         for (let todos of Object.keys(todoGroup)) {
             yield todoGroup[todos];
         }
@@ -580,18 +595,19 @@ class DutyTodo {
         } = opt;
 
         if (type === "date" && (!date && !modifiedDate)) {
-            return Promise.reject("expected two argument but got one, second argument should be a date in mm/dd/yy. ");
+            return Promise.reject("expected two argument but got one, second argument should be a date in dd/mm/yyyy.");
         } else if (type === "due" && !date) {
             return Promise.reject("expected date argument to be set");
         } else if ((date || modifiedDate) && !DutyTodo.VERIFY_DATE(date || modifiedDate)) {
-            
-            return Promise.reject("expected two argument but got one, second argument should be a date in mm/dd/yy.");
+            return Promise.reject("expected two argument but got one, second argument should be a date in dd/mm/yyyy.");
         }
 
 
         try {
+            
             const p = ReadTodo.createType();
             const self = this;
+            
             // this is also a promise, the resolved value will be used
             //   in utils.js
             
@@ -601,11 +617,9 @@ class DutyTodo {
                 self,
                 DutyTodo
             });
+            
         } catch (ex) {
-            if ( process.env.NODE_ENV === "development" ) {
-                console.log(ex)
-                return Promise.reject(`${type} is not supported`);
-            }
+            return Promise.reject(`${type} is not supported`);
         }
     }
     delete(type, opt = {}) {
@@ -613,12 +627,12 @@ class DutyTodo {
         let {
             value
         } = opt;
-
+        
         if (!type) {
             DutyTodo.ErrMessage(`type ${type} is not supported`);
             return false;
         } else if (type === "date" && (!value)) {
-            DutyTodo.ErrMessage("expected two argument but got one, second argument should be a date in mm/dd/yy");
+            DutyTodo.ErrMessage("expected two argument but got one, second argument should be a date in dd/mm/yyyy");
             return false;
         } else if (type === "hash" && (!value || value.length <= 4)) {
 
@@ -628,7 +642,7 @@ class DutyTodo {
             DutyTodo.ErrMessage("category type is not specified");
             return false;
         } else if (type === "date" && !DutyTodo.VERIFY_DATE(value)) {
-            return DutyTodo.ErrMessage(`invalid date format specfied ${value}. Date should be specfied  in mm/dd/yy`);
+            return DutyTodo.ErrMessage(`invalid date format specfied ${value}. Date should be specfied  in dd/mm/yyyy`);
 
         }
         try {
@@ -652,15 +666,9 @@ class DutyTodo {
         hash,
         urgency
     }) {
-        if (!hash) {
-            DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
-            return false;
-        } else if (hash.length <= 4) {
-            DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
-            return false;
-        } else if (!urgency) {
-            DutyTodo.ErrMessage("require urgency argument to be set");
-            return false;
+        
+        if (hash.length < 9) {
+            return DutyTodo.PrintHashError(hash);
         }
 
         let [, _urgency] = urgency.match(/^urgency:([a-z]+)$/);
@@ -677,13 +685,12 @@ class DutyTodo {
         case "today":
             break;
         default:
-            DutyTodo.ErrMessage(`invalid urgency type, supported urgency type are
+            return Promise.reject(`invalid urgency type, supported urgency type are
 					urgency:pending
 					urgency:waiting
 					urgency:tomorrow
 					urgency:later
 					urgency:today`);
-            return false;
         }
 
         let {
@@ -709,55 +716,41 @@ class DutyTodo {
                         urgency
                     });
 
-                    return true;
+                    return DutyTodo.URGENCY_SET();
                 } else if (hashRegex.test(longHash) && !urgency) {
                     let urgency = [];
                     urgency.push(_urgency);
                     Object.assign(todoGroup[hash], {
                         urgency
                     });
-                    return true;
+                    return DutyTodo.URGENCY_SET();
+
                 } else if (Object.keys(todoGroup).length === j) {
-                    return false;
+                    return DutyTodo.HASH_ERROR();
                 }
             };
-        DutyTodo.CALLGENERATORYLOOP(this, cb)
-            .then(_ => {
-                DutyTodo.WriteFile({
-                    location,
-                    todoGroup
-                });
-            }).catch(errMessage => {
-                if (errMessage) {
-                    return DutyTodo.ErrMessage("the specified urgency message, has already been added");
-                }
+        
 
-                DutyTodo.ErrMessage(`${hash} was not found`);
-            });
+        return DutyTodo.CALLGENERATORYLOOP(this,cb);
     }
-    setPriority({
+    setpriority({
         hash,
         priority
     }) {
-        if (!hash) {
-            DutyTodo.ErrMessage(`got ${typeof(hash)} instead of a hash value`);
-            return false;
-        } else if (hash.length <= 4) {
-            DutyTodo.ErrMessage(`length of ${hash} is not greater than 4`);
-            return false;
-        } else if (!priority) {
-            DutyTodo.ErrMessage("required proirity argument to be set");
-            return false;
-        } else if (priority) {
-            switch (priority) {
-            case "critical":
-                break;
-            case "notcritical":
-                break;
-            default:
-                DutyTodo.ErrMessage("invalid priority type. Use critical or not critical");
-            }
+        
+        if (hash.length < 9 ) {
+            return DutyTodo.PrintHashError(hash);
         }
+        
+        switch (priority) {
+        case "critical":
+            break;
+        case "notcritical":
+            break;
+        default:
+            return Promise.reject("invalid priority type. Use critical or notcritical");
+        }
+        
 
         let {
             location,
@@ -774,9 +767,9 @@ class DutyTodo {
                     Object.assign(todoGroup[hash], {
                         priority
                     });
-                    return true;
+                    return DutyTodo.PRIORITY_SET();
                 } else if (Object.keys(todoGroup).length === j) {
-                    return false;
+                    return DutyTodo.HASH_ERROR();
                 }
             };
 
@@ -862,7 +855,7 @@ class DutyTodo {
         if (hash.length < 9) {
             return  DutyTodo.PrintHashError(hash);
         } else if (!DutyTodo.VERIFY_DATE(date)) {
-            return Promise.reject(`invalid date format specfied ${date}. Date should be specfied  in mm/dd/yy`);
+            return Promise.reject(`invalid date format specfied ${date}. Date should be specfied  in dd/mm/yyyy`);
         }
 
         let {
@@ -1067,7 +1060,7 @@ class DutyTodo {
                 type: "due",
                 opt: {
 
-                    date: moment().format("MM/DD/YYYY"),
+                    date: moment().format("DD/MM/YYYY"),
 
                     _cb({
                         content,
