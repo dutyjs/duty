@@ -2,7 +2,18 @@
 
 const ff = require("./index.js");
 const commander = require("commander");
-const { dueOption, readOption, removenoteOption, noteOption, markCompletedOption, replaceOption, appendOption, addOption, isExists } = require("./src/utils.js");
+const {
+    priorityOption,
+    urgencyOption,
+    dueOption,
+    readOption,
+    removenoteOption,
+    noteOption,
+    markCompletedOption,
+    replaceOption,
+    appendOption,
+    addOption,
+    isExists } = require("./src/utils.js");
 
 const pkgJson = require("./package.json");
 
@@ -95,7 +106,7 @@ commander
     .description(`specify how urgent you want to accomplish this task
 valid urgency types are pending,waiting,later,tomorrow,today`)
     .action( (hash,urgency) => {
-        return ff.urgency({hash,urgency});
+        return urgencyOption(hash,urgency,ff);
     });
 
 commander
@@ -103,7 +114,7 @@ commander
     .description(`specify the task priority
 valid priorities are critical and notcritical`)
     .action( (hash,priority) => {
-        return ff.setPriority({hash,priority});
+        return priorityOption(hash,priority,ff);
     });
 
 commander
