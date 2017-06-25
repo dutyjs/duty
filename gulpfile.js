@@ -10,16 +10,16 @@ gulp.task("run_npm_test", () => {
     });
 });
 
-/*gulp.task("run_coverage", () => {
+gulp.task("run_coverage", () => {
     exec("npm run coverage", ( err, data ) => {
         if ( err )
             return console.error(err);
        return console.log(data);
     });
-});*/
-
-gulp.task("watch", () => {
-    gulp.watch("test/general_test.js",["run_npm_test"/*,"run_coverage"*/]);
 });
 
-gulp.task("default", ["run_npm_test",/*"run_coverage",*/"watch"]);
+gulp.task("watch", () => {
+    gulp.watch(["test/general_test.js", "cli.js", "src/*.js"],["run_npm_test","run_coverage"]);
+});
+
+gulp.task("default", ["run_npm_test","run_coverage","watch"]);
