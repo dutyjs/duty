@@ -3,6 +3,8 @@
 const ff = require("./index.js");
 const commander = require("commander");
 const {
+    setnotifyOption,
+    categorizeOption,
     priorityOption,
     urgencyOption,
     dueOption,
@@ -121,7 +123,7 @@ commander
     .command("categorize <hash> [category...]")
     .description("add a todo to a particular category")
     .action( (hash,category) => {
-        return ff.categorize({hash,category});
+        return categorizeOption(hash,category,ff);
     });
 
 commander
@@ -143,7 +145,7 @@ commander
     .command("set_notify <hash> <notification> <timeout> ")
     .description("set notification option for a particular todo")
     .action((hash,notification,timeout) => {
-        ff.set_notify(hash,{notification,timeout});
+        return setnotifyOption(hash,{notification,timeout});
     });
 
 commander
