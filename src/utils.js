@@ -66,7 +66,7 @@ function addOption(todo,category = ["general"],ff) {
         }).catch(_ => {
             
             env(_);
-            return (_);;
+            return (_);
 
         });
 }
@@ -87,7 +87,7 @@ function appendOption(hash,text,ff) {
             return getPrevCurrHash(hash,todoGroup);
         })
         .catch( _  => {
-            return (_);;
+            return (_);
             
         });
 
@@ -130,7 +130,7 @@ function markCompletedOption(hash,ff) {
             completed: getProperty(todoGroup).completed
         };
     }).catch(_ => {
-        return (_);;
+        return (_);
         
     });
 }
@@ -149,7 +149,7 @@ function noteOption(hash,note,ff) {
         return getNotePropetry(todoGroup);
 
     }).catch(_ => {
-        return (_);;
+        return (_);
         
     });
 }
@@ -168,7 +168,7 @@ function removenoteOption(hash,ff) {
         return getNotePropetry(todoGroup);
 
     }).catch(_ => {
-        return (_);;
+        return (_);
         
     });
 }
@@ -228,7 +228,7 @@ function readOption(type,opt,ff) {
                 
         }).catch( _ => {
             env(_);
-            return (_);;
+            return (_);
         });
     
 }
@@ -252,6 +252,70 @@ function priorityOption(hash,priority,ff) {
             return (_);
         });
 }
+
+function categorizeOption(hash,category,ff) {
+    
+    let { location, todoGroup } = ff.MANAGER;
+    
+    return ff.categorize({hash,category})
+        .then( result => {
+            
+            let _pMessage = DutyTodo.WriteFile({
+                location,
+                todoGroup
+            });         
+            
+            env(_pMessage);
+            return result;
+            
+        }).catch( _ => {
+            env(_);
+            return (_);
+        });
+}
+
+function setnotifyOption(hash,notification,timeout,ff) {
+    
+    let { location, todoGroup } = ff.MANAGER;
+    
+    return ff.setnotify(hash, { notification, timeout })
+        .then( result => {
+            
+            let _pMessage = DutyTodo.WriteFile({
+                location,
+                todoGroup
+            });         
+
+            env(_pMessage);
+
+            return result;
+        }).catch( _ => {
+            env(_);
+            return (_);
+        });
+}
+
+function editOption(hash,text,ff) {
+    
+    let { location, todoGroup } = ff.MANAGER;
+
+    
+    return ff.edit({hash,text})
+        .then( result => {
+            let _pMessage = DutyTodo.WriteFile({
+                location,
+                todoGroup
+            });         
+
+            env(_pMessage);
+            return result;
+            
+        }).catch( _ => {
+            env(_);
+            return (_);
+        });    
+}
+
 module.exports = {
     addOption,
     appendOption,
@@ -259,10 +323,13 @@ module.exports = {
     markCompletedOption,
     noteOption,
     removenoteOption,
+    dueOption,
     readOption,
     urgencyOption,
     priorityOption,
+    categorizeOption,
+    setnotifyOption,
+    editOption,
     isExists,
-    dueOption,
     node_env
 };
