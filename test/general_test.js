@@ -1,17 +1,20 @@
-
 const path = require("path");
-const {  priorityOption,
-         urgencyOption,
-         dueOption,
-         readOption,
-         removenoteOption,
-         noteOption,
-         markCompletedOption,
-         replaceOption,
-         appendOption,
-         addOption,
-         isExists,
-         node_env } = require("../src/utils.js");
+const {
+    editOption,
+    setnotifyOption,
+    categorizeOption,
+    priorityOption,
+    urgencyOption,
+    dueOption,
+    readOption,
+    removenoteOption,
+    noteOption,
+    markCompletedOption,
+    replaceOption,
+    appendOption,
+    addOption,
+    isExists,
+    node_env } = require("../src/utils.js");
 
 const crypto = require("crypto");
 const moment = require("moment");
@@ -447,28 +450,19 @@ describe("#duty test", () => {
             });
         });
 
-        describe("reading notificatons", () => {
-            let handleNotification, loopNotification;
+        xdescribe("reading notificatons", () => {
+            let handleNotification;
+            
             beforeEach( done => {
                 let main_key;
-
+                
                 handleNotification = (type) => {
-                    addOption("without notificaton", undefined, DutyInstance)
+                    addOption(`without notificaton ${Math.random(5)} `, undefined, DutyInstance)
                         .then( result => {
-                            const { todoGroup } = parsedConfig;
-                            
-                            for ( let [key,val] of Object.entries(todoGroup) )
-                                DutyInstance.set_notify(key, { notification: type, timeout: 3000});
+                            let { hash } = result;
+                            setnotifyOption(hash,type,3000,DutyInstance);
                         });
                 };
-
-                loopNotification = (result,type) => {
-                    for ( let i of result ) {
-                        let { notification } = i;
-                        expect(notification).toEqual(type);
-                    }
-                };
-
                 done();
             });
             afterEach(() => {
@@ -479,7 +473,14 @@ describe("#duty test", () => {
                 readOption("notification", undefined, DutyInstance)
                     .then( result => {
                         expect(result).toEqual(jasmine.any(Array));
-                        loopNotification(result,"yes");
+                        //loopNotification(result,"yes");
+                        
+
+                        result.forEach( res => {
+                            let { notification } = res;
+                            expect(notification).toEqual("yes");
+                        });
+                        
                         done();
                     });
             });
@@ -488,7 +489,12 @@ describe("#duty test", () => {
                 readOption("notification", undefined, DutyInstance)
                     .then( result => {
                         expect(result).toEqual(jasmine.any(Array));
-                        loopNotification(result,"no");
+                        
+                        result.forEach( res => {
+                            let { notification } = res;
+                            expect(notification).toEqual("no");
+                        });
+                        
                         done();
                     });                
             });
@@ -698,6 +704,97 @@ describe("#duty test", () => {
         $it("should return a failed promise for invalid priority type" , async () => {
             let result = await priorFunc("fakepriority");
             expect(result).toEqual("invalid priority type. Use critical or notcritical");
+        });
+    });
+    describe("categorizing todos", () => {
+
+        $it("should return a failed promise if hash length is less than 9 ", async () => {
+            let result = await categorizeOption("1234",["family"],DutyInstance);
+            expect(result).toEqual("hash length is suppose to be 9 but got 4");
+        });
+        $it("should return a failed promise if hash is not found", async () => {
+            let result = await categorizeOption("1233444444444",["family"],DutyInstance);
+            expect(result).toEqual("hash was not found");
+        });
+        $it("should add category when category does not exists for a todo", async () => {
+            
+            let { hash } = await addOption("clean your room", undefined, DutyInstance);
+
+            let {category} = await categorizeOption(hash,["chores"],DutyInstance);
+
+            expect(category).toContain("chores");
+        });
+    });
+    describe("setting notification state of todos", () => {
+        
+        $it("should return a failed promise if hash length is less than 9 ", async () => {
+            let result = await setnotifyOption("1234","yes",3000,DutyInstance);
+            expect(result).toEqual("hash length is suppose to be 9 but got 4");
+        });
+        $it("should return a failed promise if hash is not found", async () => {
+            let result = await setnotifyOption("12344444444444444","yes",3000,DutyInstance);
+            expect(result).toEqual("hash was not found");
+        });
+        $it("should return a failed promise if specified notification is not supported", async () => {
+            let { hash }  = await addOption("unsupported notification", undefined, DutyInstance);
+            let result = await setnotifyOption(hash,"fakenotifcationtype",30000,DutyInstance);
+            
+            expect(result).not.toEqual(jasmine.any(Object));
+            expect(result).toEqual("notification state argument needs to be yes or no");
+        });
+        $it("should return a failed promise if specified timeout is not a number", async () => {
+            let { hash } = await addOption("unsupported timeuot", undefined, DutyInstance);
+            let result = await setnotifyOption(hash,"yes","hello",DutyInstance);
+
+            expect(result).not.toEqual(jasmine.any(Object));
+            expect(result).toEqual("timeout that is amount of times the todo should show is not a number");
+        });
+        $it("should return a fulfilled promise if all argument to setnotifyOption is valid" , async () => {
+            let { hash } = await addOption("supported notification", undefined, DutyInstance);
+            let result = await setnotifyOption(hash,"yes",3000,DutyInstance);
+
+            expect(result).toEqual(jasmine.any(Object));
+
+            let { notification , timeout } = result;
+
+            expect(notification).toBeDefined();
+            expect(notification).toEqual("yes");
+
+            result = await setnotifyOption(hash,"no", 3000, DutyInstance);
+
+            
+            expect(result).toEqual(jasmine.any(Object));
+
+            ({ notification , timeout } = result);
+
+            expect(notification).toBeDefined();
+            expect(notification).toEqual("no");
+        });
+        
+    });
+    describe("test for editing todos", () => {
+        $it("should return a failed promise for invalid hash length" , async () => {
+            let result = await editOption("1234","edit todo",DutyInstance);
+            expect(result).toEqual("hash length is suppose to be 9 but got 4");
+        });
+        $it("should return a failed promise if hash is not found", async () => {
+            let result = await editOption("12345abcdef","edit todo", DutyInstance);
+            expect(result).toEqual("hash was not found");
+        });
+        $it("should return a sucessfull promise if all argument to editOption is valid", async () => {
+            
+            let { hash } = await addOption("edit todo", undefined, DutyInstance),
+                
+                result = await editOption(hash,"this todo has been edited", DutyInstance),
+                
+                { todoGroup } = parsedConfig,
+                
+                allKeys = Object.keys(todoGroup),
+                
+                { hash: _parsedHash, modifiedDate }  = todoGroup[allKeys[allKeys.length - 1]];
+
+            expect(_parsedHash).not.toEqual(hash);
+            expect(modifiedDate).toBeDefined();
         });
     });
 });
