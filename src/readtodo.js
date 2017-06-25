@@ -46,9 +46,9 @@ class ReadTodo {
     static HANDLE_PRIORITY(priority) {
         return ((priority === "critical") ?  "critical" : "notcritical");
     }
-
+    
     static STYLE_READ(opt,DutyTodo, { notification: _configNotification , timeout: _configTimeout }) {
-
+        
         let {
             hash,
             content,
@@ -129,11 +129,10 @@ timeout:\t${timeout ? timeout : _configTimeout}
             isRead = false,
             cb = ({notification:_notify,hash}) => {
                 j++;
+                
                 if ( Object.keys(todoGroup).length !== j ) {
-                    if ( _notify === "yes" ) {
-                        isRead = true;
-                        hashValues.push(hash);
-                    }
+                    isRead = true;
+                    hashValues.push(hash);
                 }
 
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
