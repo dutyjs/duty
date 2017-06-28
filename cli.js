@@ -3,6 +3,8 @@
 const ff = require("./index.js");
 const commander = require("commander");
 const {
+    deleteOption,
+    editOption,
     setnotifyOption,
     categorizeOption,
     priorityOption,
@@ -95,9 +97,9 @@ valid types are all , hash, completed, date, category, `)
         const [ _type, value ] = argumentArray = type.split(":");
 
         if ( /^all$|^completed$/.test(_type) )  {
-            return ff.delete(_type);
+            return deleteOption(_type,undefined,ff);
         } else {
-            return ff.delete(_type,{ value });
+            return deleteOption(_type,{ value },ff);
         }
 
     });
@@ -179,7 +181,7 @@ commander
     .command("edit <hash> <text>")
     .description("this subcommand edits a todo")
     .action((hash,text) => {
-        ff.edit({hash,text});
+        return editOption(hash,text,ff);
     });
 
 commander.parse(process.argv);

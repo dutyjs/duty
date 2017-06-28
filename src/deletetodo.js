@@ -24,6 +24,22 @@ class DeleteTodo {
 
         this[this.type]();
     }
+
+    static CHECK_STATUS(isDelete,length,j) {
+        
+        if (!isDelete && length === j) {
+            
+            return DeleteTodo.DELETE_NOT_FOUND();
+            
+        } else if (isDelete && length  === j) {
+            
+            return DeleteTodo.DELETE();
+            
+        }
+        
+        return undefined;
+        
+    }
     all() {
 
         let {
@@ -39,12 +55,14 @@ class DeleteTodo {
 
         todoGroup = {};
 
-        DutyTodo.WriteFile({
+
+        return Promise.resolve({location,todoGroup});
+        
+        /*DutyTodo.WriteFile({
             location,
             todoGroup
-        });
+        });*/
 
-        return true;
     }
     hash() {
         let {
@@ -52,7 +70,7 @@ class DeleteTodo {
             location,
             todoGroup,
             _opt: {
-                value: hash
+                hash
             },
             _this
         } = this,
@@ -65,21 +83,23 @@ class DeleteTodo {
                 j++;
                 if (hashRegex.test(longHash)) {
                     delete todoGroup[hash];
-                    return true;
+                    return DeleteTodo.DELETE();
                 } else if (Object.keys(todoGroup).length === j) {
-                    return false;
+                    return DutyTodo.HASH_ERROR();
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(_this, cb)
-            .then(_ => {
+        return DutyTodo.CALLGENERATORYLOOP(_this, cb);
+        
+            /*.then(_ => {
                 DutyTodo.WriteFile({
                     location,
                     todoGroup
                 });
             }).catch(_ => {
                 DutyTodo.ErrMessage(`${hash} was not found`);
-            });
+             });*/
+        
     }
     completed() {
         let {
@@ -101,16 +121,16 @@ class DeleteTodo {
                     isDelete = true;
                     j--;
                 }
+                
+                let length = Object.keys(todoGroup).length,
+                    retval = DeleteTodo.CHECK_STATUS(isDelete,length,j);
 
-                if (!isDelete && Object.keys(todoGroup).length === j) {
-                    return false;
-                } else if (isDelete && Object.keys(todoGroup).length === j) {
-                    return true;
-                }
+                if ( retval ) return retval;
             };
 
-        DutyTodo.CALLGENERATORYLOOP(_this, cb)
-            .then(_ => {
+        return DutyTodo.CALLGENERATORYLOOP(_this, cb);
+        
+            /*.then(_ => {
                 DutyTodo.WriteFile({
                     location,
                     todoGroup
@@ -118,7 +138,8 @@ class DeleteTodo {
                 process.stdout.write("completed todos have been deleted\n");
             }).catch(_ => {
                 DutyTodo.ErrMessage("Nothing was removed");
-            });
+             });*/
+        
     }
     date() {
 
@@ -130,7 +151,7 @@ class DeleteTodo {
         } = this, {
                 value: _userDate
             } = this._opt,
-            isRead = false, j = 0,
+            isDelete = false, j = 0,
             cb = ({
                 date,
                 modifiedDate,
@@ -139,19 +160,20 @@ class DeleteTodo {
                 j++;
                 if (_userDate === date) {
                     delete todoGroup[hash];
-                    isRead = true;
+                    isDelete = true;
                     j--;
                 }
 
-                if (!isRead && Object.keys(todoGroup).length === j) {
-                    return false;
-                } else if (isRead && Object.keys(todoGroup).length === j) {
-                    return true;
-                }
-            };
+                let length = Object.keys(todoGroup).length,
+                    retval = DeleteTodo.CHECK_STATUS(isDelete,length,j);
 
-        DutyTodo.CALLGENERATORYLOOP(_this, cb)
-            .then(_ => {
+                if ( retval ) return retval;
+                
+            };
+        
+        return DutyTodo.CALLGENERATORYLOOP(_this, cb);
+        
+            /*.then(_ => {
                 DutyTodo.WriteFile({
                     location,
                     todoGroup
@@ -159,7 +181,8 @@ class DeleteTodo {
             })
             .catch(_ => {
                 process.stdout.write("no match for the specified date was found\n");
-            });
+             });*/
+        
     }
     category() {
         let {
@@ -180,27 +203,29 @@ class DeleteTodo {
                 j++;
 
                 if (_category && _category.includes(category)) {
+                    // don't delete the todo, only pop out the category value;
                     delete todoGroup[hash];
                     isDelete = true;
                     j--;
                 }
 
-                if (Object.keys(todoGroup).length === j && (!isDelete)) {
-                    return false;
-                } else if (Object.keys(todoGroup).length === j && (isDelete)) {
-                    return true;
-                }
-            };
+                let length = Object.keys(todoGroup).length,
+                    retval = DeleteTodo.CHECK_STATUS(isDelete,length,j);
 
-        DutyTodo.CALLGENERATORYLOOP(_this, cb)
-            .then(_ => {
+                if ( retval ) return retval;
+                
+            };
+        
+        return DutyTodo.CALLGENERATORYLOOP(_this, cb);
+        
+         /*.then(_ => {
                 DutyTodo.WriteFile({
                     location,
                     todoGroup
                 });
             }).catch(_ => {
                 DutyTodo.ErrMessage(`${category} was not found`);
-            });
+         });*/
     }
 }
 

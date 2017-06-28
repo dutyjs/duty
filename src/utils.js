@@ -316,6 +316,26 @@ function editOption(hash,text,ff) {
         });    
 }
 
+function deleteOption(type,opt = {},ff) {
+                                         
+    let { location, todoGroup } = ff.MANAGER;
+
+    
+    return ff.delete(type,opt)
+        .then( result => {
+            let _pMessage = DutyTodo.WriteFile({
+                location,
+                todoGroup
+            });         
+
+            env(_pMessage);
+            return result;
+            
+        }).catch( _ => {
+            env(_);
+            return (_);
+        });        
+}
 module.exports = {
     addOption,
     appendOption,
@@ -330,6 +350,7 @@ module.exports = {
     categorizeOption,
     setnotifyOption,
     editOption,
+    deleteOption,
     isExists,
     node_env
 };

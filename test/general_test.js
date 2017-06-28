@@ -1,5 +1,6 @@
 const path = require("path");
 const {
+    deleteOption,
     editOption,
     setnotifyOption,
     categorizeOption,
@@ -796,5 +797,36 @@ describe("#duty test", () => {
             expect(_parsedHash).not.toEqual(hash);
             expect(modifiedDate).toBeDefined();
         });
+    });
+    describe("handle deleting of todos", () => {
+        $it("should return a failed promise when type is date and value is undefined", async () => {
+            let result = await deleteOption("date",undefined,DutyInstance);
+            expect(result).toEqual("expected two argument but got one, second argument should be a date in dd/mm/yyyy");
+            
+        });
+        $it("should return a failed promise when date format specified is not valid ( of the form dd/mm/yyyy", async () => {
+            let result = await deleteOption("date", { value: "05/12/" }, DutyInstance);
+            expect(result).toEqual("invalid date format specfied 05/12/. Date should be specfied  in dd/mm/yyyy");
+        });
+
+        $it("should return a failed promise if type is hash but no hash was specified", async () => {
+            let result = await deleteOption("hash", undefined, DutyInstance);
+            expect(result).toEqual("hash value is required");
+        });
+        $it("should return a failed promise when hash is specified but hash length is lessthan 9", async () => {
+            let result = await deleteOption("hash", { value: "12345" }, DutyInstance);
+            expect(result).toEqual("hash length is suppose to be 9 but got 5");
+        });
+        $it("should return a failed promise when type is category but category type is not specified", async () => {
+            let result = await deleteOption("category", undefined, DutyInstance);
+            expect(result).toEqual("category type was not sepcified");
+        });
+
+
+
+        
+        
+        
+        
     });
 });

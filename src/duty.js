@@ -57,7 +57,7 @@ class DutyTodo {
                 (month >=1 && month <= 12) &&
                 (String(year).length === 4)
             
-           ) return true;
+        ) return true;
         
 
         return false;
@@ -276,8 +276,8 @@ class DutyTodo {
         hash = hash.slice(0, hash.length - 55);
 
         const DATE = moment().format("DD/MM/YYYY"),
-            date = DATE,
-            completed = false;
+              date = DATE,
+              completed = false;
 
 
         todoGroup[hash] = {
@@ -601,38 +601,41 @@ class DutyTodo {
             value
         } = opt;
         
-        if (!type) {
-            DutyTodo.ErrMessage(`type ${type} is not supported`);
-            return false;
-        } else if (type === "date" && (!value)) {
-            DutyTodo.ErrMessage("expected two argument but got one, second argument should be a date in dd/mm/yyyy");
-            return false;
-        } else if (type === "hash" && (!value || value.length <= 4)) {
+        if (type === "date" && ! value ) {
+            
+            return Promise.reject("expected two argument but got one, second argument should be a date in dd/mm/yyyy");
+            
+        } else if (type === "date" && ! DutyTodo.VERIFY_DATE(value)) {
+                
+            return Promise.reject(`invalid date format specfied ${value}. Date should be specfied  in dd/mm/yyyy`);
+            
+        } else if (type === "hash" && ! value ) {
 
-            DutyTodo.ErrMessage("invalid hash type");
-            return false;
+            return Promise.reject("hash value is required");
+            
+        } else if ( type === "hash" && value.length < 9 ) {
+            
+            return DutyTodo.PrintHashError(value);
+            
         } else if (type === "category" && (!value)) {
-            DutyTodo.ErrMessage("category type is not specified");
-            return false;
-        } else if (type === "date" && !DutyTodo.VERIFY_DATE(value)) {
-            return DutyTodo.ErrMessage(`invalid date format specfied ${value}. Date should be specfied  in dd/mm/yyyy`);
-
-        }
+            
+            return Promise.reject("category type was not sepcified");
+            
+        } 
+        
         try {
             const p = DeleteTodo.createType();
 
             const self = this;
 
-            p.handleDelete({
-                type,
-                opt,
-                self,
-                DutyTodo
-            });
+            return(p.handleDelete({ type, opt, self, DutyTodo }));
 
         } catch (ex) {
-            DutyTodo.ErrMessage(`${type} is not supported`);
-            return false;
+            
+            if ( process.env.NODE_ENV === "development" )
+                console.log(ex);
+            
+            return Promise.reject(`${type} is not supported`);
         }
     }
     urgency({
@@ -902,7 +905,7 @@ class DutyTodo {
         if ( hash.length < 9 )
             
             return DutyTodo.PrintHashError(hash);
-            
+        
 
         if (!DutyTodo.NotificationArg(notification))
             
@@ -912,7 +915,7 @@ class DutyTodo {
         if (!DutyTodo.TimeoutArg(timeout))
             
             return Promise.reject("timeout that is amount of times the todo should show is not a number");
-            
+        
 
         let {
             location,
