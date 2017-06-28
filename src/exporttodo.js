@@ -112,11 +112,11 @@ class ExportTodo {
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .then( _ => {
 
-		fs.createReadStream("../assets/duty.css").pipe(
+		fs.createReadStream("./assets/duty.css").pipe(
 		    fs.createWriteStream(`${_pathDir}/duty.css`)
 		);
 
-		fs.createReadStream("../assets/logo.png").pipe(
+		fs.createReadStream("./assets/logo.png").pipe(
 		    fs.createWriteStream(`${_pathDir}/logo.png`)
 		);
 
