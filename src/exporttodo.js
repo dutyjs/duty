@@ -111,7 +111,7 @@ class ExportTodo {
 
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .then( _ => {
-
+                
 		fs.createReadStream(`${join(__dirname, "assets", "duty.css" )}`).pipe(
 		    fs.createWriteStream(`${_pathDir}/duty.css`)
 		);
