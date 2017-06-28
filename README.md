@@ -252,6 +252,7 @@ The daemon method is used by the daemon manager of your O.S , running it from th
 1. Proper date validation
 2. Proper directory handling in windows, when duty is executed for the first time
 3. Bug that overwrites json file where todo is been saved, this bug is as result of installing new versions of duty
+4. Fix Bug in exporting todo for html
 
 ## LICENSE
 
