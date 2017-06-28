@@ -22,7 +22,7 @@ class DeleteTodo {
         this._opt = opt;
         this.location = location;
 
-        this[this.type]();
+        return(this[this.type]());
     }
 
     static CHECK_STATUS(isDelete,length,j) {
@@ -39,6 +39,12 @@ class DeleteTodo {
         
         return undefined;
         
+    }
+    static DELETE() {
+        return "DELETE_TODO";
+    }
+    static DELETE_NOT_FOUND() {
+        return "DELETE_NOT_FOUND";
     }
     all() {
 
@@ -70,7 +76,7 @@ class DeleteTodo {
             location,
             todoGroup,
             _opt: {
-                hash
+                value: hash
             },
             _this
         } = this,

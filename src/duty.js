@@ -232,9 +232,17 @@ class DutyTodo {
                 case "EDITED":
                     resolve(_n.value);
                     break;
+                case  "DELETE_TODO":
+                    resolve(_n.value);
+                    break;
+                case "DELETE_NOT_FOUND":
+                    reject("specified delete option was not found");
+                    break;
                 default:
 
                     if ( Array.isArray(f) && f.length !== 0 ) {
+                        resolve(f);
+                    } else if ( typeof(f) === "object" && f.hasOwnProperty("_path") ) {
                         resolve(f);
                     }
 
@@ -298,18 +306,22 @@ class DutyTodo {
             });
 
         } else if (category && (!Array.isArray(category))) {
+            
             DutyTodo.ErrMessage(`expected category to be an array but got ${typeof(category)}`);
-
             return false;
+            
         }
 
         DutyTodo.WriteFile({
             location,
             todoGroup
         });
+        
         if ( process.env.NODE_ENV === "development" )
             return todoGroup[hash];
+        
         return `Total todo is ${Object.keys(todoGroup).length}\n`.green;
+        
     }
     * IterateTodo() {
         let {
@@ -627,13 +639,10 @@ class DutyTodo {
             const p = DeleteTodo.createType();
 
             const self = this;
-
+            
             return(p.handleDelete({ type, opt, self, DutyTodo }));
 
         } catch (ex) {
-            
-            if ( process.env.NODE_ENV === "development" )
-                console.log(ex);
             
             return Promise.reject(`${type} is not supported`);
         }
@@ -855,20 +864,15 @@ class DutyTodo {
 
         return DutyTodo.CALLGENERATORYLOOP(this, cb);
     }
-    export ({
+    export({
         type,
         path
     }) {
-        if (!type) {
-            
-            DutyTodo.ErrMessage("specify the format type to export as");
-            
-            return false;
-            
-        } else if ((path && (!fs.existsSync(path) || fs.existsSync(path)))) {
-            
+        
+        if ((!fs.existsSync(path) || fs.existsSync(path))) {
+            // get the absolute path of the specified path
             path = resolve(path);
-            
+            console.log(path);
         }
 
         try {
@@ -877,16 +881,16 @@ class DutyTodo {
             
             const self = this;
             
-            _export.export({
+            return(_export.export({
                 type,
                 DutyTodo,
                 self,
                 path
-            });
+            }));
             
         } catch (ex) {
             
-            DutyTodo.ErrMessage(`format ${type} is not supported`);
+            return Promise.reject(`format ${type} is not supported`);
             
         }
         

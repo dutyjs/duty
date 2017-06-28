@@ -18,15 +18,15 @@ class ExportTodo {
             ? `${path}.${type}` : path;
 
         this._pathDir = dirname(this._path);
-        this[this.type]();
+        return this[this.type]();
     }
 
     static BUILDHTML({key: type,prop: value}) {
 
         const BUILD_HTML = `
 <tr>
-<td> ${type} </td>
-<td>${Array.isArray(value) ? ExportTodo.FlattenArray(value,"ul","li") : value}</td>
+   <td> ${type} </td>
+   <td>${Array.isArray(value) ? ExportTodo.FlattenArray(value,"ul","li") : value}</td>
 </tr>
 `;
 
@@ -40,7 +40,7 @@ class ExportTodo {
 
             BUILD_LIST += `
 <${children}>
-${i}
+   ${i}
 </${children}>
 `;
 
@@ -53,16 +53,17 @@ ${i}
     }
     html() {
         let { _path , _pathDir, DutyTodo, _this  } = this,
+            
             buildHtml = `
 <!doctype html>
 <html>
-<head>
-<title> Duty Todo Html Summary </title>
-<link rel="stylesheet" href="duty.css"/>
-</head>
-<body>
+   <head>
+     <title> Duty Todo Html Summary </title>
+     <link rel="stylesheet" href="duty.css"/>
+   </head>
+   <body>
 
-<div class="im"><img src="logo.png"/></div>
+      <div class="im"><img src="logo.png"/></div>
 <div>
 `;
 
@@ -77,9 +78,9 @@ ${i}
                 buildHtml += `
 
 <table>
-<thead>
-<tr><th>${hash}</th></tr>
-</thead>
+   <thead>
+      <tr><th>${hash}</th></tr>
+   </thead>
 `;
 
                 for ( let [key,prop] of Object.entries(opt) ) {
@@ -104,37 +105,25 @@ ${i}
 </html>
 `;
                     appendFileSync(_path, buildHtml);
-
-                    return true;
+                    
+                    return { _pathDir, _path };
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(_this,cb)
-            .then( _ => {
-
-                fs.createReadStream("../assets/duty.css").pipe(
-                    fs.createWriteStream(`${_pathDir}/duty.css`)
-                );
-
-                fs.createReadStream("../assets/logo.png").pipe(
-                    fs.createWriteStream(`${_pathDir}/logo.png`)
-                );
-
-                DutyTodo.PRINT(`file location ${_path}\n`);
-            })
-            .catch( _ => {
-                DutyTodo.ErrMessage("error converting todo list to html\n");
-            });
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
+        
     }
     json() {
+        
         // uh
+        
         let { _this: { MANAGER: { location }} , DutyTodo, _path} = this;
 
         try {
             writeFileSync(_path, readFileSync(location).toString("ascii"));
-            DutyTodo.PRINT(`file location ${_path}\n`);
+            return Promise.resolve(`file location ${_path}\n`);
         } catch(ex) {
-            DutyTodo.ErrMessage("error converting todo list to json\n");
+            return Promise.reject("error converting todo list to json\n");
         }
 
     }
@@ -186,17 +175,11 @@ ${Array.isArray(prop)
 `;
                     appendFileSync(_path, Build_xml);
 
-                    return true;
+                    return { _path };
                 }
             };
 
-        DutyTodo.CALLGENERATORYLOOP(_this,cb)
-            .then( _ => {
-                DutyTodo.PRINT(`file location ${_path}\n`);
-            })
-            .catch( _ => {
-                DutyTodo.ErrMessage("error converting todo list to xml\n");
-            });
+        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
 
     }
 }

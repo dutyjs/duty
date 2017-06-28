@@ -1,5 +1,6 @@
 const path = require("path");
 const {
+    exportOption,
     deleteOption,
     editOption,
     setnotifyOption,
@@ -823,10 +824,84 @@ describe("#duty test", () => {
         });
 
 
+        $it("should delete all todos", async () => {
+            let result = await deleteOption("all", undefined, DutyInstance);
+            expect(result.todoGroup).toEqual(jasmine.any(Object));
+            expect(Object.keys(result.todoGroup).length).toEqual(0);
+        });
 
+        $it("should delete todos with hash values", async () => {
+            let result = await addOption("deleting this todo with hash content",[ "deletetodo", "temporarytodo" ],DutyInstance),
+                { hash } = result, keys;
+
+            result = await deleteOption("hash",{ value: hash }, DutyInstance),
+            { hash } = result;
+            
+            expect(parsedConfig.todoGroup[hash]).toBeUndefined();
+            
+        });
+
+        $it("should return a failed promise for invalid hash", async () => {
+            let result = await deleteOption("hash", { value: "abcdfasdfasdf" }, DutyInstance);
+
+            expect(result).toEqual("hash was not found");
+        });
+
+        $it("should delete all todos that is mark as completed", async () => {
+            let result = await addOption("mark completed todo", [ "categorycomplete" ], DutyInstance),
+                { hash } = result;
+
+            result = await markCompletedOption(hash,DutyInstance);
+            // this expect statement is not essential
+            
+            expect(parsedConfig.todoGroup[hash].completed).toBeDefined();
+            
+            result = await deleteOption("completed", undefined , DutyInstance);
+            
+            expect(parsedConfig.todoGroup[hash]).toBeUndefined();
+            
+        });
+
+        $it("it should not delete any todo when no todo is mark as completed yet", async () => {
+            let result = await deleteOption("completed", undefined, DutyInstance);
+            expect(result).toEqual("specified delete option was not found");
+        });
+
+
+        $it("should delete todos with a specific date", async () => {
+
+            let result = await addOption("todays date todo", ["do_today", "todaytoday" ], DutyInstance ),
+                { hash, date } = result;
+
+            result = await deleteOption("date", { value: date }, DutyInstance);
+
+            expect(parsedConfig.todoGroup[hash]).toBeUndefined();
+        });
         
-        
-        
-        
+        $it("should delete todos with a specific category", async () => {
+
+            let result = await addOption("this todo belongs to a category", ["do_today", "todaytoday" ], DutyInstance ),
+                { hash } = result;
+
+            result = await deleteOption("category", { value: "do_today" }, DutyInstance);
+            
+            expect(parsedConfig.todoGroup[hash]).toBeUndefined();
+            
+            
+        });
+
+        $it("should return a failed promise for invalid delete option", async () => {
+            let result = await deleteOption("fakedeleteopton", undefined , DutyInstance);
+        });
+    });
+    describe("exporting todos", () => {
+        $it("should return a failed promise for invalid type specification", async () => {
+            let result = await exportOption("pdfhtml","qq",DutyInstance);
+            expect(result).toEqual("format pdfhtml is not supported");
+        });
+        $it("should create html files and css files for html type" , async () => {
+            let result = await exportOption("html","mytodo",DutyInstance);
+            console.log(result);
+        });
     });
 });

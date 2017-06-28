@@ -329,12 +329,46 @@ function deleteOption(type,opt = {},ff) {
             });         
 
             env(_pMessage);
+
             return result;
             
         }).catch( _ => {
             env(_);
             return (_);
         });        
+}
+
+function exportOption(type,path,ff) {
+
+    return ff.export({type,path})
+        .then( result => {
+            const { _pathDir , _path } = result,
+                  MESSAGE = `file location ${_path}\n`; 
+            
+            if ( _path && _pathDir ) {
+
+                
+                let cssContent = fs.readFileSync("../assets/duty.css").toString();
+                
+                cssContent  = fs.writeFileSync(cssContent, `${_pathDir}/duty.css`);
+                
+                let imgContent = fs.readFileSync("../assets/logo.png").toString();
+
+                imgContent = fs.writeFileSync(`${_pathDir}/logo.png`);
+
+                env(MESSAGE);
+                return { _pathDir, _path };
+            }
+
+            env(MESSAGE);
+
+            return { _path };
+            
+        }).catch( _ => {
+            env(_);
+            return(_);
+        });
+    
 }
 module.exports = {
     addOption,
@@ -351,6 +385,7 @@ module.exports = {
     setnotifyOption,
     editOption,
     deleteOption,
+    exportOption,
     isExists,
     node_env
 };
