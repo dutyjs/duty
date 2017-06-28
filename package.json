@@ -20,7 +20,7 @@
     "node-notifier": "^5.1.2"
   },
   "license": "MIT",
-  "version": "2.4.5",
+  "version": "2.4.5-doc",
   "main": "index.js",
   "repository": {
     "type": "git",

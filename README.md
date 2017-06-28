@@ -1,6 +1,6 @@
 # duty.js
 
-[![Logo](assets/logo.png)](assets/logo.jpg)
+[![Logo](src/assets/logo.png)](assets/logo.jpg)
 
 
 [duty.js](https://github.com/zombieleet/duty) is a lightweight commandline todo application with desktop notification 
