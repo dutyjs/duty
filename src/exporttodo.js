@@ -1,6 +1,6 @@
 const { Duplex } = require('stream');
 const { appendFileSync, writeFileSync, readFileSync, createWriteStream } = require('fs');
-const { dirname , extname }  = require('path');
+const { dirname , extname, join }  = require('path');
 const fs = require('fs');
 
 class ExportTodo {
@@ -112,11 +112,11 @@ class ExportTodo {
 	DutyTodo.CALLGENERATORYLOOP(_this,cb)
 	    .then( _ => {
 
-		fs.createReadStream("./assets/duty.css").pipe(
+		fs.createReadStream(`${join(__dirname, "assets", "duty.css" )}`).pipe(
 		    fs.createWriteStream(`${_pathDir}/duty.css`)
 		);
 
-		fs.createReadStream("./assets/logo.png").pipe(
+		fs.createReadStream(`${join(__dirname, "assets", "logo.png")}`).pipe(
 		    fs.createWriteStream(`${_pathDir}/logo.png`)
 		);
 
