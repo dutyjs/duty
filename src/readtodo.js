@@ -73,12 +73,12 @@ class ReadTodo {
 
 hash:\t\t${hash}  ${completed ? unicodes.checkmark : unicodes.ballot}
 creation date:\t${date} ${modifiedDate ? `
-modified date:\t${modifiedDate}` : ""} ${due_date ? `
-due date:\t${ReadTodo.HANDLE_DUE_DATE({due_date})}` : ""}${category ? `
-category:\t(${category})` : ""} ${priority ? `
-priority:\t${priority}${unicodes[ReadTodo.HANDLE_PRIORITY(priority)]}` : ""} ${urgency ? `
-urgency:\t${urgency} `: ""} ${note ? `
-note:\t\t${note}`: ""}
+                       modified date:\t${modifiedDate}` : ""} ${due_date ? `
+                       due date:\t${ReadTodo.HANDLE_DUE_DATE({due_date})}` : ""}${category ? `
+                       category:\t(${category})` : ""} ${priority ? `
+                       priority:\t${priority}${unicodes[ReadTodo.HANDLE_PRIORITY(priority)]}` : ""} ${urgency ? `
+                       urgency:\t${urgency} `: ""} ${note ? `
+                       note:\t\t${note}`: ""}
 content:\t${content}
 notification:\t${/^yes$|^no$/.test(notification) ? notification : _configNotification}
 timeout:\t${timeout ? timeout : _configTimeout}
@@ -111,8 +111,8 @@ timeout:\t${timeout ? timeout : _configTimeout}
         let { DutyTodo, _this, todoGroup } = this,
             hashValues = [], j = 0, isRead = false,
             cb = ({hash}) => {
-                j++;
-                if ( Object.keys(todoGroup).length !== j ) {
+                
+                if ( Object.keys(todoGroup).length !== j++ ) {
                     isRead = true;
                     hashValues.push(hash);
                 }
@@ -128,11 +128,12 @@ timeout:\t${timeout ? timeout : _configTimeout}
             hashValues = [], j = 0,
             isRead = false,
             cb = ({notification:_notify,hash}) => {
-                j++;
 
-                if ( Object.keys(todoGroup).length !== j ) {
-                    isRead = true;
-                    hashValues.push(hash);
+                if ( Object.keys(todoGroup).length !== j++ ) {
+                    if ( _notify === "yes" ) {
+                        isRead = true;
+                        hashValues.push(hash);
+                    } 
                 }
 
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
@@ -296,7 +297,7 @@ timeout:\t${timeout ? timeout : _configTimeout}
             cb = ({date,modifiedDate,hash}) => {
                 j++;
                 if ( (_userDate && date === _userDate) && (_userModifiedDate && modifiedDate === _userModifiedDate)
-                ) {
+                   ) {
                     isRead = true;
                     hashValues.push(hash);
                 } else if ( (_userDate && date === _userDate) && !_userModifiedDate ) {

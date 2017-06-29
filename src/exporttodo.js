@@ -118,16 +118,11 @@ class ExportTodo {
     }
     json() {
         
-        // uh
-        
-        let { _this: { MANAGER: { location }} , DutyTodo, _path} = this;
+        let { _this, DutyTodo, _path, _pathDir} = this;
 
-        try {
-            writeFileSync(_path, readFileSync(location).toString("ascii"));
-            return Promise.resolve(`file location ${_path}\n`);
-        } catch(ex) {
-            return Promise.reject("error converting todo list to json\n");
-        }
+        return DutyTodo.CALLGENERATORYLOOP(_this, () => {
+            return { _path };
+        });
 
     }
     xml() {

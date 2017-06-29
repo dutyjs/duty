@@ -7,7 +7,7 @@ module.exports = class Daemon {
         //  static method is just to make the code,
         //  dependency injectable
 
-        Daemon[platform]();
+        return Daemon[platform]();
     }
     static wait() {
         process.stdout.write("wait while the daemon is been enabled...");        
@@ -17,11 +17,10 @@ module.exports = class Daemon {
         try {
             cp.execSync(`${__dirname}/daemon.bash duty`);
         } catch(ex) {
-            console.log(ex);
             throw("error encountered while enabling service");
         }
 
-        return true;
+        return Promise.resolve("daemon has been created");
 
     }
     static linux() {

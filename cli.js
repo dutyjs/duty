@@ -3,6 +3,7 @@
 const ff = require("./index.js");
 const commander = require("commander");
 const {
+    exportOption,
     deleteOption,
     editOption,
     setnotifyOption,
@@ -140,7 +141,7 @@ commander
     .description(`export todo as type to path
 valid export types are xml,html,json`)
     .action( (type,path) => {
-        return ff.export({type,path});
+        return exportOption(type,path,ff);
     });
 
 commander
@@ -162,13 +163,6 @@ commander
     .description("use to make duty run in background, executing this subcommand from the commandline won't work")
     .action( _ => {
         ff.daemon();
-    });
-
-commander
-    .command("status <type>")
-    .description("shows the breakdown of all your todos, it takes one argument which is the type of status you want to read, the types supported are all and category, not specifing a type will read all the todos")
-    .action(type => {
-        ff.status(type);
     });
 
 commander

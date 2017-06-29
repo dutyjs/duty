@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const DutyTodo = require("./duty.js");
 const ReadTodo = require("./readtodo.js");
-const { join, dirname } = require("path");
+const { join, dirname, extname } = require("path");
 const fs = require("fs");
 
 const node_env = () => {
@@ -338,7 +338,9 @@ function deleteOption(type,opt = {},ff) {
 }
 
 function exportOption(type,path,ff) {
-
+    
+    let { location, todoGroup  } = ff.MANAGER;
+    
     return ff.export({type,path})
         .then( result => {
             
@@ -359,6 +361,10 @@ function exportOption(type,path,ff) {
                 env(MESSAGE);
                 return { _pathDir, _path };
             }
+
+            if ( extname(_path) === ".json" )
+                fs.writeFileSync(_path, JSON.stringify(todoGroup));
+            
             
             env(MESSAGE);
 
@@ -370,7 +376,20 @@ function exportOption(type,path,ff) {
         });
     
 }
+
+function execDaemonOption(platform,ff) {
+
+    return ff.execDaemon(platform)
+        .then( result => {
+            env(result);
+            return result;
+        }).catch( _ => {
+            env(_);
+            return(_);
+        });
+}
 module.exports = {
+    execDaemonOption,
     addOption,
     appendOption,
     replaceOption,

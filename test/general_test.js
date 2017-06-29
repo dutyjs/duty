@@ -1,5 +1,7 @@
-const path = require("path");
+const { join, extname } = require("path");
+const { platform }  = require("os");
 const {
+    execDaemonOption,
     exportOption,
     deleteOption,
     editOption,
@@ -31,9 +33,9 @@ describe("#duty test", () => {
     beforeEach(() => {
 
         fs = require("fs"),
-        test_config = path.join(__dirname,"test_config.json"),
-        test_config2 = path.join(__dirname, "test_config2.json"),
-        _test = path.join(__dirname, ".test.json");
+        test_config = join(__dirname,"test_config.json"),
+        test_config2 = join(__dirname, "test_config2.json"),
+        _test = join(__dirname, ".test.json");
 
         fs.writeFileSync(test_config, JSON.stringify({
             location: "not_valid_location"
@@ -451,55 +453,37 @@ describe("#duty test", () => {
                     });
             });
         });
-
-        xdescribe("reading notificatons", () => {
-            let handleNotification;
-
-            beforeEach( done => {
-                let main_key;
-
-                handleNotification = (type) => {
-                    addOption(`without notificaton ${Math.random(5)} `, undefined, DutyInstance)
-                        .then( result => {
-                            let { hash } = result;
-                            setnotifyOption(hash,type,3000,DutyInstance);
-                        });
-                };
-                done();
+        
+        fdescribe("reading notificatons", () => {
+            let hash;
+            $beforeEach( async () => {
+                ({hash} = await addOption("todo with notication", undefined, DutyInstance));
             });
-            afterEach(() => {
-                handleNotification = undefined;
+            $afterEach( async () => {
+                await deleteOption("hash", { value: hash }, DutyInstance);
+                hash = undefined;
             });
-            it("should return successfull promise for notification that is set to yes", done => {
-                handleNotification("yes");
-                readOption("notification", undefined, DutyInstance)
-                    .then( result => {
-                        expect(result).toEqual(jasmine.any(Array));
-                        //loopNotification(result,"yes");
+            $it("should return a succesfull when reading notifcation for yes",  async () => {
+                let result = await readOption("all", undefined, DutyInstance);
+                result.forEach( async (res) => {
+                    await setnotifyOption(res.hash, "yes", 3000, DutyInstance);
+                });
+                result = await readOption("notification",undefined,DutyInstance);
 
-
-                        result.forEach( res => {
-                            let { notification } = res;
-                            expect(notification).toEqual("yes");
-                        });
-
-                        done();
-                    });
+                result.forEach( res => {
+                    expect(res.notification).toEqual("yes");
+                });
             });
-            it("should return a no notificaton for todos", done => {
-                handleNotification("no");
-                readOption("notification", undefined, DutyInstance)
-                    .then( result => {
-                        expect(result).toEqual(jasmine.any(Array));
+            $it("should return a value of the specified type is not available for reading when notification of all todos is set to no",  async () => {
+                let result = await readOption("all", undefined, DutyInstance);
 
-                        result.forEach( res => {
-                            let { notification } = res;
-                            expect(notification).toEqual("no");
-                        });
+                result.forEach( async (res) => {
+                    await setnotifyOption(res.hash, "no", 3000, DutyInstance);
+                });
 
-                        done();
-                    });
-            });
+                result = await readOption("notification", undefined, DutyInstance);
+                console.log("the specified type is not available for reading");
+            });            
         });
         describe("reading todo by evaluating strings", () => {
             beforeEach( done => {
@@ -897,34 +881,98 @@ describe("#duty test", () => {
         });
     });
     describe("exporting todos", () => {
+        
         $it("should return a failed promise for invalid type specification", async () => {
             let result = await exportOption("pdfhtml","qq",DutyInstance);
             expect(result).toEqual("format pdfhtml is not supported");
         });
         $it("should not create html files and css files for html type when todo is empty" , async () => {
-
             let result = await exportOption("html","mytodo",DutyInstance);
             expect(result).toEqual("todo is empty");
         });
 
         $it("should create html files and css files for html type when todo is empty" , async () => {
-
+            
             await addOption("Hello world", [ "respect" ], DutyInstance);
-
 
             let result = await exportOption("html","mytodo",DutyInstance);
 
             expect(result).toEqual(jasmine.any(Object));
 
-            expect(path.extname(result._path)).toEqual(".html");
+            expect(extname(result._path)).toEqual(".html");
 
             fs.readFile(result._path, (err,buff) => {
-                expect(err).toBeUndefined();
+                expect(err).toBeNull();
                 expect(buff.length).toBeGreaterThan(1);
+            });
+
+            fs.unlink(result._path, err => {
+                expect(err).toBeNull();
+            });
+
+            fs.unlink(join(result._pathDir, "duty.css"), err => {
+                expect(err).toBeNull();
             });
             
         });
 
+        $it("should return a sucessfull promise for json types", async () => {
+            let result = await exportOption("json", "mytodo", DutyInstance);
+            expect(result).toEqual(jasmine.any(Object));
+            expect(result._path).toBeDefined();
+            expect(extname(result._path)).toEqual(".json");
+            
+            fs.readFile(result._path, (err,buf) => {
+                expect(err).toBeNull();
+                expect(buf.length).toBeGreaterThan(1);
+            });
+
+            fs.unlink(result._path, err => {
+                expect(err).toBeNull();
+            });
+        });
+        $it("should return a sucessfull promise for xml types", async () => {
+            let result = await exportOption("xml", "mytodo", DutyInstance);
+
+            expect(result).toEqual(jasmine.any(Object));
+            expect(result._path).toBeDefined();
+            expect(extname(result._path)).toEqual(".xml");
+
+            fs.readFile(result._path, (err,buf) => {
+                expect(err).toBeDefined();
+                expect(buf.length).toBeGreaterThan(1);
+            });
+
+            fs.unlink(result._path, err => {
+                expect(err).toBeNull();
+            });
+        });
+    });
+
+    describe("daemon should be created for platforms", () => {
+        $it("should throw err for invalid platform", async () => {
+            // this test is just for code coverage purpose
+
+            let result = await execDaemonOption("poopsFare",DutyInstance);
+            expect(result).toEqual("platfrom is not supported");
+            
+        });
+        
+        $it("should return a successful promise for linux operating systems", async () => {
+
+            //let result = await execDaemonOption(platform,DutyInstance);
+
+            //expect(result).toEqual("daemon has been created");
+            
+        });
+        
+        if ( platform() === "darwin" )
+            
+            $it("should return a sucessful promise for darwin", async () => {
+                let result = await execDaemonOption(platform,DutyInstance);
+                expect(result).toEqual("daemon has been created");
+            });
+        
     });
 
 });

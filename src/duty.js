@@ -10,7 +10,6 @@ const Daemon = require("./daemon");
 const moment = require("moment");
 
 const {
-    platform,
     homedir
 } = require("os");
 
@@ -989,17 +988,17 @@ class DutyTodo {
         return DutyTodo.CALLGENERATORYLOOP(this, cb);
 
     }
-    execDaemon() {
+    execDaemon(platform) {
         try {
-            Daemon.CreateDaemon(platform());
-            DutyTodo.PRINT("service has been created...");
-            process.exit(0);
+            return Daemon.CreateDaemon(platform());
         } catch(ex) {
-            throw ex;
+            // this block of code should never execute
+            return Promise.reject("platfrom is not supported");
         }
     }
-    // this daemon method is to be use only the daemon manager
+ 
     daemon() {
+        // this daemon method is to be use only the daemon manager
         const self = this;
 
         setInterval(_ => {
