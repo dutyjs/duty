@@ -584,7 +584,6 @@ class DutyTodo {
         } else if ((date || modifiedDate) && !DutyTodo.VERIFY_DATE(date || modifiedDate)) {
             
             return Promise.reject("expected two argument but got one, second argument should be a date in dd/mm/yyyy.");
-            
         }
 
 
