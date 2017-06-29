@@ -162,9 +162,7 @@ class DutyTodo {
         return "EDITED";
     }
     static CALLGENERATORYLOOP(_this, cb) {
-
-        // if ( ! cb ) throw new Error('check the stack trace, you are suppose to call cb on CALLGENERATORLOOP');
-
+        
         return new Promise((resolve, reject) => {
 
             const gen = _this.IterateTodo();
@@ -172,6 +170,12 @@ class DutyTodo {
             let _n = gen.next(),
                 f;
 
+
+            // this is done to fix errors, in doing any kind of operation on todo
+            //    when todo content is empty;
+            
+            if ( ! _n.value ) reject("todo is empty");
+            
             while (!_n.done) {
 
                 // pass the object to the callback function
@@ -182,7 +186,7 @@ class DutyTodo {
                 //   modified object
 
                 f = cb(_n.value);
-                
+
                 switch (f) {
                 case "URGENCY_ERROR":
                     reject("the specfied urgency type already exists on this todo");
@@ -243,6 +247,7 @@ class DutyTodo {
                     if ( Array.isArray(f) && f.length !== 0 ) {
                         resolve(f);
                     } else if ( typeof(f) === "object" && f.hasOwnProperty("_path") ) {
+                        console.log(f);
                         resolve(f);
                     }
 
@@ -871,7 +876,7 @@ class DutyTodo {
         if ((!fs.existsSync(path) || fs.existsSync(path))) {
             // get the absolute path of the specified path
             path = resolve(path);
-            console.log(path);
+
         }
 
         try {
@@ -888,7 +893,7 @@ class DutyTodo {
             }));
             
         } catch (ex) {
-            
+
             return Promise.reject(`format ${type} is not supported`);
             
         }

@@ -342,18 +342,19 @@ function exportOption(type,path,ff) {
 
     return ff.export({type,path})
         .then( result => {
+            
             const { _pathDir , _path } = result,
                   MESSAGE = `file location ${_path}\n`; 
-            
             if ( _path && _pathDir ) {
-
                 
                 let cssContent = fs.readFileSync("../assets/duty.css").toString();
                 
                 cssContent  = fs.writeFileSync(cssContent, `${_pathDir}/duty.css`);
+
+
                 
                 let imgContent = fs.readFileSync("../assets/logo.png").toString();
-
+                
                 imgContent = fs.writeFileSync(`${_pathDir}/logo.png`);
 
                 env(MESSAGE);

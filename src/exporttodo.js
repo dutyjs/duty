@@ -53,6 +53,7 @@ class ExportTodo {
 
     }
     html() {
+
         let { _path , _pathDir, DutyTodo, _this  } = this,
             
             buildHtml = `
@@ -71,9 +72,9 @@ class ExportTodo {
         writeFileSync(_path, "");
 
 
-        let { todoGroup } = _this.MANAGER,
-            j = 0,
-            cb = (opt) => {
+        let { todoGroup } = _this.MANAGER, j = 0,
+            
+            cb = opt => {    
                 j++;
                 let { hash } = opt;
                 buildHtml += `
@@ -83,6 +84,7 @@ class ExportTodo {
       <tr><th>${hash}</th></tr>
    </thead>
 `;
+
 
                 for ( let [key,prop] of Object.entries(opt) ) {
 
@@ -110,7 +112,7 @@ class ExportTodo {
                     return { _pathDir, _path };
                 }
             };
-
+        
         return DutyTodo.CALLGENERATORYLOOP(_this,cb);
 
     }

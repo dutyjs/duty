@@ -29,7 +29,7 @@ class ReadTodo {
         let _date = moment().format("DD/MM/YYYY");
         due_date = Number(due_date.split("/").join(""));
         _date = Number(_date.split("/").join(""));
-        
+
         const TIME_LEFT = String((due_date - _date)).replace(/0+$/,"");
 
         const { circle, halfcircle, completecircle } = ReadTodo.UNICODE_VALUES();
@@ -46,9 +46,9 @@ class ReadTodo {
     static HANDLE_PRIORITY(priority) {
         return ((priority === "critical") ?  "critical" : "notcritical");
     }
-    
+
     static STYLE_READ(opt,DutyTodo, { notification: _configNotification , timeout: _configTimeout }) {
-        
+
         let {
             hash,
             content,
@@ -98,13 +98,13 @@ timeout:\t${timeout ? timeout : _configTimeout}
 
         if ( _typeOfType ) {
             return this[_type](_typeOfType);
-            
+
         }
 
         return this[this.type]();
     }
 
- 
+
 
     all() {
 
@@ -117,8 +117,8 @@ timeout:\t${timeout ? timeout : _configTimeout}
                     hashValues.push(hash);
                 }
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
-                
-                if ( retval ) return retval;                
+
+                if ( retval ) return retval;
             };
 
         return DutyTodo.CALLGENERATORYLOOP(_this, cb);
@@ -129,15 +129,15 @@ timeout:\t${timeout ? timeout : _configTimeout}
             isRead = false,
             cb = ({notification:_notify,hash}) => {
                 j++;
-                
+
                 if ( Object.keys(todoGroup).length !== j ) {
                     isRead = true;
                     hashValues.push(hash);
                 }
 
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
-                
-                if ( retval ) return retval;                
+
+                if ( retval ) return retval;
             };
 
         return DutyTodo.CALLGENERATORYLOOP(_this, cb);
@@ -154,10 +154,10 @@ timeout:\t${timeout ? timeout : _configTimeout}
                         isRead = true;
                         hashValues.push(hash);
                     }
-                } 
-                
+                }
+
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
-                
+
                 if ( retval ) return retval;
 
             };
@@ -168,9 +168,9 @@ timeout:\t${timeout ? timeout : _configTimeout}
         if ( ! isRead && Object.keys(todoGroup).length === j ) {
             return DutyTodo.NO_READ();
         } else if ( isRead && Object.keys(todoGroup).length === j ) {
-            
+
             return hashValues;
-        } 
+        }
         return undefined;
     }
     due() {
@@ -186,12 +186,12 @@ timeout:\t${timeout ? timeout : _configTimeout}
                     if ( due_date && _dueDate === due_date ) {
                         isRead = true;
                         hashValues.push(hash);
-                    }    
+                    }
 
                 }
 
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
-                
+
                 if ( retval ) return retval;
             };
 
@@ -212,7 +212,7 @@ timeout:\t${timeout ? timeout : _configTimeout}
                 }
 
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
-                
+
                 if ( retval ) return retval;
             };
 
@@ -241,7 +241,7 @@ timeout:\t${timeout ? timeout : _configTimeout}
                 }
 
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
-                
+
                 if ( retval ) return retval;
             };
 
@@ -260,7 +260,7 @@ timeout:\t${timeout ? timeout : _configTimeout}
                 }
 
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
-                
+
                 if ( retval ) return retval;
             };
 
@@ -280,7 +280,7 @@ timeout:\t${timeout ? timeout : _configTimeout}
                 }
 
                 let retval = ReadTodo.CheckState(isRead,todoGroup,j,hashValues,DutyTodo);
-                
+
                 if ( retval ) return retval;
             };
 

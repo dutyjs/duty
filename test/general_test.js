@@ -341,9 +341,9 @@ describe("#duty test", () => {
         // stupid framework ( async-await-jasmine ) does not handle scoping properly in $beforeEach,
         //   this framework will be changed in the future
         $it("should return a failed promise for invalid urgency specification", async () => {
-            
+
             ({ hash } = await addOption("set urgency for todos", undefined, DutyInstance));
-            
+
             let result = await urgencyOption(hash,"urgency:fakeurgency",DutyInstance);
 
             expect(result).toEqual(`invalid urgency type, supported urgency type are
@@ -353,19 +353,19 @@ describe("#duty test", () => {
 					urgency:later
 					urgency:today`);
         });
-        
+
         $it("should return a failed promise for invalid hash i.e hash values not greaterthan or equal 9", async () => {
             let result = await urgencyOption("1233","urgency:pending",DutyInstance);
             expect(result).toEqual("hash length is suppose to be 9 but got 4");
         });
-        
+
         $it("should return a failed promise for hash that does not exists", async () => {
             let result = await urgencyOption("1234abcdefgh","urgency:pending", DutyInstance);
             expect(result).toEqual("hash was not found");
         });
-        
+
         $it("should return a sucessfull promise for all urgency options", async () => {
-            
+
             let { urgency } = await urgencyOption(hash,"urgency:pending",DutyInstance);
 
             expect(urgency).toBeDefined();
@@ -383,9 +383,9 @@ describe("#duty test", () => {
             ({urgency} = await urgencyOption(hash,"urgency:later", DutyInstance));
 
             expect(urgency).toContain("later");
-            
+
             ({urgency} = await urgencyOption(hash,"urgency:today", DutyInstance));
-            
+
             expect(urgency).toContain("today");
 
         });
@@ -395,16 +395,16 @@ describe("#duty test", () => {
             let result = await urgencyOption(hash,"urgency:pending",DutyInstance);
 
             expect(result).toEqual("the specfied urgency type already exists on this todo");
-        });        
+        });
     });
-    
+
     describe("reading of todos", () => {
         $it("should return a failed promises when invalid read option is specified", async () => {
-            
+
             let result = await readOption("readread", undefined, DutyInstance);
-            
+
             expect(result).toEqual("readread is not supported");
-            
+
         });
         describe("reading all todos", () => {
             it("should return a successful promise for reading all todos", done => {
@@ -427,9 +427,9 @@ describe("#duty test", () => {
                 //             console.log(result);
                 //             done();
                 //         });
-                // }); 
+                // });
             });
-            
+
         });
 
         describe("reading category todos", () => {
@@ -454,10 +454,10 @@ describe("#duty test", () => {
 
         xdescribe("reading notificatons", () => {
             let handleNotification;
-            
+
             beforeEach( done => {
                 let main_key;
-                
+
                 handleNotification = (type) => {
                     addOption(`without notificaton ${Math.random(5)} `, undefined, DutyInstance)
                         .then( result => {
@@ -476,13 +476,13 @@ describe("#duty test", () => {
                     .then( result => {
                         expect(result).toEqual(jasmine.any(Array));
                         //loopNotification(result,"yes");
-                        
+
 
                         result.forEach( res => {
                             let { notification } = res;
                             expect(notification).toEqual("yes");
                         });
-                        
+
                         done();
                     });
             });
@@ -491,14 +491,14 @@ describe("#duty test", () => {
                 readOption("notification", undefined, DutyInstance)
                     .then( result => {
                         expect(result).toEqual(jasmine.any(Array));
-                        
+
                         result.forEach( res => {
                             let { notification } = res;
                             expect(notification).toEqual("no");
                         });
-                        
+
                         done();
-                    });                
+                    });
             });
         });
         describe("reading todo by evaluating strings", () => {
@@ -512,11 +512,12 @@ describe("#duty test", () => {
                     });
             });
             it("should evaluate strings as date", done => {
-                
+
                 readOption("eval:2 days from now",undefined,DutyInstance)
                     .then( result => {
+
                         expect(result).toEqual(jasmine.any(Array));
-                        
+
                         for ( let i of result ) {
                             let { due_date } = i;
                             expect(ReadTodo.HANDLE_DUE_DATE({due_date})).toEqual("2 days from now");
@@ -530,11 +531,11 @@ describe("#duty test", () => {
                 let result = await readOption("due",{date: undefined },DutyInstance);
                 expect(result).toEqual("expected date argument to be set");
             });
-            
+
             $it("should return a successfull promise when due is set as type and date is undefined", async () => {
                 let result = await addOption("Hello adding todo to be read",undefined,DutyInstance),
                     { hash } = result;
-                
+
                 result = await dueOption(hash,"10/12/2017",DutyInstance);
 
                 result = await readOption("due",{date: "10/12/2017"},DutyInstance);
@@ -545,11 +546,11 @@ describe("#duty test", () => {
                     expect(due_date).toEqual("10/12/2017");
                 });
 
-                
+
             });
         });
         describe("reading completed or notcompleted todos", () => {
-            
+
             $it("should return a successful promise when completed todos are required to be read", async () => {
                 let result = await readOption("completed",undefined,DutyInstance);
                 expect(result).toEqual(jasmine.any(Array));
@@ -582,15 +583,15 @@ describe("#duty test", () => {
         });
         $it("should return a failed promise when an invalid date type is specified", async () => {
             let result = await readOption("date", { date: "2017/06/05" }, DutyInstance);
-            
+
             expect(result).toEqual("expected two argument but got one, second argument should be a date in dd/mm/yyyy.");
-            
+
             result = await readOption("date", { modifiedDate: "2017/06/05" }, DutyInstance);
-            
-            expect(result).toEqual("expected two argument but got one, second argument should be a date in dd/mm/yyyy.");                        
+
+            expect(result).toEqual("expected two argument but got one, second argument should be a date in dd/mm/yyyy.");
         });
         $it("should return a sucessfull promse when todo with valid date is accessed", async () => {
-            
+
             let result = await readOption("date", { date }, DutyInstance);
 
             expect(result).toEqual(jasmine.any(Array));
@@ -601,18 +602,18 @@ describe("#duty test", () => {
             });
         });
         $it("should return a sucessfull promise when todo with valid modifiedDate is accessed", async () => {
-            
+
             let result = await addOption("modified todo", undefined, DutyInstance),
                 { hash } = result;
-            
+
             result = await replaceOption(hash,/modified/, "modifying", DutyInstance);
-            
+
             // main test
-            
+
             result = await readOption("date", { modifiedDate }, DutyInstance);
-            
+
             expect(result).toEqual(jasmine.any(Array));
-            
+
             result.forEach( res => {
                 let { modifiedDate: _todoDateModified } = res;
                 expect(_todoDateModified).toBeDefined();
@@ -620,7 +621,7 @@ describe("#duty test", () => {
             });
         });
         $it("should return a sucessful promise when todo with valid modifiedDate and date is specified", async () => {
-            
+
             let result = await readOption("date", { date , modifiedDate }, DutyInstance);
 
             expect(result).toEqual(jasmine.any(Array));
@@ -633,7 +634,7 @@ describe("#duty test", () => {
                 expect(_todoDateModified).toEqual(modifiedDate);
             });
         });
-        
+
         describe("reading todos with urgency type", () => {
             $it("should return a failed promise for invalid urgency type", async () => {
                 let result = await readOption("urgency:fakeurgencytype",undefined,DutyInstance);
@@ -645,7 +646,7 @@ describe("#duty test", () => {
                 expect(urgency).toBeDefined();
                 expect(urgency).toEqual(jasmine.any(Array));
                 expect(urgency).toContain("pending");
-                
+
                 [ { urgency } ] = await readOption("urgency:waiting",undefined,DutyInstance);
 
                 expect(urgency).toContain("waiting");
@@ -657,21 +658,21 @@ describe("#duty test", () => {
                 [ { urgency } ] = await readOption("urgency:later", undefined, DutyInstance);
 
                 expect(urgency).toContain("later");
-                
+
                 [ { urgency } ] = await readOption("urgency:today", undefined,DutyInstance);
-                
+
                 expect(urgency).toContain("today");
-                
+
             });
         });
     });
-    
+
     describe("setting todo priority", () => {
-        
+
         let priorFunc;
-        
+
         $beforeEach( () => {
-            
+
             priorFunc = async (type) => {
                 let { hash } = await addOption(`set priority of todo ${Math.random(5)}`,undefined,DutyInstance);
 
@@ -679,14 +680,14 @@ describe("#duty test", () => {
 
                 return result;
             };
-            
+
         });
-        
+
         $afterEach( () => {
             priorFunc = undefined;
             // delete todo here
         });
-        
+
         $it("should return a failed promise if hash length is less than 9 ", async () => {
             let result = await priorityOption("1233","critical",DutyInstance);
             expect(result).toEqual("hash length is suppose to be 9 but got 4");
@@ -719,7 +720,7 @@ describe("#duty test", () => {
             expect(result).toEqual("hash was not found");
         });
         $it("should add category when category does not exists for a todo", async () => {
-            
+
             let { hash } = await addOption("clean your room", undefined, DutyInstance);
 
             let {category} = await categorizeOption(hash,["chores"],DutyInstance);
@@ -728,7 +729,7 @@ describe("#duty test", () => {
         });
     });
     describe("setting notification state of todos", () => {
-        
+
         $it("should return a failed promise if hash length is less than 9 ", async () => {
             let result = await setnotifyOption("1234","yes",3000,DutyInstance);
             expect(result).toEqual("hash length is suppose to be 9 but got 4");
@@ -740,7 +741,7 @@ describe("#duty test", () => {
         $it("should return a failed promise if specified notification is not supported", async () => {
             let { hash }  = await addOption("unsupported notification", undefined, DutyInstance);
             let result = await setnotifyOption(hash,"fakenotifcationtype",30000,DutyInstance);
-            
+
             expect(result).not.toEqual(jasmine.any(Object));
             expect(result).toEqual("notification state argument needs to be yes or no");
         });
@@ -764,7 +765,7 @@ describe("#duty test", () => {
 
             result = await setnotifyOption(hash,"no", 3000, DutyInstance);
 
-            
+
             expect(result).toEqual(jasmine.any(Object));
 
             ({ notification , timeout } = result);
@@ -772,7 +773,7 @@ describe("#duty test", () => {
             expect(notification).toBeDefined();
             expect(notification).toEqual("no");
         });
-        
+
     });
     describe("test for editing todos", () => {
         $it("should return a failed promise for invalid hash length" , async () => {
@@ -784,15 +785,15 @@ describe("#duty test", () => {
             expect(result).toEqual("hash was not found");
         });
         $it("should return a sucessfull promise if all argument to editOption is valid", async () => {
-            
+
             let { hash } = await addOption("edit todo", undefined, DutyInstance),
-                
+
                 result = await editOption(hash,"this todo has been edited", DutyInstance),
-                
+
                 { todoGroup } = parsedConfig,
-                
+
                 allKeys = Object.keys(todoGroup),
-                
+
                 { hash: _parsedHash, modifiedDate }  = todoGroup[allKeys[allKeys.length - 1]];
 
             expect(_parsedHash).not.toEqual(hash);
@@ -803,7 +804,7 @@ describe("#duty test", () => {
         $it("should return a failed promise when type is date and value is undefined", async () => {
             let result = await deleteOption("date",undefined,DutyInstance);
             expect(result).toEqual("expected two argument but got one, second argument should be a date in dd/mm/yyyy");
-            
+
         });
         $it("should return a failed promise when date format specified is not valid ( of the form dd/mm/yyyy", async () => {
             let result = await deleteOption("date", { value: "05/12/" }, DutyInstance);
@@ -836,9 +837,9 @@ describe("#duty test", () => {
 
             result = await deleteOption("hash",{ value: hash }, DutyInstance),
             { hash } = result;
-            
+
             expect(parsedConfig.todoGroup[hash]).toBeUndefined();
-            
+
         });
 
         $it("should return a failed promise for invalid hash", async () => {
@@ -853,13 +854,13 @@ describe("#duty test", () => {
 
             result = await markCompletedOption(hash,DutyInstance);
             // this expect statement is not essential
-            
+
             expect(parsedConfig.todoGroup[hash].completed).toBeDefined();
-            
+
             result = await deleteOption("completed", undefined , DutyInstance);
-            
+
             expect(parsedConfig.todoGroup[hash]).toBeUndefined();
-            
+
         });
 
         $it("it should not delete any todo when no todo is mark as completed yet", async () => {
@@ -877,21 +878,22 @@ describe("#duty test", () => {
 
             expect(parsedConfig.todoGroup[hash]).toBeUndefined();
         });
-        
+
         $it("should delete todos with a specific category", async () => {
 
             let result = await addOption("this todo belongs to a category", ["do_today", "todaytoday" ], DutyInstance ),
                 { hash } = result;
 
             result = await deleteOption("category", { value: "do_today" }, DutyInstance);
-            
+
             expect(parsedConfig.todoGroup[hash]).toBeUndefined();
-            
-            
+
+
         });
 
         $it("should return a failed promise for invalid delete option", async () => {
             let result = await deleteOption("fakedeleteopton", undefined , DutyInstance);
+            expect(result).toEqual("fakedeleteopton is not supported");
         });
     });
     describe("exporting todos", () => {
@@ -899,9 +901,21 @@ describe("#duty test", () => {
             let result = await exportOption("pdfhtml","qq",DutyInstance);
             expect(result).toEqual("format pdfhtml is not supported");
         });
-        $it("should create html files and css files for html type" , async () => {
+        $it("should not create html files and css files for html type when todo is empty" , async () => {
+
+            let result = await exportOption("html","mytodo",DutyInstance);
+            expect(result).toEqual("todo is empty");
+        });
+
+        $it("should create html files and css files for html type when todo is empty" , async () => {
+
+            await addOption("Hello world", [ "respect" ], DutyInstance);
+
+
             let result = await exportOption("html","mytodo",DutyInstance);
             console.log(result);
         });
+
     });
+
 });
