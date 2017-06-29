@@ -148,9 +148,10 @@ timeout:\t${timeout ? timeout : _configTimeout}
             hashValues = [], j = 0,
             isRead = false,
             cb =  ({due_date,hash}) => {
-
+                
                 if ( Object.keys(todoGroup).length !== j++ ) {
-                    if ( due_date && ReadTodo.HANDLE_DUE_DATE({due_date}) === strToEval ) {
+
+                    if ( (due_date) && ReadTodo.HANDLE_DUE_DATE({due_date}) === strToEval ) {
                         isRead = true;
                         hashValues.push(hash);
                     }

@@ -511,11 +511,11 @@ describe("#duty test", () => {
                         done();
                     });
             });
-            it("should evaluate strings as date", done => {
-
+            xit("should evaluate strings as date", done => {
+                
                 readOption("eval:2 days from now",undefined,DutyInstance)
                     .then( result => {
-
+                        
                         expect(result).toEqual(jasmine.any(Array));
 
                         for ( let i of result ) {
@@ -913,7 +913,16 @@ describe("#duty test", () => {
 
 
             let result = await exportOption("html","mytodo",DutyInstance);
-            console.log(result);
+
+            expect(result).toEqual(jasmine.any(Object));
+
+            expect(path.extname(result._path)).toEqual(".html");
+
+            fs.readFile(result._path, (err,buff) => {
+                expect(err).toBeUndefined();
+                expect(buff.length).toBeGreaterThan(1);
+            });
+            
         });
 
     });

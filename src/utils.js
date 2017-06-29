@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const DutyTodo = require("./duty.js");
 const ReadTodo = require("./readtodo.js");
-const path = require("path");
+const { join, dirname } = require("path");
 const fs = require("fs");
 
 const node_env = () => {
@@ -29,10 +29,9 @@ const getNotePropetry = todoGroup => {
     return { note: getProperty(todoGroup).note };
 };
 function isExists(file,commander) {
-
-    let fileContent,
-        _file = path.join(path.dirname(__dirname), file);
-
+    
+    let fileContent, _file = join(dirname(__dirname), file);
+    
     if ( fs.existsSync(_file) && (fileContent = fs.readFileSync(_file) ) &&
 fs.existsSync(JSON.parse(fileContent.toString()).location) )  {
         
@@ -347,20 +346,20 @@ function exportOption(type,path,ff) {
                   MESSAGE = `file location ${_path}\n`; 
             if ( _path && _pathDir ) {
                 
-                let cssContent = fs.readFileSync("../assets/duty.css").toString();
+                let cssContent = fs.readFileSync(join(__dirname, "assets", "duty.css")).toString();
                 
-                cssContent  = fs.writeFileSync(cssContent, `${_pathDir}/duty.css`);
+                cssContent  = fs.writeFileSync(`${_pathDir}/duty.css`, cssContent);
 
 
                 
-                let imgContent = fs.readFileSync("../assets/logo.png").toString();
+                let imgContent = fs.readFileSync(join(__dirname, "assets","logo.png")).toString();
                 
                 imgContent = fs.writeFileSync(`${_pathDir}/logo.png`);
-
+                
                 env(MESSAGE);
                 return { _pathDir, _path };
             }
-
+            
             env(MESSAGE);
 
             return { _path };

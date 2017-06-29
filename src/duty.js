@@ -169,7 +169,7 @@ class DutyTodo {
 
             let _n = gen.next(),
                 f;
-
+            
 
             // this is done to fix errors, in doing any kind of operation on todo
             //    when todo content is empty;
@@ -247,7 +247,6 @@ class DutyTodo {
                     if ( Array.isArray(f) && f.length !== 0 ) {
                         resolve(f);
                     } else if ( typeof(f) === "object" && f.hasOwnProperty("_path") ) {
-                        console.log(f);
                         resolve(f);
                     }
 
