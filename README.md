@@ -3,12 +3,31 @@
 [![Logo](src/assets/logo.png)](assets/logo.jpg)
 
 
-[duty.js](https://github.com/zombieleet/duty) is a lightweight commandline todo application with desktop notification 
+[![NPM version](https://img.shields.io/npm/v/duty.svg?style=flat-square)](https://www.npmjs.com/package/duty-js)
+[![Build](https://travis-ci.org/zombieleet/duty.svg?branch=master)](https://travis-ci.org/zombieleet/duty)
+[![Coverage Status](https://coveralls.io/repos/github/zombieleet/duty/badge.svg?branch=master)](https://coveralls.io/github/zombieleet/duty?branch=master)
+
 
 
 ## Installation
 
 `npm install -g duty-js`
+
+
+# TESTING
+
+`git clone https://github.com/zombieleet/duty`
+
+`npm install`
+
+`export NODE_ENV=development`
+
+`npm test`
+
+`npm run coverage`
+
+`npm run showcoverage`
+
 
 
 ## usage
@@ -71,7 +90,7 @@ supported types are
 1. hash < deletes a todo that has the value of hash>
 2. completed < deletes all completed todo >
 3. category:type < deletes all todo with a `type` category >
-4. date (requires a date argument in this format dd/mm/yy) < deletes all todo that matches a specific date >
+4. date (requires a date argument in this format dd/mm/yyyy) < deletes all todo that matches a specific date >
 5. all < removes all todo >
 
 # supported for deleting todos
@@ -82,7 +101,7 @@ supported types are
 
 `duty delete category:food`
 
-`duty delete date:mm/dd/yy`
+`duty delete date:dd/mm/yyyy`
 
 `duty delete all`
 
@@ -96,6 +115,7 @@ supported types are
 4. urgency:type ( read all todo thas have the type urgency)
 5. completed ( reads all completed todo)
 6. notcompleted ( reads all todo that has not been marked completed)
+7. eval
 
 **example**
 	
@@ -117,15 +137,16 @@ supported types are
 
 `duty read urgency:today`
 
-## new way of reading todos
-
-**The eval read option , reads the due date of todos as a string**
-
 `duty read eval:"today"`
 
-`duty read eval:"2days before now"`
+`duty read eval:"2 day(s) before now"`
 
-`duty read eval:"5days from now"`
+`duty read eval:"5 day(s) from now"`
+
+`duty read eval:today`
+
+**note:** The previous way of evaluating todo as string is no longer supported 
+
 
 **urgency**
 
@@ -174,7 +195,7 @@ supported types are
         This subcommand sets a due date for a particular todo. It takes to argument, a valid hash id and a date 
         Both arguments are compulsory
 
-`duty due 8cab293f8 4/16/2017`
+`duty due 8cab293f8 04/16/2017`
 
 **export**
 
@@ -218,11 +239,16 @@ The first argument is the hash of the todo, while the second argument is the tex
 
 	hash length that is greater than 4 can be use with any subcommand that requires hash as an argument
 
-# what changed in v2
+# what changed in v3
 
-1. new way of reading todos with the use of eval
-2. the way to delete todos has changed, check the above documentation on how to delete todos
-3. The ability to get notified only in OSX ( with launchd ) ( behaviour not defined ) and linux systems with systemd as the daemon manager
+1. Bug in evaluating todo due date is fixed ( check the read section to see how to read due date as string )
+2. The status option have been removed
+3. The set_notify options no longer takes a true or false value, it takes a yes or no value as it's third argument
+4. when reading a todo with notifcation type, only notification with the yes value is read
+5. every subcommand executed will output a result
+6. Format for date has been permanently changed DD/MM/YYYY
+7. new todo are automatically set with a `no` notification
+8. todos without category are automatically set to general
 
 # how to set notification
 
@@ -238,21 +264,16 @@ The date format should be in MM/DD/YYYY
 
 **set_notify** This subcommand takes three argument
 
-The first argument is the hash value of the todo, the second argument is to set the notification of that hash to be true or false , the third argument is the timeout of the notification
+The first argument is the hash value of the todo, the second argument is to set the notification of that hash to be yes or no , the third argument is the timeout of the notification
 
-`duty set_notify 23abcdef false 3000` // all the arguments are required, the first argument `set_notify` sets the notification, the second argument is the hash to work on, the fourth argument ( false ) disables notification, the fifth argument 3000 specifies the timeout of a notification
+`duty set_notify 23abcdef no 3000` // all the arguments are required, the first argument `set_notify` sets the notification, the second argument is the hash to work on, the fourth argument ( no ) disables notification, the fifth argument 3000 specifies the timeout of a notification
 
 # the daemon method
 
 The daemon method is used by the daemon manager of your O.S , running it from the command line won't do anything special
 
 
-# FIX
-
-1. Proper date validation
-2. Proper directory handling in windows, when duty is executed for the first time
-3. Bug that overwrites json file where todo is been saved, this bug is as result of installing new versions of duty
-4. Fix Bug in exporting todo for html
+**if you discover any bug , please kindly create an issue or if you want to add something to duty create a pull request. Thanks**
 
 ## LICENSE
 

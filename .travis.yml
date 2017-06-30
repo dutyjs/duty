@@ -1,0 +1,14 @@
+sudo: false
+language: node_js
+node_js:
+  - "8.1.2"
+env:
+  global:
+    - export NODE_ENV=development
+
+script:
+  - npm test
+  - npm run lint
+after_success:
+  - npm run coverage
+  - npm run coveralls
