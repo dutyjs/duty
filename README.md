@@ -5,13 +5,29 @@
 
 [![NPM version](https://img.shields.io/npm/v/duty.svg?style=flat-square)](https://www.npmjs.com/package/duty-js)
 [![Build](https://travis-ci.org/zombieleet/duty.svg?branch=master)](https://travis-ci.org/zombieleet/duty)
-[![codecov.io](https://codecov.io/github/zombieleet/duty/coverage.svg?branch=master)](https://codecov.io/github/zombieleet/duty?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/zombieleet/duty/badge.svg?branch=master)](https://coveralls.io/github/zombieleet/duty?branch=master)
 
 
 
 ## Installation
 
 `npm install -g duty-js`
+
+
+# TESTING
+
+`git clone https://github.com/zombieleet/duty`
+
+`npm install`
+
+`export NODE_ENV=development`
+
+`npm test`
+
+`npm run coverage`
+
+`npm run showcoverage`
+
 
 
 ## usage
@@ -257,6 +273,7 @@ The first argument is the hash value of the todo, the second argument is to set 
 The daemon method is used by the daemon manager of your O.S , running it from the command line won't do anything special
 
 
+**if you discover any bug , please kindly create an issue or if you want to add something to duty create a pull request. Thanks**
 
 ## LICENSE
 
