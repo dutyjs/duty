@@ -11,5 +11,6 @@ before_script:
   - npm install --save-dev gulp
 script:
   - gulp
+  - npm run lint
 after_success:
   - rm -rf coverage/
