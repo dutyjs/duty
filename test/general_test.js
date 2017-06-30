@@ -44,9 +44,7 @@ describe("#duty test", () => {
         fs.writeFileSync(_test, JSON.stringify({}));
 
         fs.writeFileSync(test_config2, JSON.stringify({
-            location: _test,
-            notification: "yes",
-            timeout: 60000,
+            location: _test
         }));
 
 
@@ -454,7 +452,7 @@ describe("#duty test", () => {
             });
         });
         
-        fdescribe("reading notificatons", () => {
+        describe("reading notificatons", () => {
             let hash;
             $beforeEach( async () => {
                 ({hash} = await addOption("todo with notication", undefined, DutyInstance));
@@ -482,33 +480,63 @@ describe("#duty test", () => {
                 });
 
                 result = await readOption("notification", undefined, DutyInstance);
-                console.log("the specified type is not available for reading");
+                expect(result).toEqual("the specified type is not available for reading");
             });            
         });
         describe("reading todo by evaluating strings", () => {
-            beforeEach( done => {
-                addOption("Hello adding new todo",undefined,DutyInstance)
-                    .then( result => {
-                        const { hash } = result;
-                        dueOption(hash,moment().add(2, "days").format("DD/MM/YYYY"), DutyInstance)
-                            .then( result => { /* do nothing */ });
-                        done();
-                    });
-            });
-            xit("should evaluate strings as date", done => {
+            
+            $it("should evaluate strings as date ( future )", async () => {
                 
-                readOption("eval:2 days from now",undefined,DutyInstance)
-                    .then( result => {
-                        
-                        expect(result).toEqual(jasmine.any(Array));
+                let result = await addOption("Hello adding new todo",undefined,DutyInstance),
+                    { hash } = result;
+                
+                await dueOption(hash,moment().add(2, "days").format("DD/MM/YYYY"), DutyInstance);
+                
+                result = await readOption("eval:1 day(s) from now",undefined,DutyInstance);
+                
+                for ( let i of result ) {
+                    let { due_date } = i;
+                    expect(ReadTodo.HANDLE_DUE_DATE({due_date})).toEqual("1 day(s) from now");
+                }
 
-                        for ( let i of result ) {
-                            let { due_date } = i;
-                            expect(ReadTodo.HANDLE_DUE_DATE({due_date})).toEqual("2 days from now");
-                        }
-                        done();
-                    });
+                await deleteOption("hash", { value: hash }, DutyInstance);
+                
             });
+
+            $it("should evaluate strings as date ( past date )", async () => {
+                let result = await addOption("Hello adding new todo",undefined,DutyInstance),
+                    { hash } = result;
+                await dueOption(hash,moment().subtract(2, "days").format("DD/MM/YYYY"), DutyInstance);
+                
+                result = await readOption("eval:2 day(s) before now",undefined,DutyInstance);
+
+
+                for ( let i of result ) {
+                    let { due_date } = i;
+                    expect(ReadTodo.HANDLE_DUE_DATE({due_date})).toEqual("2 day(s) before now");
+                }
+
+                await deleteOption("hash", { value: hash }, DutyInstance);
+                
+            });
+            $it("should evalute strings as date ( current date )", async () => {
+                
+                let result = await addOption("Hello adding new todo",undefined,DutyInstance),
+                    { hash } = result;
+                result = await dueOption(hash,moment().format("DD/MM/YYYY"), DutyInstance);
+                
+                result = await readOption("eval:today",undefined,DutyInstance);
+
+                
+                for ( let i of result ) {
+                    let { due_date } = i;
+                    expect(ReadTodo.HANDLE_DUE_DATE({due_date})).toEqual("today");
+                }
+
+                await deleteOption("hash", { value: hash }, DutyInstance);                
+            });
+
+            
         });
         describe("reading todo with due date", () => {
             $it("should return a failed promise when due is set as type and date is undefined", async ()  => {

@@ -1,62 +1,54 @@
-const { Duplex } = require('stream');
-const { appendFileSync, writeFileSync, readFileSync, createWriteStream } = require('fs');
-const { dirname , extname, join }  = require('path');
-const fs = require('fs');
-
+const { Duplex } = require("stream");
+const { appendFileSync, writeFileSync, readFileSync, createWriteStream } = require("fs");
+const { dirname, extname, join } = require("path");
+const fs = require("fs");
 
 class ExportTodo {
+  constructor () {}
 
-    constructor() {}
+  static createExport () {
+    return new ExportTodo();
+  }
+  export ({type, DutyTodo, self, path}) {
+    this.type = type;
+    this.DutyTodo = DutyTodo;
+    this._this = self;
+    this._path = (extname(path) !== `.${type}`)
+      ? `${path}.${type}` : path;
 
-    static createExport() {
-        return new ExportTodo();
-    }
-    export({type,DutyTodo,self,path}) {
-        this.type = type;
-        this.DutyTodo = DutyTodo;
-        this._this = self;
-        this._path = ( extname(path) !== `.${type}` )
-            ? `${path}.${type}` : path;
+    this._pathDir = dirname(this._path);
+    return this[this.type]();
+  }
 
-        this._pathDir = dirname(this._path);
-        return this[this.type]();
-    }
-
-    static BUILDHTML({key: type,prop: value}) {
-
-        const BUILD_HTML = `
+  static BUILDHTML ({key: type, prop: value}) {
+    const BUILD_HTML = `
 <tr>
    <td> ${type} </td>
-   <td>${Array.isArray(value) ? ExportTodo.FlattenArray(value,"ul","li") : value}</td>
+   <td>${Array.isArray(value) ? ExportTodo.FlattenArray(value, "ul", "li") : value}</td>
 </tr>
 `;
 
-        return BUILD_HTML;
-    }
-    static FlattenArray(arr,parent,children) {
+    return BUILD_HTML;
+  }
+  static FlattenArray (arr, parent, children) {
+    let BUILD_LIST = `<${parent}>`;
 
-        let BUILD_LIST = `<${parent}>`;
-
-        for ( let i of arr ) {
-
-            BUILD_LIST += `
+    for (let i of arr) {
+      BUILD_LIST += `
 <${children}>
    ${i}
 </${children}>
 `;
-
-        }
-
-        BUILD_LIST += `      </${parent}>`;
-
-        return BUILD_LIST;
-
     }
-    html() {
 
-        let { _path , _pathDir, DutyTodo, _this  } = this,
-            
-            buildHtml = `
+    BUILD_LIST += `      </${parent}>`;
+
+    return BUILD_LIST;
+  }
+  html () {
+    let { _path, _pathDir, DutyTodo, _this } = this,
+
+      buildHtml = `
 <!doctype html>
 <html>
    <head>
@@ -69,15 +61,14 @@ class ExportTodo {
 <div>
 `;
 
-        writeFileSync(_path, "");
+    writeFileSync(_path, "");
 
+    let { todoGroup } = _this.MANAGER, j = 0,
 
-        let { todoGroup } = _this.MANAGER, j = 0,
-            
-            cb = opt => {    
-                j++;
-                let { hash } = opt;
-                buildHtml += `
+      cb = opt => {
+        j++;
+        let { hash } = opt;
+        buildHtml += `
 
 <table>
    <thead>
@@ -85,101 +76,90 @@ class ExportTodo {
    </thead>
 `;
 
+        for (let [key, prop] of Object.entries(opt)) {
+          if (key === hash) continue;
+          const RET_VALUE = ExportTodo.BUILDHTML({key, prop});
 
-                for ( let [key,prop] of Object.entries(opt) ) {
+          buildHtml += RET_VALUE;
+        }
 
-                    if ( key === hash ) continue ;
-                    const RET_VALUE = ExportTodo.BUILDHTML({key,prop});
+        buildHtml += "</table>";
 
-                    buildHtml += RET_VALUE;
-                }
+        appendFileSync(_path, buildHtml);
 
-                buildHtml += "</table>";
+        buildHtml = "";
 
-                appendFileSync(_path, buildHtml);
-
-                buildHtml = "";
-
-                if ( Object.keys(todoGroup).length === j ) {
-
-                    buildHtml = `
+        if (Object.keys(todoGroup).length === j) {
+          buildHtml = `
 </div>
 </body>
 </html>
 `;
-                    appendFileSync(_path, buildHtml);
-                    
-                    return { _pathDir, _path };
-                }
-            };
-        
-        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
+          appendFileSync(_path, buildHtml);
 
-    }
-    json() {
-        
-        let { _this, DutyTodo, _path, _pathDir} = this;
+          return { _pathDir, _path };
+        }
+      };
 
-        return DutyTodo.CALLGENERATORYLOOP(_this, () => {
-            return { _path };
-        });
+    return DutyTodo.CALLGENERATORYLOOP(_this, cb);
+  }
+  json () {
+    let { _this, DutyTodo, _path, _pathDir} = this;
 
-    }
-    xml() {
-        let { _path, DutyTodo, _this } = this,
-            Build_xml = `<?xml version="1.0" encoding="UTF-8"?>
+    return DutyTodo.CALLGENERATORYLOOP(_this, () => {
+      return { _path };
+    });
+  }
+  xml () {
+    let { _path, DutyTodo, _this } = this,
+      Build_xml = `<?xml version="1.0" encoding="UTF-8"?>
 <duty>
 `;
 
-        writeFileSync(_path, "");
+    writeFileSync(_path, "");
 
-        let  { todoGroup } = _this.MANAGER,
-            j = 0,
-            cb = (opt) => {
+    let { todoGroup } = _this.MANAGER,
+      j = 0,
+      cb = (opt) => {
+        j++;
 
-                j++;
+        let { hash } = opt;
 
-                let { hash } = opt;
-
-                Build_xml += `
+        Build_xml += `
 <id hash="${hash}">
 `;
-                for ( let [key,prop] of Object.entries(opt) ) {
+        for (let [key, prop] of Object.entries(opt)) {
+          if (key === hash) continue;
 
-                    if ( key === hash ) continue ;
-
-                    Build_xml += `
+          Build_xml += `
 <${key}>
 ${Array.isArray(prop)
-        ? ExportTodo.FlattenArray(prop,"_parent","_child")
-        : prop}
+    ? ExportTodo.FlattenArray(prop, "_parent", "_child")
+    : prop}
 </${key}>
 `;
-                }
+        }
 
-
-                Build_xml += `
+        Build_xml += `
 </id>
 `;
 
-                appendFileSync(_path, Build_xml);
+        appendFileSync(_path, Build_xml);
 
-                Build_xml = "";
+        Build_xml = "";
 
-                if ( Object.keys(todoGroup).length === j ) {
-
-                    Build_xml = `
+        if (Object.keys(todoGroup).length === j) {
+          Build_xml = `
 </duty>
 `;
-                    appendFileSync(_path, Build_xml);
+          appendFileSync(_path, Build_xml);
 
-                    return { _path };
-                }
-            };
+          return { _path };
+        }
+      };
 
-        return DutyTodo.CALLGENERATORYLOOP(_this,cb);
-
-    }
+    return DutyTodo.CALLGENERATORYLOOP(_this, cb);
+  }
 }
 
 module.exports = ExportTodo;
