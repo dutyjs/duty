@@ -18,8 +18,8 @@ gulp.task("run_coverage", () => {
     });
 });
 
-gulp.task("watch", () => {
+/*gulp.task("watch", () => {
     gulp.watch(["test/general_test.js", "cli.js", "src/*.js"],["run_npm_test","run_coverage"]);
-});
+});*/
 
-gulp.task("default", ["run_npm_test","run_coverage","watch"]);
+gulp.task("default", ["run_npm_test","run_coverage"]);
