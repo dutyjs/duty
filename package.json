@@ -7,20 +7,22 @@
   },
   "scripts": {
     "start": "node ./cli.js",
-    "lint": "eslint src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js",
-    "lint_fix": "eslint --fix src/duty.js src/deletetodo.js src/platform.js src/daemonconfig.js src/daemon.js"
+    "test": "jasmine test/general_test.js",
+    "coverage": "istanbul cover node_modules/jasmine/bin/jasmine.js test/general_test.js",
+    "showcoverage": "firefox /root/PERSONAL_PROJECTS/duty/coverage/lcov-report/index.html &>/dev/null &",
+    "lint": "eslint src/*.js cli.js index.js",
+    "lintfix": "eslint --fix src/*.js cli.js index.js"
   },
   "dependencies": {
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "control-js": "^1.0.2",
-    "keypress": "^0.2.1",
     "mkdirp": "^0.5.1",
     "moment": "^2.18.1",
     "node-notifier": "^5.1.2"
   },
   "license": "MIT",
-  "version": "2.4.5-doc",
+  "version": "3.0.0",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -35,5 +37,29 @@
   "bugs": {
     "url": "https://github.com/zombieleet/duty/issues"
   },
-  "homepage": "https://github.com/zombieleet/duty#readme"
+  "homepage": "https://github.com/zombieleet/duty#readme",
+  "devDependencies": {
+    "async-await-jasmine": "0.0.2",
+    "ava": "^0.16.0",
+    "babel-eslint": "^7.2.3",
+    "co-exec": "^1.0",
+    "codecov": "^1.0.1",
+    "eslint": "^4.1.1",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.6.1",
+    "eslint-plugin-node": "^5.1.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "ghooks": "^1.2.4",
+    "istanbul": "^0.4.5",
+    "jasmine": "^2.6.0",
+    "nyc": "^10.0.0",
+    "standard": "^10.0.2",
+    "travis": "^0.1.1"
+  },
+  "config": {
+    "ghooks": {
+      "pre-commit": "npm run standard"
+    }
+  }
 }
