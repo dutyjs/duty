@@ -3,7 +3,7 @@
 [![Logo](src/assets/logo.png)](assets/logo.jpg)
 
 
-[![NPM version](https://img.shields.io/npm/v/duty.svg?style=flat-square)](https://www.npmjs.com/package/duty-js)
+
 [![Build](https://travis-ci.org/zombieleet/duty.svg?branch=master)](https://travis-ci.org/zombieleet/duty)
 [![Coverage Status](https://coveralls.io/repos/github/zombieleet/duty/badge.svg?branch=master)](https://coveralls.io/github/zombieleet/duty?branch=master)
 
