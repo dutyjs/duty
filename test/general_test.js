@@ -985,14 +985,15 @@ describe("#duty test", () => {
             expect(result).toEqual("platfrom is not supported");
             
         });
-        
-        $it("should return a successful promise for linux operating systems", async () => {
-
-            //let result = await execDaemonOption(platform,DutyInstance);
-
-            //expect(result).toEqual("daemon has been created");
+        if ( platform() === "linux" )
             
-        });
+            $it("should return a successful promise for linux operating systems", async () => {
+
+                let result = await execDaemonOption(platform,DutyInstance);
+                
+                expect(result).toEqual("daemon has been created");
+                
+            });
         
         if ( platform() === "darwin" )
             
