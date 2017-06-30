@@ -6,11 +6,9 @@ env:
   global:
     - export NODE_ENV=development
 
-before_script:
-  - npm install -g gulp-cli
-  - npm install --save-dev gulp
 script:
-  - gulp
+  - npm test
   - npm run lint
 after_success:
+  - npm run coverage
   - npm run coveralls
