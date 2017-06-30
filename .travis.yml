@@ -13,4 +13,4 @@ script:
   - gulp
   - npm run lint
 after_success:
-  - rm -rf coverage/
+  - npm run coveralls
