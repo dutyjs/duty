@@ -879,41 +879,44 @@ class DutyTodo {
 
   daemon () {
     // this daemon method is to be use only the daemon manager
+        
     const self = this;
-
+        
     setInterval(_ => {
+            
       let readDaemonObject = {
         type: "due",
         opt: {
-
-          date: moment().format("DD/MM/YYYY"),
-
-          _cb ({
-            content,
-            hash,
-            due_date,
-            notification,
-            timeout
-          }) {
-            if (notification === "no" ) return false;
-
-            setTimeout(_ => {
-              Notify.notify({
-                title: `Todo ${hash} is due for today ${due_date}`,
-                icon: join(__dirname, "src/assets/logo.png"),
-                message: content,
-                sound: true,
-                wait: true
-              });
-            }, Number(timeout));
-          }
+          date: moment().format("DD/MM/YYYY")
         },
         self,
         DutyTodo
       };
 
+            
       const daemonRead = ReadTodo.createType();
+            
       daemonRead.handleRead(readDaemonObject)
+        .then( foundDue => {
+
+          foundDue.forEach( found => {
+                        
+            const { hash, notification, content, timeout, content: message , due_date } = this.MANAGER.todoGroup[found];
+
+            if ( notification === "no" ) return ;
+                        
+            setTimeout( () => {
+              Notify.notify({
+                title: `Todo ${hash} is due for today ${due_date}`,
+                icon: join(__dirname, "src/assets/logo.png"),
+                message,
+                sound: true,
+                wait: true
+              });
+            }, Number(timeout));
+                        
+          });
+        })
         .catch(err => {
           console.log(err);
         });
