@@ -2,7 +2,9 @@
 
 const ff = require("./index.js");
 const commander = require("commander");
+const os = require("os");
 const {
+  execDaemonOption,
   exportOption,
   deleteOption,
   editOption,
@@ -163,7 +165,7 @@ commander
   .command("create-service")
   .description("creates a service file to handle daemons for background notification")
   .action(() => {
-    ff.execDaemon();
+    execDaemonOption(os.platform,ff);
   });
 commander
   .command("edit <hash> <text>")
