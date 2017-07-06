@@ -941,6 +941,10 @@ describe("#duty test", () => {
             fs.unlink(join(result._pathDir, "duty.css"), err => {
                 expect(err).toBeNull();
             });
+
+            fs.unlink(join(result._pathDir, "logo.png"), err => {
+                expect(err).toBeNull();
+            });
             
         });
 
