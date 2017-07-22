@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 // const mkdirp = require('mkdirp');
 const os = require("os");
-const confLocation = path.join(__dirname, "config.json")
+const confLocation = path.join(__dirname, "config.json");
 function isCFGLocation(location) {
   return fs.existsSync(location);
 }

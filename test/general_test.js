@@ -920,7 +920,6 @@ describe("#duty test", () => {
         });
 
         $it("should create html files and css files for html type when todo is not empty" , async () => {
-            
             await addOption("Hello world", [ "respect" ], DutyInstance);
 
 
