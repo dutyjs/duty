@@ -36,7 +36,7 @@ describe("#duty test", () => {
         test_config = join(__dirname,"test_config.json"),
         test_config2 = join(__dirname, "test_config2.json"),
         _test = join(__dirname, ".test.json");
-
+        
         fs.writeFileSync(test_config, JSON.stringify({
             location: "not_valid_location"
         }));
@@ -919,11 +919,13 @@ describe("#duty test", () => {
             expect(result).toEqual("todo is empty");
         });
 
-        $it("should create html files and css files for html type when todo is empty" , async () => {
+        $it("should create html files and css files for html type when todo is not empty" , async () => {
             
             await addOption("Hello world", [ "respect" ], DutyInstance);
 
+
             let result = await exportOption("html","mytodo",DutyInstance);
+            
 
             expect(result).toEqual(jasmine.any(Object));
 
@@ -965,7 +967,7 @@ describe("#duty test", () => {
         });
         $it("should return a sucessfull promise for xml types", async () => {
             let result = await exportOption("xml", "mytodo", DutyInstance);
-
+         
             expect(result).toEqual(jasmine.any(Object));
             expect(result._path).toBeDefined();
             expect(extname(result._path)).toEqual(".xml");
