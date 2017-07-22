@@ -2,15 +2,13 @@ const fs = require("fs");
 const path = require("path");
 // const mkdirp = require('mkdirp');
 const os = require("os");
-
-
+const confLocation = path.join(__dirname, "config.json")
 function isCFGLocation(location) {
   return fs.existsSync(location);
 }
 try {
 
-  const config = require("./config.json");
-
+  const config = require(confLocation);
   Object.assign(config, {
     todoGroup: require(config.location)
   });
@@ -26,7 +24,7 @@ try {
   (() => {
     const rl = require("readline");
     const DEFAULT = `${path.join(os.homedir(), ".duty.json")}`;
-
+    
     const _interface = rl.createInterface({
       input: process.stdin,
       output: process.stdout
@@ -60,7 +58,7 @@ try {
           if ( ! isCFGLocation(config.location) )
             fs.writeFileSync(config.location, "{}");
 
-          fs.writeFileSync("./config.json", JSON.stringify(config));
+          fs.writeFileSync(confLocation, JSON.stringify(config));
 
           module.exports = new(require("./src/duty.js"))(config);
 
@@ -92,7 +90,7 @@ try {
           if ( ! isCFGLocation(config.location) )
             fs.writeFileSync(config.location, "{}");
                     
-          fs.writeFileSync("./config.json", JSON.stringify(config));
+          fs.writeFileSync(confLocation, JSON.stringify(config));
 
           module.exports = new(require("./src/duty.js"))(config);
 
