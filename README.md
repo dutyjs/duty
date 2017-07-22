@@ -195,7 +195,7 @@ supported types are
         This subcommand sets a due date for a particular todo. It takes to argument, a valid hash id and a date 
         Both arguments are compulsory
 
-`duty due 8cab293f8 04/16/2017`
+`duty due 8cab293f8 16/04/2017`
 
 **export**
 
@@ -260,7 +260,7 @@ Before the notification feature will work , you have to set the due date of that
 
 `duty due <hash> <date>` 
 
-The date format should be in MM/DD/YYYY
+The date format should be in DD/MM/YYYY
 
 **set_notify** This subcommand takes three argument
 
