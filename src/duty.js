@@ -872,7 +872,7 @@ class DutyTodo {
     try {
       return Daemon.CreateDaemon(platform());
     } catch (ex) {
-        // this block of code should never execute
+      // this block of code should never execute
       return Promise.reject("platfrom is not supported");
     }
   }
