@@ -268,6 +268,9 @@ The daemon method is used by the daemon manager of your O.S , running it from th
 
 **if you discover any bug , please kindly create an issue or if you want to add something to duty create a pull request. Thanks**
 
+# BUG 
+if you encounter an error while running duty after setting up a location to save todos, see issue#4
+
 ## LICENSE
 
 MIT 
