@@ -245,7 +245,9 @@ The first argument is the hash of the todo, while the second argument is the tex
 
 # how to set notification
 
-run `duty create-service`
+run `sudo duty create-service` i.e if you are not root user
+
+
 
 Notification is supported on both OSX ( with launchd as it's daemon manager) ( the behaviour is not defined ) and linux ( with systemd daemon manager )
 

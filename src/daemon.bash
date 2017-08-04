@@ -72,6 +72,7 @@ service duty-js restart &>/dev/null
 }
 __launchd() {
     local _path="${1}"
+    mkdir -p ~/Library/LaunchAgents/
     cat <<EOF > ~/Library/LaunchAgents/com.duty.js.plist
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
