@@ -239,16 +239,9 @@ The first argument is the hash of the todo, while the second argument is the tex
 
 	hash length that is greater than 4 can be use with any subcommand that requires hash as an argument
 
-# what changed in v3
+# what changed in v3.1.0
 
-1. Bug in evaluating todo due date is fixed ( check the read section to see how to read due date as string )
-2. The status option have been removed
-3. The set_notify options no longer takes a true or false value, it takes a yes or no value as it's third argument
-4. when reading a todo with notifcation type, only notification with the yes value is read
-5. every subcommand executed will output a result
-6. Format for date has been permanently changed DD/MM/YYYY
-7. new todo are automatically set with a `no` notification
-8. todos without category are automatically set to general
+1. A major bug fix, that causes an EPERM error whenever writing to the config.json file
 
 # how to set notification
 
