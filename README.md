@@ -209,13 +209,13 @@ supported types are
 
 **example**
 
-`duty export html /root/duty.html`
+`duty export html /home/victory/duty.html`
 
-`duty export html /root/duty`
+`duty export html /home/victory/duty`
 
-`duty export xml /root/duty`
+`duty export xml /home/victory/duty`
 
-`duty export xml /root/duty.xml`
+`duty export xml /home/victory/duty.xml`
 
 
 **status** status subcommand shows you a breakdwon of the todos
