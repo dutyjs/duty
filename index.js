@@ -1,13 +1,16 @@
 const fs = require("fs");
 const path = require("path");
 // const mkdirp = require('mkdirp');
-const os = require("os");
+const { homedir }  = require("os");
 
-const confLocation = path.join(__dirname, "config.json");
+const confLocation = path.join(homedir(), ".duty.config.json");
+
+if ( ! fs.existsSync(confLocation) ) fs.writeFileSync(confLocation,"{}");
 
 function isCFGLocation(location) {
   return fs.existsSync(location);
 }
+
 try {
 
   const config = require(confLocation);
@@ -25,7 +28,7 @@ try {
   ;
   (() => {
     const rl = require("readline");
-    const DEFAULT = `${path.join(os.homedir(), ".duty.json")}`;
+    const DEFAULT = `${path.join(homedir(), ".duty.json")}`;
     
     const _interface = rl.createInterface({
       input: process.stdin,
