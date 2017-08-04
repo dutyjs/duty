@@ -18,14 +18,17 @@ const {
     appendOption,
     addOption,
     isExists,
-    node_env } = require("../src/utils.js");
+    node_env
+} = require("../src/utils.js");
 
 const crypto = require("crypto");
 const moment = require("moment");
 const ReadTodo = require("../src/readtodo.js");
-const { $it ,
-        $beforeEach,
-        $afterEach } = require("async-await-jasmine");
+const {
+    $it ,
+    $beforeEach,
+    $afterEach
+} = require("async-await-jasmine");
 
 describe("#duty test", () => {
 
@@ -57,7 +60,6 @@ describe("#duty test", () => {
         DutyClass = require("../src/duty.js");
 
         DutyInstance = new DutyClass(parsedConfig);
-
 
     });
 
